@@ -100,12 +100,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mCard.pet{grid-column:1/-1;background:linear-gradient(120deg,rgba(244,114,182,.3),rgba(124,58,237,.16));
  display:flex;align-items:center;gap:16px;padding:18px}
 .mCard.pet .ic{margin:0;font-size:34px}
-.moodBox{display:flex;align-items:center;gap:14px;margin:0 var(--pad) 0;padding:16px;border:1px solid var(--line);
- background:linear-gradient(120deg,rgba(167,139,250,.22),rgba(14,165,233,.1));border-radius:20px}
-.moodBox .moodEmoji{font-size:42px;flex:none}
-.moodBox .moodTxt{flex:1;min-width:0}
-.moodBox .moodTxt b{font-size:15px;font-weight:700;display:block}
-.moodBox .moodTxt p{font-size:11.5px;color:var(--dim2);margin-top:4px;line-height:1.5}
+.moodBox{position:relative;margin:0 var(--pad) 0;padding:18px 18px 16px;border:1px solid var(--line);
+ background:linear-gradient(135deg,rgba(167,139,250,.16),rgba(14,165,233,.08));border-radius:22px;overflow:hidden}
+.moodTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.moodTxt{flex:1;min-width:0}
+.moodTxt b{font-size:17px;font-weight:700;display:block}
+.moodTxt p{font-size:11.5px;color:var(--dim2);margin-top:4px;line-height:1.5}
+.moodHeartWrap{display:flex;align-items:center;gap:16px;margin:16px 0 12px}
+.moodHeart{font-size:54px;line-height:1;filter:grayscale(.85) brightness(.55) opacity(.9);transition:filter .6s ease,transform .6s ease;flex:none}
+.moodHeart.fill{filter:none;transform:scale(1.06)}
+.moodBarTrack{flex:1;height:10px;background:rgba(255,255,255,.09);border-radius:99px;overflow:hidden}
+.moodBarFill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#34d399,#22d3ee,#a78bfa,#fb7185);
+ background-size:200% 100%;transition:width .7s cubic-bezier(.22,1,.36,1);animation:moodSlide 3s linear infinite}
+@keyframes moodSlide{to{background-position:-200% 0}}
+.moodPct{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;flex:none;text-align:right}
+.moodPct small{display:block;font-size:10px;color:var(--dim2);font-weight:600;margin-top:2px}
+.moodPill{position:absolute;right:18px;bottom:16px;font-size:12px;font-weight:700;color:#12121f;
+ background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:99px;padding:9px 16px;cursor:pointer;
+ box-shadow:0 8px 20px rgba(124,58,237,.4);transition:transform .15s}
+.moodPill:active{transform:scale(.93)}
 .mCard.tiup .tb{flex:1;min-width:0}
 .mCard.tiup .ar{font-size:22px;opacity:.6}
 .segs{display:flex;gap:6px;margin:0 var(--pad);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:15px;padding:5px}
@@ -504,9 +517,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div class="secTitle" style="margin-bottom:10px">Emosi saya sekarang</div>
     <div class="moodBox" id="moodBox">
-      <div class="moodEmoji" id="moodEmoji">🧘</div>
-      <div class="moodTxt"><b id="moodLabel">Sedang baca…</b><p id="moodNota"></p></div>
-      <button class="btn teal sm" onclick="tukarView('pet')">Jaga pet</button>
+      <div class="moodTop">
+        <div class="moodTxt"><b id="moodLabel">Sedang baca…</b><p id="moodNota"></p></div>
+      </div>
+      <div class="moodHeartWrap">
+        <div class="moodHeart" id="moodHeart">🤍</div>
+        <div class="moodBarTrack"><div class="moodBarFill" id="moodBar"></div></div>
+        <div class="moodPct"><span id="moodPctNum">0</span><small>/ 100</small></div>
+      </div>
+      <button class="moodPill" onclick="tukarView('pet')">Jaga pet</button>
     </div>
     <div class="secTitle" style="margin-bottom:10px">Analisis</div>
     <div class="segs" id="segs">
@@ -2453,9 +2472,11 @@ function segarMood(){
   const hari=(DB.data.rekod||[]).filter(r=>r.masa&&r.masa.slice(0,10)===kini);
   const p=DB.data.pet;
   const nPet=DB.data.petLog?DB.data.petLog.filter(r=>r.h===kini).length:0;
-  let e='🧘',t='Sedang baca…',n='Jaga pet atau catat emosi untuk mood hari ini.';
+  let e='🤍',t='Sedang baca…',n='Jaga pet atau catat emosi untuk mood hari ini.';
+  let skor=0;
   if(p){
     const happ=p.happ??80,calm=p.calm??40,tire=p.tire??10,en=p.en??80;
+    skor=Math.round(jepit((happ*0.4+calm*0.4+(100-tire)*0.2),0,100));
     if(detLepaskan(hari)&&calm>=55)n='Ada pelepasan emosi & aura tenang.';
     if(tire>=70&&en<25){e='😪';t='Letih & lesu';n='Lepaskan letih — minum air, zikir atau tidur sebentar.';}
     else if(calm<=15){e='😟';t='Gelisah';n='Fikiran sedang bergelora. Cuba teknik nafas atau zikir.';}
@@ -2466,7 +2487,14 @@ function segarMood(){
     else{t='Stabil';e='🙂';n='Keadaan emosi seimbang. Teruskan rutin harian.';}
     if(nPet)n+=` (${nPet} aktiviti pet hari ini).`;
   }
-  $('moodEmoji').textContent=e;$('moodLabel').textContent=t;$('moodNota').textContent=n;
+  const skorAktiviti=Math.round(jepit(hari.length*6+(hari.length?6:0),0,100));
+  const akhir=Math.max(skor>0?skor:0,skorAktiviti);
+  const hati=$('moodHeart'),bar=$('moodBar');
+  hati.textContent=akhir>=80?'❤️':akhir>=60?'💖':akhir>=40?'💛':akhir>=20?'🤎':'🤍';
+  hati.classList.toggle('fill',akhir>=40);
+  bar.style.width=akhir+'%';
+  $('moodPctNum').textContent=akhir;
+  $('moodLabel').textContent=t;$('moodNota').textContent=n;
 }
 function detLepaskan(hari){return (hari||[]).some(r=>r.jenis==='emosi'||r.jenis==='nafas'||r.jenis==='tiup');}
 const masaRingkas=iso=>{const d=new Date(iso),jm=d.toTimeString().slice(0,5);
