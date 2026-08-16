@@ -100,24 +100,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mCard.pet{grid-column:1/-1;background:linear-gradient(120deg,rgba(244,114,182,.3),rgba(124,58,237,.16));
  display:flex;align-items:center;gap:16px;padding:18px}
 .mCard.pet .ic{margin:0;font-size:34px}
-.moodBox{position:relative;margin:0 var(--pad) 0;padding:18px 18px 16px;border:1px solid var(--line);
- background:linear-gradient(135deg,rgba(167,139,250,.16),rgba(14,165,233,.08));border-radius:22px;overflow:hidden}
-.moodTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.moodTxt{flex:1;min-width:0}
+.moodBox{position:relative;margin:0 var(--pad) 0;padding:18px;border:1px solid var(--line);
+ background:linear-gradient(135deg,rgba(167,139,250,.16),rgba(14,165,233,.08));border-radius:22px;overflow:hidden;
+ display:flex;flex-direction:column;gap:10px;min-height:190px}
+.moodTxt{flex:none}
 .moodTxt b{font-size:17px;font-weight:700;display:block}
 .moodTxt p{font-size:11.5px;color:var(--dim2);margin-top:4px;line-height:1.5}
-.moodHeartWrap{display:flex;align-items:center;gap:16px;margin:16px 0 12px}
+.moodHeartWrap{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
 .moodHeart{font-size:54px;line-height:1;filter:grayscale(.85) brightness(.55) opacity(.9);transition:filter .6s ease,transform .6s ease;flex:none}
 .moodHeart.fill{filter:none;transform:scale(1.06)}
-.moodBarTrack{flex:1;height:10px;background:rgba(255,255,255,.09);border-radius:99px;overflow:hidden}
+.moodBarTrack{flex:1;height:10px;background:rgba(255,255,255,.09);border-radius:99px;overflow:hidden;min-width:0}
 .moodBarFill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#34d399,#22d3ee,#a78bfa,#fb7185);
  background-size:200% 100%;transition:width .7s cubic-bezier(.22,1,.36,1);animation:moodSlide 3s linear infinite}
 @keyframes moodSlide{to{background-position:-200% 0}}
 .moodPct{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;flex:none;text-align:right}
 .moodPct small{display:block;font-size:10px;color:var(--dim2);font-weight:600;margin-top:2px}
-.moodPill{position:absolute;right:18px;bottom:16px;font-size:12px;font-weight:700;color:#12121f;
- background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:99px;padding:9px 16px;cursor:pointer;
- box-shadow:0 8px 20px rgba(124,58,237,.4);transition:transform .15s}
+.moodFoot{display:flex;justify-content:flex-end;flex:none;padding-top:4px}
+.moodPill{font-size:12px;font-weight:700;color:#fff;border:none;border-radius:99px;padding:9px 18px;cursor:pointer;
+ background:linear-gradient(135deg,#a78bfa,#7c3aed);box-shadow:0 8px 20px rgba(124,58,237,.4);transition:transform .15s}
 .moodPill:active{transform:scale(.93)}
 .mCard.tiup .tb{flex:1;min-width:0}
 .mCard.tiup .ar{font-size:22px;opacity:.6}
@@ -517,15 +517,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div class="secTitle" style="margin-bottom:10px">Emosi saya sekarang</div>
     <div class="moodBox" id="moodBox">
-      <div class="moodTop">
-        <div class="moodTxt"><b id="moodLabel">Sedang baca…</b><p id="moodNota"></p></div>
-      </div>
+      <div class="moodTxt"><b id="moodLabel">Sedang baca…</b><p id="moodNota"></p></div>
       <div class="moodHeartWrap">
         <div class="moodHeart" id="moodHeart">🤍</div>
         <div class="moodBarTrack"><div class="moodBarFill" id="moodBar"></div></div>
         <div class="moodPct"><span id="moodPctNum">0</span><small>/ 100</small></div>
       </div>
-      <button class="moodPill" onclick="tukarView('pet')">Jaga pet</button>
+      <div class="moodFoot"><button class="moodPill" onclick="tukarView('pet')">Jaga pet</button></div>
     </div>
     <div class="secTitle" style="margin-bottom:10px">Analisis</div>
     <div class="segs" id="segs">
