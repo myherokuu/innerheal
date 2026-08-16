@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Inner Flow</title>
+<style>
+:root{--pad:20px;--bg:#0a0a14;--panel:#12121f;--card:rgba(255,255,255,.055);
+ --line:rgba(255,255,255,.1);--dim:rgba(255,255,255,.55);--dim2:rgba(255,255,255,.38);
+ --acc:#7c6cf0;--acc2:#a78bfa;--top:env(safe-area-inset-top);--bot:env(safe-area-inset-bottom)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:#fff;font-size:15px;line-height:1.5}
+#ambient{position:fixed;inset:-30%;z-index:0;pointer-events:none;filter:blur(70px);opacity:.45}
+#ambient i{position:absolute;border-radius:50%;display:block}
+#ambient i:nth-child(1){width:46vw;height:46vw;left:6%;top:8%;background:#4c1d95;animation:d1 26s ease-in-out infinite}
+#ambient i:nth-child(2){width:40vw;height:40vw;right:4%;top:34%;background:#0e7490;animation:d2 32s ease-in-out infinite}
+#ambient i:nth-child(3){width:38vw;height:38vw;left:20%;bottom:6%;background:#9d174d;animation:d3 38s ease-in-out infinite}
+@keyframes d1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8vw,10vh) scale(1.18)}}
+@keyframes d2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-9vw,-8vh) scale(.92)}}
+@keyframes d3{0%,100%{transform:translate(0,0) scale(.95)}50%{transform:translate(6vw,-9vh) scale(1.2)}}
+.shell{position:fixed;inset:0;z-index:1;display:flex;justify-content:center}
+.phone{position:relative;width:100%;max-width:460px;height:100%;overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:520px){.phone{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+.btn{display:block;width:100%;padding:16px 20px;border:none;border-radius:16px;font-family:inherit;
+ font-size:15.5px;font-weight:700;color:#fff;background:linear-gradient(135deg,#8b5cf6,#4f46e5);
+ box-shadow:0 10px 26px rgba(99,102,241,.42);cursor:pointer;transition:transform .12s,filter .2s}
+.btn:active{transform:scale(.975);filter:brightness(1.12)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);box-shadow:none}
+.btn.danger{background:linear-gradient(135deg,#f97316,#dc2626);box-shadow:0 10px 26px rgba(220,38,38,.42)}
+.btn.teal{background:linear-gradient(135deg,#22d3ee,#0e7490);box-shadow:0 10px 26px rgba(14,116,144,.42)}
+.btn.sm{padding:12px 16px;font-size:14px;border-radius:14px}
+.btn:disabled{opacity:.42;box-shadow:none}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim2);margin-bottom:7px}
+.field input{width:100%;padding:15px 16px;border-radius:14px;background:rgba(255,255,255,.07);
+ border:1px solid var(--line);color:#fff;font-family:inherit;font-size:15px;outline:none;user-select:text;-webkit-user-select:text}
+.field input:focus{border-color:var(--acc2)}
+.secTitle{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim2);margin:26px var(--pad) 12px;
+ display:flex;justify-content:space-between;align-items:center}
+.secTitle a{color:var(--acc2);letter-spacing:.04em;text-transform:none;font-size:12px;cursor:pointer}
+#login{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;justify-content:center;
+ padding:0 26px;background:radial-gradient(130% 80% at 50% 0%,#221a4d 0%,#0a0a14 65%)}
+.brand{text-align:center;margin-bottom:34px}
+.brandIcon{width:76px;height:76px;margin:0 auto 18px;border-radius:26px;display:flex;align-items:center;
+ justify-content:center;font-size:36px;background:linear-gradient(135deg,#8b5cf6,#4f46e5);box-shadow:0 16px 40px rgba(99,102,241,.45)}
+.brand h1{font-size:30px;font-weight:700}
+.brand p{font-size:13.5px;color:var(--dim);margin-top:7px}
+.loginCard{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:24px;backdrop-filter:blur(24px)}
+.errBox{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#fca5a5;border-radius:12px;
+ padding:12px 14px;font-size:13px;margin-bottom:14px;display:none}
+.errBox.on{display:block}
+.hintBox{margin-top:16px;text-align:center;font-size:12px;color:var(--dim2);line-height:1.7}
+.hintBox b{color:var(--acc2)}
+.topbar{display:flex;align-items:center;gap:14px;padding:calc(var(--top) + 14px) var(--pad) 14px;
+ border-bottom:1px solid var(--line);background:rgba(10,10,20,.6);backdrop-filter:blur(20px);z-index:20}
+.burger{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.07);
+ display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.burger i{width:17px;height:2px;background:#fff;border-radius:2px;display:block;transition:.25s}
+.burger.x i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger.x i:nth-child(2){opacity:0}
+.burger.x i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.topbar h2{flex:1;font-size:17px;font-weight:700}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#4f46e5);
+ display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex:0 0 auto}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:absolute;top:0;left:0;bottom:0;width:80%;max-width:300px;z-index:41;background:var(--panel);
+ border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .32s cubic-bezier(.22,1,.36,1);
+ display:flex;flex-direction:column;padding-top:calc(var(--top) + 26px)}
+.drawer.on{transform:translateX(0)}
+.dHead{padding:0 22px 22px;border-bottom:1px solid var(--line)}
+.dHead .av{width:52px;height:52px;border-radius:17px;background:linear-gradient(135deg,#8b5cf6,#4f46e5);
+ display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+.dHead b{display:block;font-size:16.5px}
+.dHead small{display:block;font-size:12.5px;color:var(--dim2);margin-top:3px}
+.dNav{flex:1;padding:14px 12px;overflow-y:auto}
+.dItem{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;font-size:15px;cursor:pointer;transition:.2s;margin-bottom:3px}
+.dItem span:first-child{width:22px;text-align:center;font-size:17px}
+.dItem.on{background:rgba(124,108,240,.22);color:#c4b5fd}
+.dFoot{padding:16px 22px calc(var(--bot) + 20px);border-top:1px solid var(--line)}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--bot) + 30px)}
+.view{display:none}
+.view.on{display:block}
+.hero{padding:22px var(--pad) 6px}
+.hero .hi{font-size:13px;color:var(--dim)}
+.hero h3{font-size:25px;font-weight:700;margin-top:4px}
+.mainCards{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px var(--pad) 0}
+.mCard{border-radius:24px;padding:18px 16px 16px;cursor:pointer;position:relative;overflow:hidden;
+ border:1px solid var(--line);transition:transform .15s}
+.mCard:active{transform:scale(.975)}
+.mCard .ic{font-size:30px;margin-bottom:10px;display:block}
+.mCard b{display:block;font-size:17px;font-weight:700}
+.mCard small{display:block;font-size:11.5px;color:rgba(255,255,255,.6);margin-top:4px;line-height:1.45}
+.mCard.nafas{background:linear-gradient(150deg,rgba(139,92,246,.35),rgba(79,70,229,.15))}
+.mCard.emosi{background:linear-gradient(150deg,rgba(249,115,22,.35),rgba(220,38,38,.15))}
+.mCard.tiup{grid-column:1/-1;background:linear-gradient(120deg,rgba(34,211,238,.32),rgba(14,116,144,.14));
+ display:flex;align-items:center;gap:16px;padding:18px}
+.mCard.tiup .ic{margin:0;font-size:34px}
+.mCard.tiup .tb{flex:1;min-width:0}
+.mCard.tiup .ar{font-size:22px;opacity:.6}
+.segs{display:flex;gap:6px;margin:0 var(--pad);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:15px;padding:5px}
+.seg{flex:1;text-align:center;padding:10px 4px;border-radius:11px;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;transition:.2s}
+.seg.on{background:#fff;color:#12121f}
+.skorBox{margin:14px var(--pad) 0;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;display:flex;align-items:center;gap:18px}
+.gauge{position:relative;width:104px;height:104px;flex:0 0 auto}
+.gauge svg{transform:rotate(-90deg)}
+.gaugeTxt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gaugeTxt b{font-size:27px;font-weight:700;line-height:1}
+.gaugeTxt small{font-size:10px;color:var(--dim2);letter-spacing:.1em;margin-top:2px}
+.skorInfo{flex:1;min-width:0}
+.skorInfo b{display:block;font-size:16px;font-weight:700}
+.skorInfo p{font-size:12.5px;color:var(--dim);margin-top:5px;line-height:1.55}
+.chartBox{margin:14px var(--pad) 0;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px 14px 12px}
+.chartBox .ct{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);padding:0 4px 12px}
+.chartBox svg{width:100%;display:block}
+.miniStats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:14px var(--pad) 0}
+.mStat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 4px;text-align:center}
+.mStat b{display:block;font-size:17px;font-weight:700}
+.mStat small{display:block;font-size:8.8px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2);margin-top:3px}
+.rec{margin:0 var(--pad) 10px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;gap:14px;align-items:flex-start}
+.rec .ri{font-size:22px;flex:0 0 auto;line-height:1.2}
+.rec .rb{flex:1;min-width:0}
+.rec .rb b{display:block;font-size:14.5px;font-weight:700}
+.rec .rb p{font-size:12.5px;color:var(--dim);margin-top:4px;line-height:1.55}
+.rec .rb button{margin-top:11px;padding:9px 16px;border:none;border-radius:11px;font-family:inherit;
+ font-size:12.5px;font-weight:700;color:#fff;background:rgba(124,108,240,.55);cursor:pointer}
+.logItem{margin:0 var(--pad) 9px;background:var(--card);border:1px solid var(--line);border-radius:17px;padding:13px 15px;display:flex;gap:13px;align-items:center}
+.logItem .li{font-size:19px;flex:0 0 auto}
+.logItem .lb{flex:1;min-width:0}
+.logItem .lb b{display:block;font-size:13.5px;font-weight:600}
+.logItem .lb small{display:block;font-size:11.5px;color:var(--dim2);margin-top:2px}
+.logItem .lt{font-size:10.5px;color:var(--dim2);text-align:right;flex:0 0 auto}
+.kosong{text-align:center;color:var(--dim2);font-size:13px;padding:30px 26px;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 var(--pad)}
+.tCard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
+.tCard:active{transform:scale(.975)}
+.tCard .tGlow{position:absolute;top:-40px;right:-30px;width:110px;height:110px;border-radius:50%;filter:blur(38px);opacity:.55}
+.tCard svg{width:100%;height:64px;display:block;margin-bottom:12px;position:relative}
+.tCard b{display:block;font-size:14.5px;font-weight:700;line-height:1.3;position:relative}
+.tCard small{display:block;font-size:11px;color:var(--dim2);margin-top:5px;position:relative}
+.hScroll{display:flex;gap:11px;overflow-x:auto;padding:0 var(--pad) 4px;scrollbar-width:none}
+.hScroll::-webkit-scrollbar{display:none}
+.gCard{flex:0 0 auto;width:138px;padding:14px;border-radius:20px;cursor:pointer;transition:.2s;background:var(--card);border:1px solid var(--line)}
+.gCard.on{background:rgba(124,108,240,.24);border-color:var(--acc2)}
+.gCard svg{width:100%;height:58px;display:block;margin-bottom:9px;opacity:.9}
+.gCard b{display:block;font-size:12.5px;font-weight:700;line-height:1.3}
+.gCard small{display:block;font-size:9.5px;color:var(--dim2);margin-top:4px;letter-spacing:.06em;text-transform:uppercase}
+.gInfo{padding:12px var(--pad) 0;font-size:12.5px;color:var(--dim);line-height:1.6}
+.panel{margin:0 var(--pad);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 16px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 0;border-bottom:1px solid var(--line)}
+.toggle:last-child{border-bottom:none}
+.toggle .tx{flex:1;min-width:0}
+.toggle .tx b{display:block;font-size:14.5px;font-weight:500}
+.toggle .tx small{display:block;font-size:11.5px;color:var(--dim2);margin-top:2px;line-height:1.4}
+.sw{width:50px;height:29px;border-radius:16px;background:rgba(255,255,255,.16);position:relative;cursor:pointer;transition:.25s;flex:0 0 auto}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;transition:.25s}
+.sw.on{background:var(--acc)}
+.sw.on::after{transform:translateX(21px)}
+.slider{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:4px;background:rgba(255,255,255,.18);outline:none;margin:14px 0 6px}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+.slider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:none}
+.nota{font-size:11px;color:var(--dim2);line-height:1.7;padding:18px var(--pad) 0;text-align:center}
+.eGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 var(--pad)}
+.eCard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 4px;text-align:center;cursor:pointer;transition:.2s}
+.eCard.on{border-color:#fff;background:rgba(255,255,255,.14);transform:translateY(-2px)}
+.eCard span{display:block;font-size:26px;line-height:1.1}
+.eCard small{display:block;font-size:10.5px;margin-top:6px;color:var(--dim)}
+.eCard.on small{color:#fff}
+.kuatBar{display:flex;justify-content:space-between;font-size:11px;color:var(--dim2);letter-spacing:.1em;text-transform:uppercase}
+.kuatNum{font-size:34px;font-weight:700;text-align:center;margin:6px 0 -4px}
+.opt2{padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+ margin:0 var(--pad) 10px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:.2s}
+.opt2.on{border-color:#fff;background:rgba(255,255,255,.13)}
+.opt2.mati{opacity:.4}
+.opt2 .oi{font-size:21px;flex:0 0 auto}
+.opt2 .ob{flex:1;min-width:0}
+.opt2 .ob b{display:block;font-size:14.5px}
+.opt2 .ob small{display:block;font-size:11.5px;color:var(--dim2);margin-top:2px;line-height:1.45}
+.opt2 .os{font-size:12px;color:var(--dim2);flex:0 0 auto}
+/* ==================== SOLAT CARD ==================== */
+.solatCard{display:flex;align-items:center;justify-content:space-between;
+  padding:16px;border-radius:16px;background:var(--card);border:1px solid var(--line);
+  cursor:pointer;transition:all .2s;margin-bottom:8px}
+.solatCard.on{background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(168,85,247,.1));border-color:rgba(56,189,248,.5)}
+.solatInfo{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.solatInfo .sEmoji{font-size:28px;flex:0 0 auto}
+.solatInfo .sText{flex:1;min-width:0}
+.solatInfo .sText b{display:block;font-size:16px;font-weight:700}
+.solatInfo .sText small{display:block;font-size:11px;color:var(--dim2);margin-top:2px}
+.solatCheck{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;border:2px solid var(--line);transition:all .2s}
+.solatCard.on .solatCheck{border-color:#fff;background:linear-gradient(135deg,#38bdf8,#a78bfa);color:#fff;font-size:18px}
+/* ==================== CALENDAR ==================== */
+.calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calDay{padding:8px 4px;text-align:center;border-radius:8px;cursor:pointer;transition:all .15s}
+.calDay.aktif{background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(168,85,247,.15));border:1px solid var(--acc2)}
+.calDay.inactive{opacity:.4}
+.calDay .calDate{font-size:12px;font-weight:700}
+.calDay .calCount{font-size:9px;color:rgba(255,255,255,.5)}
+#sedia{position:absolute;inset:0;z-index:50;background:rgba(7,7,15,.8);backdrop-filter:blur(18px);display:none;flex-direction:column}
+#sedia.on{display:flex}
+.sheet{margin-top:auto;background:var(--panel);border-top:1px solid var(--line);border-radius:28px 28px 0 0;max-height:90%;overflow-y:auto;padding-bottom:calc(var(--bot) + 20px)}
+.sHandle{width:40px;height:4px;border-radius:3px;background:rgba(255,255,255,.25);margin:12px auto 4px}
+.sHead{padding:12px var(--pad) 0}
+.sHead h3{font-size:22px;font-weight:700}
+.sHead p{font-size:12.5px;color:var(--dim);margin-top:5px}
+.row{display:flex;gap:9px;padding:0 var(--pad)}
+.opt{flex:1;padding:14px 4px;border-radius:15px;text-align:center;font-size:14px;font-weight:600;
+ background:rgba(255,255,255,.06);border:1px solid var(--line);cursor:pointer;transition:.2s}
+.opt.on{background:#fff;color:#12121f;border-color:#fff}
+.sheet .btn{width:calc(100% - var(--pad)*2);margin:24px var(--pad) 0}
+.sheet .btn.ghost{margin-top:10px}
+#sesi{position:absolute;inset:0;z-index:70;display:none;flex-direction:column;align-items:center;transition:background 1.2s ease}
+#sesi.on{display:flex}
+.sbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--top) + 14px) 16px 0}
+.sbar .right{display:flex;gap:8px}
+.ib{width:41px;height:41px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.14);
+ color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ib:active{background:rgba(255,255,255,.3)}
+.ib.off{opacity:.35}
+.sbar .tt{text-align:center;line-height:1.3;flex:1;min-width:0}
+.sbar .tt b{display:block;font-size:13.5px;font-weight:600}
+.sbar .tt small{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.5;margin-top:2px}
+.pentas{flex:1;width:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.pentas svg{width:min(94vw,430px);height:min(94vw,430px);max-height:58vh;overflow:visible}
+.baca{position:absolute;left:0;right:0;top:4%;display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.fasa{font-size:11.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;opacity:.8}
+.kira{font-size:min(13vw,46px);font-weight:200;font-variant-numeric:tabular-nums;line-height:1.1}
+.niatTxt{font-size:14px;font-weight:300;letter-spacing:.14em;opacity:.9;min-height:20px}
+.kaki{width:100%;padding:0 24px calc(var(--bot) + 22px);text-align:center}
+.panduan{font-size:13px;opacity:.72;min-height:38px;margin-bottom:12px;line-height:1.45}
+.trek{height:4px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
+.isi{height:100%;width:0;background:#fff;border-radius:3px}
+.masa{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-top:11px}
+#arena{position:absolute;inset:0;z-index:80;display:none;flex-direction:column;background:#08060d}
+#arena.on{display:flex}
+#kanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.aTop{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--top) + 14px) 16px 0;gap:10px}
+.aTop .info{flex:1;text-align:center}
+.aTop .info b{display:block;font-size:14px}
+.aTop .info small{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.55;margin-top:2px}
+.hpWrap{position:relative;z-index:2;padding:14px 20px 0}
+.hpBar{height:10px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.hpFill{height:100%;width:100%;border-radius:6px;background:linear-gradient(90deg,#fbbf24,#ef4444);transition:width .18s}
+.hpTxt{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin-top:7px}
+.combo{position:absolute;z-index:3;top:calc(var(--top) + 74px);left:0;right:0;text-align:center;font-size:34px;font-weight:800;opacity:0;transition:opacity .2s;pointer-events:none}
+.combo.on{opacity:1}
+.aFoot{position:relative;z-index:2;margin-top:auto;padding:0 20px calc(var(--bot) + 22px)}
+.aHint{text-align:center;font-size:12.5px;opacity:.6;margin-bottom:14px;line-height:1.5}
+.hitRow{display:flex;gap:12px}
+.hitBtn{flex:1;padding:20px 0;border:none;border-radius:22px;font-family:inherit;font-size:15px;font-weight:800;color:#fff;cursor:pointer;transition:transform .1s}
+.hitBtn span{display:block;font-size:28px;margin-bottom:2px}
+.hitBtn:active{transform:scale(.94)}
+.hitBtn.tumbuk{background:linear-gradient(135deg,#f59e0b,#dc2626)}
+.hitBtn.tendang{background:linear-gradient(135deg,#8b5cf6,#4f46e5)}
+.hitBtn:disabled{opacity:.45}
+#hasil{position:absolute;inset:0;z-index:90;display:none;flex-direction:column;justify-content:center;padding:0 26px;background:rgba(8,6,13,.94);backdrop-filter:blur(16px);overflow-y:auto}
+#hasil.on{display:flex}
+.hIcon{font-size:56px;text-align:center;margin-bottom:12px}
+#hasil h3{font-size:25px;font-weight:700;text-align:center}
+#hasil p.sub{font-size:13px;color:var(--dim);text-align:center;margin-top:8px;line-height:1.6}
+.hStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.hStat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px 6px;text-align:center}
+.hStat b{display:block;font-size:20px;font-weight:700}
+.hStat small{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim2);margin-top:4px}
+.selepasBox{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:18px}
+.selepasBox .lab{font-size:12px;color:var(--dim);text-align:center}
+
+/* ====== TIUP ====== */
+#kalib{position:absolute;inset:0;z-index:88;display:none;flex-direction:column;align-items:center;justify-content:center;
+ padding:0 26px;text-align:center;background:radial-gradient(120% 80% at 50% 10%,#0e3a4a 0%,#07070f 70%)}
+#kalib.on{display:flex}
+.calRing{position:relative;width:186px;height:186px;margin-bottom:24px}
+.calRing svg{transform:rotate(-90deg)}
+.calMid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.calMid .n{font-size:38px;font-weight:200;font-variant-numeric:tabular-nums}
+.calMid .l{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim2);margin-top:4px}
+#kalib h3{font-size:21px;font-weight:700;margin-bottom:10px}
+#kalib p{font-size:13.5px;color:var(--dim);line-height:1.6;max-width:310px}
+.meter{width:100%;max-width:300px;height:9px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:20px}
+.meterFill{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#38bdf8,#a78bfa);transition:width .06s linear}
+#kalib .btn{max-width:320px;margin-top:22px}
+#jelajah{position:absolute;inset:0;z-index:86;display:none;flex-direction:column;background:#05050c}
+#jelajah.on{display:flex}
+#jKanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.jTop{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--top) + 14px) 16px 0;gap:10px}
+.jTop .jt{flex:1;text-align:center}
+.jTop .jt b{display:block;font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;opacity:.85}
+.jTop .jt small{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.45;margin-top:3px}
+.jHud{position:relative;z-index:2;display:flex;justify-content:space-between;padding:16px 24px 0}
+.jHud .hb{text-align:center}
+.jHud .hb b{display:block;font-size:25px;font-weight:300;font-variant-numeric:tabular-nums;line-height:1.1}
+.jHud .hb small{display:block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim2);margin-top:3px}
+.jFoot{position:relative;z-index:2;margin-top:auto;padding:0 22px calc(var(--bot) + 24px)}
+.blowLab{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim2);margin-bottom:8px}
+.blowBar{height:14px;border-radius:9px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);overflow:hidden;position:relative}
+.blowFill{height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#38bdf8,#a78bfa,#f0abfc);transition:width .05s linear}
+.blowMin{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.55)}
+.jHint{text-align:center;font-size:12.5px;color:var(--dim);margin-top:14px;min-height:38px;line-height:1.5}
+.padTekan{margin-top:14px;height:74px;border-radius:20px;border:1px dashed rgba(255,255,255,.28);
+ display:none;align-items:center;justify-content:center;font-size:13px;color:var(--dim);background:rgba(255,255,255,.04)}
+.padTekan.on{display:flex}
+.padTekan.aktif{background:rgba(56,189,248,.22);border-color:#38bdf8;color:#fff}
+.kiraBesar{position:absolute;inset:0;z-index:5;display:none;align-items:center;justify-content:center;background:rgba(5,5,12,.72);backdrop-filter:blur(6px)}
+.kiraBesar.on{display:flex}
+.kiraBesar b{font-size:104px;font-weight:200;line-height:1}
+#jHasil{position:absolute;inset:0;z-index:92;display:none;flex-direction:column;justify-content:center;padding:0 26px;
+ background:rgba(6,6,14,.95);backdrop-filter:blur(18px);overflow-y:auto}
+#jHasil.on{display:flex}
+.jhGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:22px 0 18px}
+.jhCell{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px 12px}
+.jhCell b{display:block;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+.jhCell small{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim2);margin-top:4px}
+</style>
+</head>
+<body>
+<div id="ambient"><i></i><i></i><i></i></div>
+<div class="shell"><div class="phone">
+
+<div id="login">
+  <div class="brand"><div class="brandIcon">🌀</div><h1>Inner Flow</h1><p>Nafas · Emosi · Perjalanan Tiup</p></div>
+  <div class="loginCard">
+    <div class="errBox" id="errBox"></div>
+    <div class="field"><label>Nama pengguna</label><input id="inUser" type="text" placeholder="admin" autocapitalize="none"></div>
+    <div class="field"><label>Kata laluan</label><input id="inPass" type="password" placeholder="••••••••"></div>
+    <button class="btn" id="btnLogin" style="margin-top:8px">Log Masuk</button>
+    <div class="hintBox">Akaun demo<br><b>admin</b> / <b>abcd1234</b></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="burger" id="burger"><i></i><i></i><i></i></div>
+  <h2 id="tajukView">Dashboard</h2>
+  <div class="avatar" id="avatarTxt">A</div>
+</div>
+
+<div class="body" id="bodyScroll">
+  <!-- DASHBOARD -->
+  <div class="view on" data-view="dash">
+    <div class="hero"><div class="hi" id="salam">Selamat datang kembali,</div><h3 id="namaUser">admin</h3></div>
+    <div class="mainCards">
+      <div class="mCard nafas" onclick="tukarView('teknik')"><span class="ic">🫁</span><b>Nafas</b><small>Teknik pernafasan &amp; gerakan</small></div>
+      <div class="mCard emosi" onclick="tukarView('emosi')"><span class="ic">🔥</span><b>Emosi</b><small>Lepaskan pada bebola api</small></div>
+      <div class="mCard tiup" onclick="tukarView('tiup')">
+        <span class="ic">🌬️</span>
+        <div class="tb"><b>Perjalanan Tiup</b><small>Hembusan awak menggerakkan objek ke destinasi</small></div>
+        <span class="ar">›</span>
+      </div>
+    </div>
+    <div class="secTitle" style="margin-bottom:10px">Analisis</div>
+    <div class="segs" id="segs">
+      <div class="seg on" data-p="hari">Hari</div><div class="seg" data-p="minggu">Minggu</div><div class="seg" data-p="bulan">Bulan</div>
+    </div>
+    <div class="skorBox">
+      <div class="gauge">
+        <svg viewBox="0 0 104 104" width="104" height="104">
+          <circle cx="52" cy="52" r="44" fill="none" stroke="rgba(255,255,255,.13)" stroke-width="9"/>
+          <circle id="gaugeArc" cx="52" cy="52" r="44" fill="none" stroke="#a78bfa" stroke-width="9" stroke-linecap="round"
+            stroke-dasharray="276.5" stroke-dashoffset="276.5" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1),stroke .4s"/>
+        </svg>
+        <div class="gaugeTxt"><b id="skorNum">0</b><small>/ 10</small></div>
+      </div>
+      <div class="skorInfo"><b id="skorLabel">Belum ada data</b><p id="skorNota"></p></div>
+    </div>
+    <div class="chartBox"><div class="ct" id="chartTajuk">Minit aktif · 7 hari</div><div id="chartWrap"></div></div>
+     <div class="miniStats">
+       <div class="mStat"><b id="msSesi">0</b><small>Sesi</small></div>
+       <div class="mStat"><b id="msMinit">0</b><small>Minit</small></div>
+       <div class="mStat"><b id="msSolat">0</b><small>Solat</small></div>
+       <div class="mStat"><b id="msTiup">0</b><small>Tiup</small></div>
+     </div>
+    <div class="secTitle">Cadangan untuk awak</div>
+    <div id="cadanganWrap"></div>
+    <div class="secTitle">Rekod terkini <a onclick="tukarView('rekod')">Lihat semua</a></div>
+    <div id="logWrap"></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- TEKNIK -->
+  <div class="view" data-view="teknik">
+    <div class="secTitle">Teknik nafas</div>
+    <div class="grid" id="gridTeknik"></div>
+    <div class="secTitle">Gerakan badan</div>
+    <div class="hScroll" id="rowGerak"></div>
+    <div class="gInfo" id="gerakInfo"></div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- EMOSI -->
+  <div class="view" data-view="emosi">
+    <div class="hero"><div class="hi">Apa yang awak rasa sekarang?</div><h3>Lepaskan Emosi</h3></div>
+    <div class="secTitle">Pilih emosi</div>
+    <div class="eGrid" id="eGrid"></div>
+    <div class="secTitle">Sekuat mana rasa itu?</div>
+    <div class="panel" style="padding:16px">
+      <div class="kuatNum" id="kuatNum">6</div>
+      <input type="range" class="slider" id="kuatSlider" min="1" max="10" value="6">
+      <div class="kuatBar"><span>Ringan</span><span>Sangat kuat</span></div>
+    </div>
+    <div class="secTitle">Apa yang mencetuskannya? (pilihan)</div>
+    <div class="panel" style="padding:16px"><div class="field" style="margin:0">
+      <input id="puncaTxt" type="text" placeholder="cth: kerja bertimbun…" maxlength="60"></div></div>
+    <div style="padding:24px var(--pad) 0"><button class="btn danger" id="btnLawan">Masuk Arena 🔥</button></div>
+    <div class="nota">Bebola api itu mewakili perasaan awak — bukan seseorang.</div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- TIUP -->
+  <div class="view" data-view="tiup">
+    <div class="hero"><div class="hi">Nafas awak menggerakkan dunia</div><h3>Perjalanan Tiup</h3></div>
+    <div class="secTitle">Pilih perjalanan</div>
+    <div class="eGrid" id="tGrid"></div>
+    <div class="gInfo" id="tKisah"></div>
+    <div class="secTitle">Tahap kesukaran</div>
+    <div id="tahapList"></div>
+    <div class="secTitle">Kaedah hembusan</div>
+    <div id="kaedahList"></div>
+    <div class="gInfo" id="kaedahInfo"></div>
+    <div style="padding:22px var(--pad) 0"><button class="btn teal" id="btnMulaTiup">Mula Perjalanan</button></div>
+    <div class="nota">Jangan paksa nafas atau tahan sehingga tidak selesa. Kalau rasa pening, berhenti dan bernafas normal.
+      Ini latihan kesejahteraan — bukan alat diagnosis.</div>
+    <div style="height:20px"></div>
+   </div>
+
+    <!-- SOLAT -->
+   <div class="view" data-view="solat">
+     <div class="hero"><div class="hi">Kehidupan sehari hari</div><h3>Jadual Solat</h3></div>
+     <div class="secTitle">Hari ini</div>
+     <div id="solatGrid"></div>
+     <div class="secTitle" style="display:flex;justify-content:space-between;align-items:center">
+       <span>Kalendar solat</span>
+       <div style="display:flex;gap:8px">
+         <button class="ib sm" onclick="prevMonth()" style="width:auto;padding:6px 12px">‹</button>
+         <b id="calMonth" style="font-size:14px;padding:0 8px">---</b>
+         <button class="ib sm" onclick="nextMonth()" style="width:auto;padding:6px 12px">›</button>
+       </div>
+     </div>
+     <div id="solatCalendar"></div>
+     <div id="solatOffline" style="display:none;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:10px 14px;font-size:12px;color:#fbbf24;margin:8px var(--pad);">
+       ⚠️ Mode luar talian — menggunakan jadual solat standard. Sambungkan internet untuk masa berkaitan sebenar.
+     </div>
+     <div class="nota">Tekan hari mana saja untuk lihat rekod solat. Klik solat untuk tandakan selesai.</div>
+     <div style="height:20px"></div>
+   </div>
+
+    <!-- REKOD -->
+   <div class="view" data-view="rekod">
+    <div class="secTitle">Semua rekod</div>
+    <div id="logPenuh"></div>
+    <div style="padding:22px var(--pad) 0;display:flex;gap:10px">
+      <button class="btn ghost sm" id="btnEksport">Eksport JSON</button>
+      <button class="btn ghost sm" id="btnPadam" style="color:#fca5a5;border-color:rgba(239,68,68,.4)">Padam semua</button>
+    </div>
+    <div class="nota">Semua rekod disimpan di peranti awak sahaja dalam format JSON.</div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- TETAPAN -->
+  <div class="view" data-view="tetapan">
+    <div class="secTitle">Audio</div>
+    <div class="panel">
+      <div class="toggle"><div class="tx"><b>Muzik latar</b><small>Dengung lembut berterusan</small></div><div class="sw on" id="swPad"></div></div>
+      <div class="toggle"><div class="tx"><b>Bunyi nafas</b></div><div class="sw on" id="swNafas"></div></div>
+      <div class="toggle"><div class="tx"><b>Loceng &amp; kesan bunyi</b></div><div class="sw on" id="swLoceng"></div></div>
+    </div>
+    <div class="secTitle">Kelantangan</div>
+    <div class="panel" style="padding:6px 16px 10px"><input type="range" class="slider" id="vol" min="0" max="100" value="70"></div>
+    <div class="secTitle">Pengalaman</div>
+    <div class="panel">
+      <div class="toggle"><div class="tx"><b>Getaran</b></div><div class="sw on" id="swGetar"></div></div>
+      <div class="toggle"><div class="tx"><b>Lapisan tenaga</b></div><div class="sw on" id="swTenaga"></div></div>
+    </div>
+    <div class="secTitle">Sasaran harian</div>
+    <div class="panel" style="padding:16px">
+      <div class="kuatNum" id="sasarNum">10</div>
+      <input type="range" class="slider" id="sasarSlider" min="3" max="30" value="10">
+      <div class="kuatBar"><span>3 minit</span><span>30 minit</span></div>
+    </div>
+    <div class="secTitle">Mikrofon (Perjalanan Tiup)</div>
+    <div class="panel" style="padding:16px">
+      <div style="font-size:13px;color:var(--dim);line-height:1.6" id="calStatus">Belum dikalibrasi.</div>
+      <button class="btn ghost sm" style="margin-top:14px" id="btnKalibSemula">Kalibrasi semula</button>
+    </div>
+    <div class="secTitle">Niat</div>
+    <div class="panel" style="padding:16px">
+      <div class="field"><label>Tarik</label><input id="niatIn" value="Terima" maxlength="18"></div>
+      <div class="field"><label>Tahan</label><input id="niatHold" value="Hadir" maxlength="18"></div>
+      <div class="field" style="margin-bottom:0"><label>Hembus</label><input id="niatOut" value="Lepaskan" maxlength="18"></div>
+    </div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer">
+  <div class="dHead"><div class="av">🌀</div><b id="drawerNama">admin</b><small>Ahli Inner Flow</small></div>
+  <div class="dNav">
+    <div class="dItem on" data-go="dash"><span>◈</span><span>Dashboard</span></div>
+    <div class="dItem" data-go="teknik"><span>◎</span><span>Teknik Nafas</span></div>
+    <div class="dItem" data-go="emosi"><span>🔥</span><span>Lepaskan Emosi</span></div>
+    <div class="dItem" data-go="tiup"><span>🌬️</span><span>Perjalanan Tiup</span></div>
+    <div class="dItem" data-go="solat"><span>🕯️</span><span>Jadual Solat</span></div>
+    <div class="dItem" data-go="rekod"><span>▤</span><span>Rekod</span></div>
+    <div class="dItem" data-go="tetapan"><span>⚙</span><span>Tetapan</span></div>
+  </div>
+  <div class="dFoot"><button class="btn ghost" id="btnLogout">Log Keluar</button></div>
+</div>
+
+<div id="sedia"><div class="sheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3 id="sediaNama"></h3><p id="sediaPola"></p></div>
+  <div class="secTitle" style="margin-top:20px">Gerakan badan</div>
+  <div class="hScroll" id="rowGerak2"></div>
+  <div class="secTitle">Tempoh sesi</div>
+  <div class="row" id="tempohRow">
+    <div class="opt on" data-min="5">5 min</div><div class="opt" data-min="10">10 min</div>
+    <div class="opt" data-min="15">15 min</div><div class="opt" data-min="20">20 min</div>
+  </div>
+  <button class="btn" id="mulaBtn">Mula Sesi</button>
+  <button class="btn ghost" id="batalBtn">Batal</button>
+</div></div>
+
+<div id="sesi">
+  <div class="sbar">
+    <button class="ib" id="tamat">✕</button>
+    <div class="tt"><b id="sesiTajuk"></b><small id="sesiGerak"></small></div>
+    <div class="right"><button class="ib" id="btnAudio">🔊</button><button class="ib" id="btnTenaga">✧</button><button class="ib" id="btnJeda">❚❚</button></div>
+  </div>
+  <div class="pentas">
+    <svg viewBox="0 0 360 360">
+      <defs><filter id="soft" x="-70%" y="-70%" width="240%" height="240%">
+        <feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="sferaG"><stop offset="55%" stop-color="rgba(255,255,255,0)"/><stop offset="100%" stop-color="rgba(255,255,255,.28)"/></radialGradient></defs>
+      <circle id="sfera" cx="180" cy="190" r="118" fill="url(#sferaG)" opacity="0"/>
+      <circle id="sferaTepi" cx="180" cy="190" r="118" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.3" opacity="0"/>
+      <g id="zarah" opacity="0"></g>
+      <path id="hantu" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path id="jejak" fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" filter="url(#soft)"/>
+      <g id="penanda" filter="url(#soft)"><circle r="9" fill="rgba(255,255,255,.28)"/><circle r="4.5" fill="#fff"/></g>
+      <g id="rangka">
+        <path id="kaki" fill="none" stroke="rgba(255,255,255,.62)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        <path id="torso" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.72)" stroke-width="2.6" stroke-linejoin="round"/>
+        <ellipse id="perut" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.6)" stroke-width="2"/>
+        <path id="diafragma" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2.4" stroke-linecap="round"/>
+        <ellipse id="dada" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.8)" stroke-width="2.2"/>
+        <path id="lengan" fill="none" stroke="rgba(255,255,255,.78)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle id="tapakK" r="4.6" fill="rgba(255,255,255,.9)"/><circle id="tapakN" r="4.6" fill="rgba(255,255,255,.9)"/>
+        <circle id="kepala" r="16" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.85)" stroke-width="2.4"/>
+        <ellipse id="mulut" rx="4" ry="1.4" fill="rgba(255,255,255,.85)"/>
+        <g id="cakra" opacity="0"></g>
+        <g id="mahkota" opacity="0"><path id="mahkotaP" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round" fill="none"/></g>
+        <g id="nafasAliran" opacity="0"><path id="nafasAnak" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>
+      </g>
+    </svg>
+    <div class="baca"><div class="fasa" id="fasaTxt">Sedia</div><div class="kira" id="kiraTxt">0</div><div class="niatTxt" id="niatTxt"></div></div>
+  </div>
+  <div class="kaki"><div class="panduan" id="panduan"></div>
+    <div class="trek"><div class="isi" id="isi"></div></div>
+    <div class="masa"><span id="masaLalu">0:00</span><span id="masaBaki"></span></div></div>
+</div>
+
+<div id="arena">
+  <canvas id="kanvas"></canvas>
+  <div class="aTop"><button class="ib" id="arenaKeluar">✕</button>
+    <div class="info"><b id="arenaEmosi">Marah</b><small id="arenaMasa">0:00</small></div>
+    <button class="ib" id="arenaAudio">🔊</button></div>
+  <div class="hpWrap"><div class="hpBar"><div class="hpFill" id="hpFill"></div></div>
+    <div class="hpTxt"><span>Kekuatan emosi</span><span id="hpVal">100%</span></div></div>
+  <div class="combo" id="comboTxt"></div>
+  <div class="aFoot"><div class="aHint" id="arenaHint">Ketik terus pada bebola api</div>
+    <div class="hitRow"><button class="hitBtn tumbuk" id="btnTumbuk"><span>👊</span>Tumbuk</button>
+      <button class="hitBtn tendang" id="btnTendang"><span>🦵</span>Tendang</button></div></div>
+</div>
+
+<div id="hasil">
+  <div class="hIcon" id="hasilIkon">🕊️</div>
+  <h3 id="hasilTajuk">Dah lepas</h3><p class="sub" id="hasilSub"></p>
+  <div class="hStats"><div class="hStat"><b id="hHit">0</b><small>Hentakan</small></div>
+    <div class="hStat"><b id="hMasa">0:00</b><small>Masa</small></div>
+    <div class="hStat"><b id="hCombo">0</b><small>Kombo</small></div></div>
+  <div class="selepasBox"><div class="lab">Bagaimana rasa sekarang?</div>
+    <div class="kuatNum" id="selepasNum">3</div>
+    <input type="range" class="slider" id="selepasSlider" min="0" max="10" value="3">
+    <div class="kuatBar"><span>Lega</span><span>Masih kuat</span></div></div>
+  <button class="btn" id="btnTenangkan">Tenangkan dengan nafas</button>
+  <button class="btn ghost" id="btnHabis" style="margin-top:10px">Selesai</button>
+</div>
+
+<!-- KALIBRASI MIKROFON -->
+<div id="kalib">
+  <div class="calRing"><svg viewBox="0 0 186 186" width="186" height="186">
+    <circle cx="93" cy="93" r="82" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="8"/>
+    <circle id="calArc" cx="93" cy="93" r="82" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"
+      stroke-dasharray="515.2" stroke-dashoffset="515.2" style="transition:stroke-dashoffset .12s linear"/></svg>
+    <div class="calMid"><div class="n" id="calNum">–</div><div class="l" id="calSub">sedia</div></div></div>
+  <h3 id="calTajuk">Kebenaran mikrofon</h3>
+  <p id="calTeks"></p>
+  <div class="meter"><div class="meterFill" id="calMeter"></div></div>
+  <button class="btn teal" id="calBtn">Benarkan mikrofon</button>
+  <button class="btn ghost sm" id="calTukar" style="max-width:320px;margin-top:10px">Guna kaedah lain</button>
+</div>
+
+<!-- PERJALANAN TIUP -->
+<div id="jelajah">
+  <canvas id="jKanvas"></canvas>
+  <div class="jTop"><button class="ib" id="jKeluar">✕</button>
+    <div class="jt"><b id="jNama">PERJALANAN</b><small id="jKaedah">mikrofon</small></div>
+    <button class="ib" id="jAudio">🔊</button></div>
+  <div class="jHud"><div class="hb"><b id="jMasa">10.0</b><small>Masa</small></div>
+    <div class="hb"><b id="jJarak">0%</b><small>Jarak</small></div></div>
+  <div class="jFoot">
+    <div class="blowLab"><span id="jLabel">Hembusan</span><span id="jPct">0%</span></div>
+    <div class="blowBar"><div class="blowFill" id="jFill"></div><div class="blowMin" id="jMin"></div></div>
+    <div class="padTekan" id="jPad">Tekan &amp; tahan di sini semasa menghembus</div>
+    <div class="jHint" id="jHint">Bersedia…</div>
+  </div>
+  <div class="kiraBesar" id="jKira"><b id="jKiraNum">3</b></div>
+</div>
+
+<div id="jHasil">
+  <div class="hIcon" id="jhIkon">✨</div>
+  <h3 id="jhTajuk" style="font-size:14px;letter-spacing:.24em;text-transform:uppercase;text-align:center">Sampai</h3>
+  <p class="sub" id="jhMsg"></p>
+  <div class="jhGrid">
+    <div class="jhCell"><b id="jhJarak">0%</b><small>Jarak dicapai</small></div>
+    <div class="jhCell"><b id="jhMasa">0.0s</b><small>Tempoh</small></div>
+    <div class="jhCell"><b id="jhPurata">0%</b><small>Purata hembusan</small></div>
+    <div class="jhCell"><b id="jhKonsis">0%</b><small>Konsistensi</small></div>
+  </div>
+  <button class="btn teal" id="jhUlang">Cuba Lagi</button>
+  <button class="btn ghost" id="jhTukar" style="margin-top:10px">Tukar Perjalanan</button>
+  <button class="btn ghost" id="jhTamat" style="margin-top:10px">Tamat</button>
+  <div class="nota">Konsistensi ialah ukuran kestabilan hembusan sahaja — bukan ukuran perubatan.</div>
+</div>
+
+</div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const jepit=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const smoothstep=(x,a,b)=>jepit((x-a)/(b-a),0,1);
+const mmss=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+
+/* ==================== DB ==================== */
+const DB={
+ kunci:'innerflow_db_v2',
+  data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},rekod:[]},
+ async muat(){
+  let s=null;
+  try{if(window.storage){const r=await window.storage.get(this.kunci);if(r&&r.value)s=r.value;}}catch(e){}
+  if(!s){try{s=localStorage.getItem(this.kunci);}catch(e){}}
+  if(s){try{const d=JSON.parse(s);if(d&&Array.isArray(d.rekod))this.data=Object.assign(this.data,d);}catch(e){}}
+  if(!this.data.dicipta){this.data.dicipta=new Date().toISOString();this.simpan();}
+ },
+ async simpan(){const s=JSON.stringify(this.data);
+  try{if(window.storage){await window.storage.set(this.kunci,s);return;}}catch(e){}
+  try{localStorage.setItem(this.kunci,s);}catch(e){}},
+ tambah(r){r.id='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  r.masa=new Date().toISOString();this.data.rekod.push(r);this.simpan();segarDashboard();},
+ async kosongkan(){this.data.rekod=[];await this.simpan();segarDashboard();paparRekodPenuh();}
+};
+
+/* ==================== DATA ==================== */
+const BULAT="M 180 46 A 134 134 0 1 1 179.9 46";
+const KOTAK="M 66 66 L 294 66 L 294 294 L 66 294 Z";
+const TIGA ="M 180 40 L 306 296 L 54 296 Z";
+const TEKNIK=[
+ {nama:"Inner Flow",sub:"Aliran asas 4·2·6",laluan:BULAT,sudut:false,perut:.22,roh:{aura:1,cakra:1,mahkota:1,zarah:1},
+  warna:["#a78bfa","#4c1d95"],bg:"radial-gradient(120% 90% at 50% 12%,#7c6cf0 0%,#160d33 100%)",
+  fasa:[{l:"Tarik",d:4},{l:"Tahan",d:2},{l:"Hembus",d:6}]},
+ {nama:"Nafas Segi Tiga",sub:"Rentak tiga kiraan",laluan:TIGA,sudut:true,perut:.16,roh:{aura:1,cakra:0,mahkota:0,zarah:1},
+  warna:["#f0736f","#c0392b"],bg:"radial-gradient(120% 90% at 50% 12%,#f0736f 0%,#6d1a14 100%)",
+  fasa:[{l:"Tarik",d:4},{l:"Tahan",d:4},{l:"Hembus",d:4}]},
+ {nama:"Nafas Kotak",sub:"Empat sisi sama",laluan:KOTAK,sudut:true,perut:.14,roh:{aura:1,cakra:0,mahkota:0,zarah:0},
+  warna:["#5eead4","#0f766e"],bg:"radial-gradient(120% 90% at 50% 12%,#2dd4bf 0%,#08302e 100%)",
+  fasa:[{l:"Tarik",d:4},{l:"Tahan",d:4},{l:"Hembus",d:4},{l:"Tahan",d:4}]},
+ {nama:"Nafas Diafragma",sub:"Nafas perut dalam",laluan:BULAT,sudut:false,perut:.30,dadaLemah:.45,
+  roh:{aura:1,cakra:1,cakraRendah:1,mahkota:0,zarah:1},warna:["#93c5fd","#1e3a8a"],
+  bg:"radial-gradient(120% 90% at 50% 12%,#60a5fa 0%,#0d1a3d 100%)",fasa:[{l:"Tarik",d:4},{l:"Hembus",d:6}]},
+ {nama:"Nafas 4-7-8",sub:"Tenang sebelum tidur",laluan:BULAT,sudut:false,perut:.20,roh:{aura:1,cakra:1,mahkota:0,zarah:1},
+  warna:["#f0abfc","#701a75"],bg:"radial-gradient(120% 90% at 50% 12%,#c026d3 0%,#280928 100%)",
+  fasa:[{l:"Tarik",d:4},{l:"Tahan",d:7},{l:"Hembus",d:8}]},
+ {nama:"Hela Nafas Lega",sub:"Lepas ketegangan",laluan:BULAT,sudut:false,perut:.16,roh:{aura:1,cakra:0,mahkota:0,zarah:1,lepas:1},
+  warna:["#fdba74","#c2410c"],bg:"radial-gradient(120% 90% at 50% 12%,#fb923c 0%,#421a05 100%)",
+  fasa:[{l:"Tarik",d:3},{l:"Hela lepas",d:5}]},
+ {nama:"Menguap Sedar",sub:"Set semula saraf",laluan:BULAT,sudut:false,perut:.16,roh:{aura:1,cakra:0,mahkota:1,zarah:1},
+  warna:["#fcd34d","#b45309"],bg:"radial-gradient(120% 90% at 50% 12%,#fbbf24 0%,#3d1d03 100%)",
+  fasa:[{l:"Tarik",d:2},{l:"Menguap",d:4},{l:"Rehat",d:3}]},
+ {nama:"Nafas Bersambung",sub:"Aliran tanpa jeda",laluan:BULAT,sudut:false,perut:.18,roh:{aura:1,cakra:1,mahkota:1,zarah:1},
+  warna:["#7dd3fc","#0369a1"],bg:"radial-gradient(120% 90% at 50% 12%,#38bdf8 0%,#05263c 100%)",
+  fasa:[{l:"Tarik",d:4},{l:"Hembus",d:4}]},
+ {nama:"Nafas Bulatan",sub:"Naik belakang, turun depan",laluan:BULAT,sudut:false,perut:.20,roh:{aura:1,cakra:1,mahkota:1,zarah:1},
+  warna:["#c4b5fd","#5b21b6"],bg:"radial-gradient(120% 90% at 50% 12%,#a78bfa 0%,#1a0e3d 100%)",
+  fasa:[{l:"Tarik naik",d:5},{l:"Hembus turun",d:5}]}
+];
+const masuk=l=>/tarik/i.test(l), keluar=l=>/hembus|hela|menguap/i.test(l);
+const BERDIRI={naik:0,condong:0,kangkang:7,lutut:2,bahuK:172,sikuK:5,bahuN:172,sikuN:5,kepala:0};
+const P=o=>Object.assign({},BERDIRI,o);
+const GERAKAN=[
+ {id:"tiada",nama:"Nafas sahaja",gaya:"Duduk / berdiri",info:"Badan kekal tenang.",pose:{in:P({naik:2}),hold:P({naik:2}),out:P({})}},
+ {id:"langit",nama:"Menyokong Langit",gaya:"Qigong",info:"Tarik: angkat tangan ke atas. Hembus: turunkan.",
+  pose:{in:P({naik:6,bahuK:10,sikuK:0,bahuN:10,sikuN:0,kepala:-7}),hold:P({naik:6,bahuK:8,sikuK:0,bahuN:8,sikuN:0,kepala:-7}),out:P({naik:0,bahuK:170,sikuK:6,bahuN:170,sikuN:6})}},
+ {id:"panah",nama:"Memanah Kiri & Kanan",gaya:"Qigong",alt:true,info:"Kuda-kuda rendah, tarik tali busur.",
+  pose:{in:P({naik:-16,kangkang:30,lutut:22,bahuK:92,sikuK:2,bahuN:104,sikuN:96,kepala:10}),
+   hold:P({naik:-16,kangkang:30,lutut:22,bahuK:90,sikuK:2,bahuN:104,sikuN:96,kepala:10}),
+   out:P({naik:-9,kangkang:24,lutut:15,bahuK:148,sikuK:42,bahuN:148,sikuN:42})}},
+ {id:"sayap",nama:"Bangau Kembang Sayap",gaya:"Wushu",info:"Buka lengan seperti sayap.",
+  pose:{in:P({naik:5,bahuK:76,sikuK:8,bahuN:76,sikuN:8,kepala:-5,kangkang:11}),
+   hold:P({naik:5,bahuK:74,sikuK:8,bahuN:74,sikuN:8,kepala:-5,kangkang:11}),
+   out:P({naik:-2,bahuK:166,sikuK:12,bahuN:166,sikuN:12,lutut:7})}},
+ {id:"tolak",nama:"Tolak Gelombang",gaya:"Tai Chi",info:"Tarik ke dada, hembus tolak ke hadapan.",
+  pose:{in:P({naik:-6,kangkang:15,lutut:11,condong:-5,bahuK:118,sikuK:82,bahuN:118,sikuN:82}),
+   hold:P({naik:-6,kangkang:15,lutut:11,condong:-4,bahuK:116,sikuK:80,bahuN:116,sikuN:80}),
+   out:P({naik:-9,kangkang:15,lutut:14,condong:7,bahuK:96,sikuK:10,bahuN:96,sikuN:10})}},
+ {id:"bulan",nama:"Tangan ke Langit",gaya:"Yoga",info:"Hulur ke atas, turun ke jantung.",
+  pose:{in:P({naik:4,bahuK:14,sikuK:0,bahuN:14,sikuN:0,kepala:-8}),hold:P({naik:4,bahuK:20,sikuK:0,bahuN:8,sikuN:0,kepala:-6}),
+   out:P({naik:0,bahuK:152,sikuK:62,bahuN:152,sikuN:62})}},
+ {id:"lipat",nama:"Lipatan ke Hadapan",gaya:"Yoga",info:"Panjang ke atas, lipat ke hadapan.",
+  pose:{in:P({naik:3,bahuK:12,sikuK:0,bahuN:12,sikuN:0,kepala:-6}),hold:P({naik:3,bahuK:12,sikuK:0,bahuN:12,sikuN:0,kepala:-4}),
+   out:P({naik:-5,condong:62,lutut:10,bahuK:178,sikuK:0,bahuN:178,sikuN:0,kepala:9})}}
+];
+const CAKRA=['#ff5a5a','#ff9d43','#ffd84d','#6ee7a8','#5ec8f7','#9a86f5','#e0aaff'];
+
+/* ==================== SOLAT ==================== */
+const SOLAT=[
+  {id:'subuh',nama:'Subuh',emoji:'🌅',waktu:'5:00 AM'},
+  {id:'zohor',nama:'Zohor',emoji:'☀️',waktu:'1:00 PM'},
+  {id:'asar',nama:'Asar',emoji:'🌤️',waktu:'4:30 PM'},
+  {id:'maghrib',nama:'Maghrib',emoji:'🌇',waktu:'7:00 PM'},
+  {id:'isyak',nama:'Isyak',emoji:'🌃',waktu:'8:30 PM'}
+];
+let myCalMonth=null;
+const hariIni=()=>{const d=new Date();const y=d.getFullYear();const m=d.getMonth();const day=d.getDate();return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;};
+
+/* emosi dikongsi antara modul Emosi & Tiup */
+const EMOSI=[
+ {id:'marah',nama:'Marah',emoji:'😡',w:'#ef4444',w2:'#7f1d1d',reda:'Marah awak dah reda',
+  latihan:'Nafas Peredaan',objek:'🔥',dest:'🔵',langit:['#3b0d0d','#7f1d1d'],
+  kisah:'Api kecil bergerak menuju sfera tenang bercahaya.',jaya:'Api itu bertukar jadi cahaya tenang.'},
+ {id:'geram',nama:'Geram',emoji:'😤',w:'#f97316',w2:'#7c2d12',reda:'Geram itu dah surut',
+  latihan:'Nafas Penyejuk',objek:'💥',dest:'🌊',langit:['#3b1a06','#7c2d12'],
+  kisah:'Letupan kecil beransur menjadi ombak yang tenang.',jaya:'Ia mereda jadi ombak lembut.'},
+ {id:'cemas',nama:'Cemas',emoji:'😰',w:'#f59e0b',w2:'#78350f',reda:'Cemas awak dah longgar',
+  latihan:'Nafas Penstabil',objek:'🍃',dest:'🌼',langit:['#1c1917','#78350f'],
+  kisah:'Sehelai daun hanyut menuju taman yang damai.',jaya:'Daun itu mendarat lembut di taman.'},
+ {id:'tertekan',nama:'Tertekan',emoji:'😩',w:'#ec4899',w2:'#831843',reda:'Tekanan itu dah lepas',
+  latihan:'Nafas Pelega',objek:'☁️',dest:'☀️',langit:['#18181b','#831843'],
+  kisah:'Awan gelap beralih menuju cahaya matahari.',jaya:'Awan berundur dan cahaya menembusi.'},
+ {id:'sedih',nama:'Sedih',emoji:'😢',w:'#3b82f6',w2:'#1e3a8a',reda:'Sedih awak dah diakui',
+  latihan:'Nafas Pemulih',objek:'💧',dest:'🌸',langit:['#0b1226','#1e3a8a'],
+  kisah:'Setitik hujan mengalir menuju sekuntum bunga.',jaya:'Titisan itu menghidupkan bunga.'},
+ {id:'kecewa',nama:'Kecewa',emoji:'😞',w:'#8b5cf6',w2:'#4c1d95',reda:'Kecewa itu dah dilepaskan',
+  latihan:'Nafas Pelepasan',objek:'🎈',dest:'🕊️',langit:['#140b2e','#4c1d95'],
+  kisah:'Belon dilepaskan perlahan ke langit terbuka.',jaya:'Belon itu terbang bebas.'},
+ {id:'takut',nama:'Takut',emoji:'😨',w:'#14b8a6',w2:'#134e4a',reda:'Takut awak dah mengecil',
+  latihan:'Nafas Keberanian',objek:'🌑',dest:'🌟',langit:['#06201e','#134e4a'],
+  kisah:'Bayang gelap bergerak menuju bintang.',jaya:'Bayang itu bertukar jadi cahaya.'},
+ {id:'penat',nama:'Penat',emoji:'😫',w:'#64748b',w2:'#1e293b',reda:'Penat itu dah dilepaskan',
+  latihan:'Nafas Pemulihan',objek:'🪶',dest:'🌙',langit:['#0f172a','#1e293b'],
+  kisah:'Sehelai bulu melayang menuju bulan yang tenang.',jaya:'Bulu itu hinggap dengan tenang.'}
+];
+const TEKS_HIT=['DUAR!','BAM!','POW!','WUSH!','HENTAK!','LEPAS!','BOOM!'];
+
+const TAHAP=[
+ {id:'pemula',nama:'Pemula',saat:6,ambang:12,sub:'Hembusan pendek dan lembut'},
+ {id:'sederhana',nama:'Sederhana',saat:10,ambang:16,sub:'Hembusan berterusan sederhana'},
+ {id:'lanjutan',nama:'Lanjutan',saat:16,ambang:20,sub:'Kawalan nafas panjang'}
+];
+/* KAEDAH INPUT — alternatif kepada mikrofon */
+const KAEDAH=[
+ {id:'mic',nama:'Mikrofon',ikon:'🎙️',label:'Hembusan',
+  sub:'Tiup betul-betul ke arah mikrofon. Paling semula jadi, tapi perlu bilik yang agak senyap.'},
+ {id:'tahan',nama:'Tekan & Tahan',ikon:'👆',label:'Hembusan',
+  sub:'Tekan skrin sepanjang awak menghembus, lepas bila nafas habis. Tiada mikrofon diperlukan — kejujuran awak yang menggerakkannya.'},
+ {id:'irama',nama:'Irama Terpandu',ikon:'🎼',label:'Ketepatan',
+  sub:'Ikut pemandu nafas 4 saat masuk, 6 saat keluar. Objek bergerak hanya bila awak menekan tepat dalam tetingkap hembusan.'},
+ {id:'condong',nama:'Condongkan Telefon',ikon:'📱',label:'Condong',
+  sub:'Condongkan telefon ke hadapan perlahan seolah-olah menolak angin. Guna sensor gerakan.'},
+ {id:'sapu',nama:'Sapuan Angin',ikon:'🫱',label:'Sapuan',
+  sub:'Sapu jari ke hadapan berulang kali seperti mengipas. Sesuai bila tak boleh bersuara langsung.'}
+];
+
+/* ==================== AUDIO ==================== */
+const AUDIO={ctx:null,master:null,echo:null,sfx:null,padGain:null,padOsc:[],padLfo:null,
+ nafasSrc:null,nafasGain:null,nafasFil:null,angin:null,anginG:null,anginF:null,anginHidup:false,
+ hidup:false,senyap:false,vol:.7,on:{pad:true,nafas:true,loceng:true},
+ pastikan(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+  this.ctx=this.ctx||new AC();if(this.ctx.state==='suspended')this.ctx.resume();
+  if(!this.sfx){this.sfx=this.ctx.createGain();this.sfx.gain.value=this.vol;this.sfx.connect(this.ctx.destination);}
+  return this.ctx;},
+ bising(){const n=this.ctx.sampleRate*2,b=this.ctx.createBuffer(1,n,this.ctx.sampleRate),d=b.getChannelData(0);
+  let a=0,c=0,e=0;for(let i=0;i<n;i++){const w=Math.random()*2-1;
+   a=.99765*a+w*.0990460;c=.963*c+w*.2965164;e=.57*e+w*1.0526913;d[i]=(a+c+e+w*.1848)*.2;}return b;},
+ mula(){if(this.hidup)return;if(!this.pastikan())return;
+  const t=this.ctx.currentTime;
+  this.master=this.ctx.createGain();this.master.gain.value=this.senyap?0:this.vol;
+  this.master.connect(this.ctx.destination);
+  const dl=this.ctx.createDelay(1);dl.delayTime.value=.29;
+  const fb=this.ctx.createGain();fb.gain.value=.34;const wet=this.ctx.createGain();wet.gain.value=.3;
+  dl.connect(fb).connect(dl);dl.connect(wet).connect(this.master);this.echo=dl;
+  this.padGain=this.ctx.createGain();this.padGain.gain.setValueAtTime(0,t);
+  this.padGain.gain.linearRampToValueAtTime(this.on.pad?.075:0,t+4);
+  const pf=this.ctx.createBiquadFilter();pf.type='lowpass';pf.frequency.value=620;pf.Q.value=.6;
+  this.padGain.connect(pf);pf.connect(this.master);pf.connect(dl);
+  [110,164.81,220,329.63].forEach((f,i)=>{const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+   o.type=i<2?'sine':'triangle';o.frequency.value=f;o.detune.value=i%2?4:-4;
+   g.gain.value=[.5,.35,.22,.10][i];o.connect(g).connect(this.padGain);o.start(t);this.padOsc.push(o);});
+  this.padLfo=this.ctx.createOscillator();const lg=this.ctx.createGain();
+  this.padLfo.frequency.value=.045;lg.gain.value=210;this.padLfo.connect(lg).connect(pf.frequency);this.padLfo.start(t);
+  this.nafasSrc=this.ctx.createBufferSource();this.nafasSrc.buffer=this.bising();this.nafasSrc.loop=true;
+  this.nafasFil=this.ctx.createBiquadFilter();this.nafasFil.type='bandpass';
+  this.nafasFil.frequency.value=600;this.nafasFil.Q.value=.9;
+  this.nafasGain=this.ctx.createGain();this.nafasGain.gain.value=0;
+  this.nafasSrc.connect(this.nafasFil).connect(this.nafasGain);
+  this.nafasGain.connect(this.master);this.nafasGain.connect(dl);
+  this.nafasSrc.start(t);this.hidup=true;},
+ nafas(mk,kl,k,jeda){if(!this.hidup||!this.ctx||!this.nafasGain||!this.nafasFil)return;
+  k=Number(k);if(!isFinite(k))k=0;k=jepit(k,0,1);
+  const lk=Math.max(0,Math.sin(k*Math.PI));let amp=0,frek=500;
+  if(!jeda&&this.on.nafas){
+   if(mk){amp=.105*Math.pow(lk,.75);frek=380+1020*k;}
+   else if(kl){amp=.125*Math.pow(lk,.6);frek=1150-830*k;}
+   else{amp=.012;frek=420;}}
+  if(!isFinite(amp))amp=0;if(!isFinite(frek))frek=500;frek=jepit(frek,40,16000);
+  const t=this.ctx.currentTime;
+  try{this.nafasGain.gain.setTargetAtTime(amp,t,.05);this.nafasFil.frequency.setTargetAtTime(frek,t,.06);}catch(e){}},
+ loceng(j){if(!this.hidup||!this.on.loceng||!this.ctx||!this.master)return;
+  const t=this.ctx.currentTime,f=j==='in'?440:j==='out'?329.63:587.33,r=j==='hold'?1.4:2.6;
+  [[1,.09],[2,.035],[3.01,.014]].forEach(([m,v])=>{const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+   o.type='sine';o.frequency.value=f*m;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.012);
+   g.gain.exponentialRampToValueAtTime(.0001,t+r);o.connect(g);g.connect(this.master);
+   if(this.echo)g.connect(this.echo);o.start(t);o.stop(t+r+.1);});},
+ gong(){if(!this.hidup||!this.ctx||!this.master)return;const t=this.ctx.currentTime;
+  [[130.81,.11],[196,.05],[261.63,.03],[392,.015]].forEach(([f,v])=>{
+   const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type='sine';o.frequency.value=f;
+   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.02);
+   g.gain.exponentialRampToValueAtTime(.0001,t+5.5);o.connect(g);g.connect(this.master);
+   if(this.echo)g.connect(this.echo);o.start(t);o.stop(t+5.6);});},
+ hentak(kuat){const c=this.pastikan();if(!c||this.senyap||!this.on.loceng)return;
+  const t=c.currentTime,k=kuat?1:.62;
+  const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(150*k,t);
+  o.frequency.exponentialRampToValueAtTime(42,t+.16);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.28*k,t+.008);
+  g.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(g).connect(this.sfx);o.start(t);o.stop(t+.3);
+  const s=c.createBufferSource();s.buffer=this.bising();
+  const f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=1400*k;f.Q.value=.7;
+  const ng=c.createGain();ng.gain.setValueAtTime(.2*k,t);ng.gain.exponentialRampToValueAtTime(.0001,t+.13);
+  s.connect(f).connect(ng).connect(this.sfx);s.start(t);s.stop(t+.16);},
+ letup(){const c=this.pastikan();if(!c||this.senyap||!this.on.loceng)return;const t=c.currentTime;
+  const s=c.createBufferSource();s.buffer=this.bising();
+  const f=c.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(2600,t);
+  f.frequency.exponentialRampToValueAtTime(180,t+1.1);
+  const g=c.createGain();g.gain.setValueAtTime(.34,t);g.gain.exponentialRampToValueAtTime(.0001,t+1.3);
+  s.connect(f).connect(g).connect(this.sfx);s.start(t);s.stop(t+1.4);
+  [196,261.63,392].forEach((fr,i)=>{const o=c.createOscillator(),og=c.createGain();
+   o.type='sine';o.frequency.value=fr;og.gain.setValueAtTime(0,t+.15);
+   og.gain.linearRampToValueAtTime(.06/(i+1),t+.3);og.gain.exponentialRampToValueAtTime(.0001,t+3.2);
+   o.connect(og).connect(this.sfx);o.start(t+.15);o.stop(t+3.3);});},
+ nada(f,pj,v){const c=this.pastikan();if(!c||this.senyap||!this.on.loceng)return;
+  const t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+  o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v||.08,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+pj);o.connect(g).connect(this.sfx);o.start(t);o.stop(t+pj+.05);},
+ jaya(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>setTimeout(()=>this.nada(f,1.5,.07),i*110));},
+ belum(){this.nada(261.63,1.3,.06);setTimeout(()=>this.nada(196,1.6,.05),160);},
+ mulaAngin(){if(this.anginHidup||!this.on.pad)return;const c=this.pastikan();if(!c)return;
+  const t=c.currentTime;
+  this.angin=c.createBufferSource();this.angin.buffer=this.bising();this.angin.loop=true;
+  this.anginF=c.createBiquadFilter();this.anginF.type='bandpass';this.anginF.frequency.value=520;this.anginF.Q.value=.55;
+  this.anginG=c.createGain();this.anginG.gain.setValueAtTime(0,t);
+  this.anginG.gain.linearRampToValueAtTime(.05,t+1.6);
+  this.angin.connect(this.anginF).connect(this.anginG).connect(this.sfx);
+  this.angin.start(t);this.anginHidup=true;},
+ anginGerak(maju,kuat){if(!this.anginHidup||!this.ctx)return;const t=this.ctx.currentTime;
+  try{this.anginG.gain.setTargetAtTime(.03+maju*.05+kuat*.05,t,.15);
+      this.anginF.frequency.setTargetAtTime(380+maju*760+kuat*260,t,.2);}catch(e){}},
+ hentiAngin(){if(!this.anginHidup)return;const g=this.anginG,s=this.angin;
+  this.anginHidup=false;this.angin=null;this.anginG=null;this.anginF=null;
+  try{if(g&&this.ctx)g.gain.setTargetAtTime(0,this.ctx.currentTime,.4);}catch(e){}
+  setTimeout(()=>{try{s&&s.stop();s&&s.disconnect();}catch(e){}},1200);},
+ setPad(v){this.on.pad=!!v;if(this.padGain&&this.ctx)
+  try{this.padGain.gain.setTargetAtTime(v?.075:0,this.ctx.currentTime,.8);}catch(e){}},
+ setVol(v){v=Number(v);if(!isFinite(v))return;this.vol=jepit(v,0,1);
+  if(this.ctx){try{if(this.master&&!this.senyap)this.master.gain.setTargetAtTime(this.vol,this.ctx.currentTime,.1);
+   if(this.sfx)this.sfx.gain.setTargetAtTime(this.senyap?0:this.vol,this.ctx.currentTime,.1);}catch(e){}}},
+ setSenyap(s){this.senyap=!!s;if(this.ctx){try{
+   if(this.master)this.master.gain.setTargetAtTime(s?0:this.vol,this.ctx.currentTime,.12);
+   if(this.sfx)this.sfx.gain.setTargetAtTime(s?0:this.vol,this.ctx.currentTime,.12);}catch(e){}}},
+ henti(){if(!this.hidup)return;this.hidup=false;
+  const o=this.padOsc,l=this.padLfo,s=this.nafasSrc,m=this.master;
+  this.padOsc=[];this.padLfo=null;this.nafasSrc=null;this.nafasGain=null;
+  this.nafasFil=null;this.padGain=null;this.master=null;this.echo=null;
+  try{if(m&&this.ctx)m.gain.setTargetAtTime(0,this.ctx.currentTime,.4);}catch(e){}
+  setTimeout(()=>{try{o.forEach(x=>{try{x.stop();x.disconnect();}catch(e){}});
+   if(l){try{l.stop();l.disconnect();}catch(e){}}
+   if(s){try{s.stop();s.disconnect();}catch(e){}}
+   if(m){try{m.disconnect();}catch(e){}}}catch(e){}},1200);}
+};
+
+/* ==================== MIKROFON ==================== */
+const MIC={stream:null,ctx:null,an:null,td:null,fd:null,hidup:false,
+ async mula(){ if(this.hidup)return true;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) return false;
+  try{ this.stream=await navigator.mediaDevices.getUserMedia({audio:{
+   echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); }catch(e){ return false; }
+  const AC=window.AudioContext||window.webkitAudioContext;
+  this.ctx=new AC(); if(this.ctx.state==='suspended')await this.ctx.resume();
+  const src=this.ctx.createMediaStreamSource(this.stream);
+  this.an=this.ctx.createAnalyser(); this.an.fftSize=2048; this.an.smoothingTimeConstant=.35;
+  src.connect(this.an);
+  this.td=new Float32Array(this.an.fftSize); this.fd=new Float32Array(this.an.frequencyBinCount);
+  this.hidup=true; return true;},
+ henti(){try{this.stream&&this.stream.getTracks().forEach(t=>t.stop());}catch(e){}
+  try{this.ctx&&this.ctx.close();}catch(e){}
+  this.stream=null;this.ctx=null;this.an=null;this.hidup=false;},
+ baca(){ if(!this.hidup)return{rms:0,rata:0,rendah:0};
+  this.an.getFloatTimeDomainData(this.td);
+  let j=0; for(let i=0;i<this.td.length;i++) j+=this.td[i]*this.td[i];
+  const rms=Math.sqrt(j/this.td.length);
+  this.an.getFloatFrequencyData(this.fd);
+  const N=this.fd.length,hz=this.ctx.sampleRate/2/N,b=f=>jepit(Math.round(f/hz),0,N-1);
+  const a1=b(150),a2=b(1500),a3=b(6000);
+  let sLin=0,sLog=0,n=0,eR=0,eS=0;
+  for(let i=a1;i<a3;i++){const lin=Math.pow(10,this.fd[i]/20);
+   sLin+=lin;sLog+=Math.log(lin+1e-12);n++;eS+=lin;if(i<a2)eR+=lin;}
+  const geo=Math.exp(sLog/Math.max(1,n)),ari=sLin/Math.max(1,n);
+  return{rms,rata:ari>0?geo/ari:0,rendah:eS>0?eR/eS:0};}
+};
+
+/* ==================== ENJIN INPUT (5 kaedah) ==================== */
+const INPUT={
+ kaedah:'mic',licin:0,gate:0,tekan:false,sapuKuasa:0,condongAsas:null,condongKini:0,
+ iramaMasa:0,iramaFasa:'tarik',iramaTepat:0,iramaJum:0,
+ reset(k){this.kaedah=k;this.licin=0;this.gate=0;this.tekan=false;this.sapuKuasa=0;
+  this.condongAsas=null;this.iramaMasa=0;this.iramaFasa='tarik';this.iramaTepat=0;this.iramaJum=0;},
+ mentah(dt){
+  switch(this.kaedah){
+   case 'mic':{
+    if(!MIC.hidup)return 0;
+    const kal=DB.data.kalibrasi,c=MIC.baca();
+    const gRata=smoothstep(c.rata,kal?kal.rataAmbang*.6:.10,kal?kal.rataAmbang:.26);
+    const gRendah=smoothstep(c.rendah,.30,.52);
+    const pintu=gRata*gRendah;
+    const lantai=kal?kal.senyap*1.9+.0015:.012;
+    const siling=kal?Math.max(kal.kuat,lantai*3):.09;
+    let v=100*jepit((c.rms-lantai)/(siling-lantai),0,1)*pintu;
+    if(pintu>.5&&v>8)this.gate+=dt;else this.gate=Math.max(0,this.gate-dt*1.6);
+    if(this.gate<100)v*=this.gate/100;                 // mesti berterusan ≥100ms
+    return v;}
+   case 'tahan':{
+    if(this.tekan){this.gate+=dt;
+     return jepit(28+this.gate/1000*20,0,96);}         // makin lama hembus, makin laju
+    this.gate=Math.max(0,this.gate-dt*2.2);return 0;}
+   case 'irama':{
+    this.iramaMasa+=dt;
+    const kitar=10000,p=this.iramaMasa%kitar;
+    this.iramaFasa=p<4000?'tarik':'hembus';
+    const dlm=this.iramaFasa==='hembus';
+    if(dlm)this.iramaJum+=dt;
+    if(this.tekan&&dlm){this.iramaTepat+=dt;return 88;}
+    if(this.tekan&&!dlm)return 0;                      // menekan waktu tarik tak menggerakkan
+    return 0;}
+   case 'condong':{
+    if(this.condongAsas===null)return 0;
+    const beza=this.condongKini-this.condongAsas;
+    return jepit((beza-4)/22,0,1)*100;}
+   case 'sapu':{
+    this.sapuKuasa*=Math.pow(.90,dt/16);
+    return jepit(this.sapuKuasa,0,100);}
+  }
+  return 0;},
+ kira(dt){
+  const m=this.mentah(dt),naik=m>this.licin;
+  this.licin+=(m-this.licin)*(naik?.34:.13);
+  return jepit(this.licin,0,100);}
+};
+window.addEventListener('deviceorientation',e=>{
+ if(e.beta==null)return;
+ INPUT.condongKini=e.beta;
+ if(INPUT.kaedah==='condong'&&INPUT.condongAsas===null)INPUT.condongAsas=e.beta;
+});
+
+/* ==================== LOGIN & NAV ==================== */
+const AKAUN={admin:"abcd1234"};
+function cubaLogin(){
+ const u=$('inUser').value.trim().toLowerCase(),p=$('inPass').value,err=$('errBox');
+ if(!u||!p){err.textContent='Sila isi nama pengguna dan kata laluan.';err.classList.add('on');return;}
+ if(AKAUN[u]!==p){err.textContent='Nama pengguna atau kata laluan tidak sah.';err.classList.add('on');$('inPass').value='';return;}
+ err.classList.remove('on');
+ $('namaUser').textContent=u;$('drawerNama').textContent=u;$('avatarTxt').textContent=u.charAt(0).toUpperCase();
+ $('login').style.display='none';segarDashboard();
+}
+$('btnLogin').onclick=cubaLogin;
+$('inPass').addEventListener('keydown',e=>{if(e.key==='Enter')cubaLogin();});
+$('inUser').addEventListener('keydown',e=>{if(e.key==='Enter')$('inPass').focus();});
+$('btnLogout').onclick=()=>{tutupDrawer();$('inPass').value='';$('login').style.display='flex';tukarView('dash');};
+const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',rekod:'Rekod',tetapan:'Tetapan'};
+function bukaDrawer(){$('drawer').classList.add('on');$('scrim').classList.add('on');$('burger').classList.add('x');}
+function tutupDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on');$('burger').classList.remove('x');}
+$('burger').onclick=()=>$('drawer').classList.contains('on')?tutupDrawer():bukaDrawer();
+$('scrim').onclick=tutupDrawer;
+function tukarView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.toggle('on',el.dataset.view===v));
+  document.querySelectorAll('.dItem').forEach(el=>el.classList.toggle('on',el.dataset.go===v));
+  $('tajukView').textContent=TAJUK[v]||'Inner Flow';$('bodyScroll').scrollTop=0;
+  if(v==='dash')segarDashboard(); if(v==='rekod')paparRekodPenuh();
+  if(v==='solat'){muatWaktuSolat(true).then(()=>{lukisSolat();lukisSolatCalendar();});}
+}
+document.querySelectorAll('.dItem').forEach(el=>{el.onclick=()=>{tukarView(el.dataset.go);tutupDrawer();};});
+
+/* ==================== RANGKA ==================== */
+const PANGKAL={x:180,y:206};
+const L={tulang:58,kepala:17,bahu:19,lenganAtas:32,lenganBawah:30,peha:38,betis:38,pinggul:12};
+const rad=d=>d*Math.PI/180;
+const gerakP=(p,s,j)=>({x:p.x+Math.sin(rad(s))*j,y:p.y-Math.cos(rad(s))*j});
+const mudah=t=>.5-.5*Math.cos(Math.PI*jepit(t,0,1));
+const campurPose=(a,b,t)=>{const o={};for(const k in BERDIRI)o[k]=lerp(a[k],b[k],t);return o;};
+const cerminPose=p=>Object.assign({},p,{bahuK:p.bahuN,sikuK:p.sikuN,bahuN:p.bahuK,sikuN:p.sikuK});
+function kiraRangka(pose){
+ const pinggul={x:PANGKAL.x,y:PANGKAL.y-pose.naik},c=pose.condong;
+ const leher=gerakP(pinggul,c,L.tulang),kepala=gerakP(leher,c+pose.kepala,L.kepala);
+ const bahuKanan=gerakP(leher,c+90,L.bahu),bahuKiri=gerakP(leher,c-90,L.bahu);
+ const pinggulKanan=gerakP(pinggul,c+90,L.pinggul),pinggulKiri=gerakP(pinggul,c-90,L.pinggul);
+ const sikuKn=gerakP(bahuKanan,c+pose.bahuN,L.lenganAtas);
+ const tanganKn=gerakP(sikuKn,c+pose.bahuN-pose.sikuN,L.lenganBawah);
+ const sikuKr=gerakP(bahuKiri,c-pose.bahuK,L.lenganAtas);
+ const tanganKr=gerakP(sikuKr,c-pose.bahuK+pose.sikuK,L.lenganBawah);
+ const lututKn=gerakP(pinggulKanan,180-pose.kangkang-pose.lutut*.35,L.peha);
+ const kakiKn=gerakP(lututKn,180-pose.kangkang*.22,L.betis);
+ const lututKr=gerakP(pinggulKiri,180+pose.kangkang+pose.lutut*.35,L.peha);
+ const kakiKr=gerakP(lututKr,180+pose.kangkang*.22,L.betis);
+ const tt=f=>({x:lerp(pinggul.x,leher.x,f),y:lerp(pinggul.y,leher.y,f)});
+ return{pinggul,leher,kepala,bahuKanan,bahuKiri,pinggulKanan,pinggulKiri,sikuKn,tanganKn,sikuKr,tanganKr,
+  lututKn,kakiKn,lututKr,kakiKr,condong:c,titikTulang:tt,pusatDada:tt(.68),pusatPerut:tt(.26),garisDiaf:tt(.47)};
+}
+function ikonGerak(g){
+ const r=kiraRangka(g.pose.in),sk=.33,ox=-180*sk+34,oy=-118*sk+3;
+ const t=p=>`${(p.x*sk+ox).toFixed(1)},${(p.y*sk+oy).toFixed(1)}`;
+ return `<svg viewBox="0 0 68 56">
+  <path d="M ${t(r.kakiKr)} L ${t(r.lututKr)} L ${t(r.pinggulKiri)} L ${t(r.pinggulKanan)} L ${t(r.lututKn)} L ${t(r.kakiKn)}"
+   fill="none" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M ${t(r.tanganKr)} L ${t(r.sikuKr)} L ${t(r.bahuKiri)} L ${t(r.bahuKanan)} L ${t(r.sikuKn)} L ${t(r.tanganKn)}"
+   fill="none" stroke="rgba(255,255,255,.9)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="${(r.pinggul.x*sk+ox).toFixed(1)}" y1="${(r.pinggul.y*sk+oy).toFixed(1)}"
+        x2="${(r.leher.x*sk+ox).toFixed(1)}" y2="${(r.leher.y*sk+oy).toFixed(1)}"
+   stroke="rgba(255,255,255,.7)" stroke-width="3.4" stroke-linecap="round"/>
+  <circle cx="${(r.kepala.x*sk+ox).toFixed(1)}" cy="${(r.kepala.y*sk+oy).toFixed(1)}" r="5" fill="rgba(255,255,255,.9)"/></svg>`;
+}
+
+/* ==================== KAD & SEDIA ==================== */
+let pilihan=0,gerakPilih=0,tempoh=5,getarOn=true,tenagaOn=true;
+const kadTeknik=(t,i)=>`<div class="tCard" onclick="bukaSedia(${i})">
+ <div class="tGlow" style="background:${t.warna[0]}"></div>
+ <svg viewBox="0 0 360 360"><path d="${t.laluan}" fill="none" stroke="${t.warna[0]}" stroke-width="14"
+  stroke-linejoin="round" stroke-linecap="round" opacity=".95"/></svg>
+ <b>${t.nama}</b><small>${t.fasa.map(p=>p.d).join('·')} · ${t.sub}</small></div>`;
+$('gridTeknik').innerHTML=TEKNIK.map(kadTeknik).join('');
+function pasangGerak(bekas,infoEl){
+ bekas.innerHTML=GERAKAN.map((g,i)=>
+  `<div class="gCard${i===gerakPilih?' on':''}" data-i="${i}">${ikonGerak(g)}<b>${g.nama}</b><small>${g.gaya}</small></div>`).join('');
+ [...bekas.children].forEach(el=>{el.onclick=()=>{gerakPilih=+el.dataset.i;segarGerak();};});
+ if(infoEl)infoEl.textContent=GERAKAN[gerakPilih].info;}
+function segarGerak(){[['rowGerak','gerakInfo'],['rowGerak2',null]].forEach(([b,inf])=>{
+ const bk=$(b);if(!bk)return;[...bk.children].forEach((el,i)=>el.classList.toggle('on',i===gerakPilih));
+ if(inf)$(inf).textContent=GERAKAN[gerakPilih].info;});}
+pasangGerak($('rowGerak'),$('gerakInfo')); pasangGerak($('rowGerak2'),null);
+function pilihTempohUI(m){document.querySelectorAll('#tempohRow .opt').forEach(x=>x.classList.toggle('on',+x.dataset.min===m));}
+function bukaSedia(i){pilihan=i;const t=TEKNIK[i];
+ $('sediaNama').textContent=t.nama;$('sediaPola').textContent=t.fasa.map(p=>`${p.l} ${p.d}s`).join('  ·  ');
+ segarGerak();$('sedia').classList.add('on');}
+$('batalBtn').onclick=()=>$('sedia').classList.remove('on');
+document.querySelectorAll('#tempohRow .opt').forEach(o=>{o.onclick=()=>{pilihTempohUI(+o.dataset.min);tempoh=+o.dataset.min;};});
+function sw(id,set){const el=$(id);el.onclick=()=>{el.classList.toggle('on');set(el.classList.contains('on'));};}
+sw('swPad',v=>AUDIO.setPad(v));sw('swNafas',v=>AUDIO.on.nafas=v);
+sw('swLoceng',v=>AUDIO.on.loceng=v);sw('swGetar',v=>getarOn=v);
+sw('swTenaga',v=>{tenagaOn=v;$('btnTenaga').classList.toggle('off',!v);});
+$('vol').oninput=e=>{const v=parseFloat(e.target.value);AUDIO.setVol(isFinite(v)?v/100:.7);};
+$('sasarSlider').oninput=e=>{DB.data.sasarHarian=+e.target.value;$('sasarNum').textContent=e.target.value;DB.simpan();segarDashboard();};
+const getar=p=>{if(getarOn&&navigator.vibrate)navigator.vibrate(p);};
+
+/* ==================== SOLAT ==================== */
+const API_URL='https://api.waktusolat.app/v2/solat';
+const CORS_PROXY='';
+const DEFAULT_ZONE='WLY01';
+const ZONE_MAP={
+  'WLY01':'Kuala Lumpur',
+  'SWK01':'Sarawak',
+  'SWK02':'Sabah',
+  'JHR01':'Johor',
+  'KDH01':'Kedah',
+  'KTN01':'Kelantan',
+  'MEL01':'Melaka',
+  'NSN01':'Negeri Sembilan',
+  'PHG01':'Pahang',
+  'PER01':'Perak',
+  'PNG01':'Pulau Pinang',
+  'PRK01':'Perak',
+  'PTK01':'Putrajaya',
+  'SGR01':'Selangor',
+  'TRG01':'Terengganu'
+};
+let waktuSolat={};
+let currentLocation={lat:null,lng:null,q:'Malaysia',zone:DEFAULT_ZONE};
+const solatMap={
+  subuh:'fajr',zohor:'dhuhr',asar:'asr',maghrib:'maghrib',isyak:'isha'
+};
+const fallbackTimes={
+  subuh:'5:15',zohor:'13:15',asar:'16:30',maghrib:'19:00',isyak:'20:15'
+};
+function formatTimestamp(ts){
+  if(!ts)return '---';
+  const d=new Date(ts*1000);
+  if(isNaN(d.getTime()))return '---';
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+async function dapatkanWaktuSolat(zone,tahun,bulan){
+  if(!zone)zone=DEFAULT_ZONE;
+  const bulanStr=bulan!==null&&bulan!==undefined?String(bulan+1).padStart(2,'0'):'';
+  const tahunStr=tahun!==null&&tahun!==undefined?tahun:'';
+  let url=`${API_URL}/${zone}?year=${tahunStr}&month=${bulanStr}`.replace(/[?&]$/,'').replace(/(\?&)/,'?');
+  if(CORS_PROXY)url=CORS_PROXY+encodeURIComponent(url);
+  try{
+    const r=await fetch(url,{mode:CORS_PROXY?'cors':'no-cors'});
+    if(!r.ok&&r.status!==0)throw new Error(`HTTP ${r.status}`);
+    let d=null;
+    try{d=await r.json();}catch(e2){
+      if(CORS_PROXY)throw e2;
+      console.log('Trying with proxy...');
+      const proxyUrl=`https://api.allorigins.win/raw/${encodeURIComponent(url)}`;
+      const rp=await fetch(proxyUrl,{mode:'cors'});
+      if(!rp.ok)throw new Error(`Proxy HTTP ${rp.status}`);
+      d=await rp.json();
+    }
+    if(d.prayers){
+      const today=new Date();
+      const todayNum=today.getDate();
+      const todayPrayer=d.prayers.find(p=>p.day===todayNum)||d.prayers[0];
+      const w={};
+      w.subuh=formatTimestamp(todayPrayer.fajr);
+      w.zohor=formatTimestamp(todayPrayer.dhuhr);
+      w.asar=formatTimestamp(todayPrayer.asr);
+      w.maghrib=formatTimestamp(todayPrayer.maghrib);
+      w.isyak=formatTimestamp(todayPrayer.isha);
+      w.location={zone:d.zone,zoneName:ZONE_MAP[d.zone]||d.zone};
+      w.raw=d;
+      w.lastUpdate=Date.now();
+      return w;
+    }else throw new Error(d.message||'No prayer times found');
+  }catch(e){
+    console.error('API error:',e);
+    return null;
+  }
+}
+async function muatWaktuSolat(force=false){
+  if(!force&&waktuSolat.lastUpdate&&Date.now()-waktuSolat.lastUpdate<86400000)return waktuSolat;
+  const now=new Date();
+  let w=await dapatkanWaktuSolat(currentLocation.zone,now.getFullYear(),now.getMonth());
+  if(w){
+    waktuSolat=w;
+    try{localStorage.setItem('waktuSolat_cache',JSON.stringify(w));}catch(e){}
+  }else{
+    try{const cached=localStorage.getItem('waktuSolat_cache');
+      if(cached){waktuSolat=JSON.parse(cached);}}catch(e){}
+    if(!waktuSolat.subuh){
+      waktuSolat=Object.assign({},fallbackTimes,{lastUpdate:0,location:{zone:DEFAULT_ZONE,zoneName:'Kuala Lumpur'},offline:true});
+      $('solatOffline').style.display='block';
+    }
+  }
+  return waktuSolat;
+}
+const solatToggle=(id)=>{
+  if(!DB.data.solat)return;
+  const k=hariIni();
+  if(!DB.data.solat[k])DB.data.solat[k]={};
+  const existing=DB.data.solat[k][id];
+  if(existing&&typeof existing==='object'&&existing.waktu){
+    DB.data.solat[k][id]={waktu:existing.waktu,berjemaah:!existing.berjemaah};
+  }else if(existing&&typeof existing==='boolean'){
+    if(!existing){
+      DB.data.solat[k][id]={waktu:new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0'),berjemaah:false};
+    }else{
+      delete DB.data.solat[k][id];
+    }
+  }else if(!existing){
+    DB.data.solat[k][id]={waktu:new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0'),berjemaah:false};
+  }else{
+    DB.data.solat[k][id]=!DB.data.solat[k][id];
+  }
+  DB.simpan();
+  lukisSolat();
+  lukisSolatCalendar();
+  segarDashboard();
+  getar([15,25]);
+};
+const solatBerjemaah=(dateStr,id)=>{
+  if(!DB.data.solat[dateStr])DB.data.solat[dateStr]={};
+  const existing=DB.data.solat[dateStr][id];
+  if(existing&&typeof existing==='object'){
+    DB.data.solat[dateStr][id]=Object.assign({},existing,{berjemaah:!existing.berjemaah});
+  }else if(existing){
+    DB.data.solat[dateStr][id]={waktu:new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0'),berjemaah:true};
+  }else{
+    DB.data.solat[dateStr][id]={waktu:new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0'),berjemaah:true};
+  }
+  DB.simpan();
+  lukisSolatCalendar();
+  if(hariIni()===dateStr)lukisSolat();
+  segarDashboard();
+  getar([20,40]);
+};
+const solatDayToggle=(dateStr,id)=>{
+  if(!DB.data.solat)return;
+  if(!DB.data.solat[dateStr])DB.data.solat[dateStr]={};
+  const existing=DB.data.solat[dateStr][id];
+  if(existing&&typeof existing==='object'){
+    DB.data.solat[dateStr][id]=!existing;
+  }else if(!existing){
+    const now=new Date();
+    DB.data.solat[dateStr][id]={waktu:now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0'),berjemaah:false};
+  }else{
+    delete DB.data.solat[dateStr][id];
+  }
+  DB.simpan();
+  lukisSolatCalendar();
+  if(hariIni()===dateStr)lukisSolat();
+  segarDashboard();
+  getar([15,25]);
+};
+function lukisSolat(){
+  const k=hariIni(),s=DB.data.solat[k]||{};
+  const wt=waktuSolat;
+  $('solatGrid').innerHTML=SOLAT.map(item=>{
+    const solatData=s[item.id];
+    const sel=!!solatData;
+    const jemaah=solatData&&typeof solatData==='object'&&solatData.berjemaah;
+    const solatWaktu=solatData&&typeof solatData==='object'?solatData.waktu:'';
+    const waktuDisplay=wt[item.id]||item.waktu;
+    let subText=waktuDisplay;
+    if(solatWaktu)subText=waktuDisplay+' • '+solatWaktu;
+    if(jemaah)subText+=' · 🧕';
+    return`<div class="solatCard${sel?' on':''}" data-id="${item.id}">
+      <div class="solatInfo" onclick="solatToggle('${item.id}')">
+        <div class="sEmoji">${item.emoji}</div>
+        <div class="sText">
+          <b>${item.nama}</b>
+          <small>${subText}</small>
+        </div>
+      </div>
+      <div class="solatCheck">
+        ${sel?`<span onclick="solatBerjemaah('${k}','${item.id}')" style="cursor:pointer;font-size:14px;opacity:${jemaah?0.5:0.3}" title="${jemaah?'Berhentikan berjemaah':'Jadikan berjemaah'}">🧕</span>`:''}
+      </div>
+    </div>`;}).join('');
+}
+function lukisSolatCalendar(){
+  const d=new Date();
+  const calD=myCalMonth||{m:d.getMonth(),y:d.getFullYear()};
+  const th=calD.m,yr=calD.y;
+  const firstDay=new Date(yr,th,1),lastDay=new Date(yr,th+1,0);
+  const startDay=firstDay.getDay()===0?7:firstDay.getDay();
+  const totalDays=lastDay.getDate();
+  const days=['Ahd','Isn','Sel','Rab','Kha','Jum','Sab'];
+  const kunciHariF=f=>f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0')+'-'+String(f.getDate()).padStart(2,'0');
+  const monthNames=['Januari','Februari','Maret','April','Mei','Jun','Juli','Agustus','September','Oktober','November','Desember'];
+  $('calMonth').textContent=monthNames[th]+' '+yr;
+  let html=`<div class="calGrid">`;
+  days.forEach(day=>{html+=`<div style="text-align:center;color:var(--dim2);padding:4px;font-size:10px">${day[0]}</div>`;});
+  for(let i=1;i<startDay;i++){html+=`<div></div>`;}
+  for(let day=1;day<=totalDays;day++){
+    const dateObj=new Date(yr,th,day);
+    const dateStr=kunciHariF(dateObj);
+    const solatHari=DB.data.solat[dateStr]||{};
+    const bil=SOLAT.filter(s=>solatHari[s.id]).length;
+    const isToday=kunciHariF(new Date())===dateStr;
+    let cls='calDay';
+    if(isToday)cls+=' aktif';
+    let bgColor='';
+    if(bil>=5)bgColor='background:rgba(52,211,153,.18)';
+    else if(bil>=3)bgColor='background:rgba(56,189,248,.18)';
+    else if(bil>=1)bgColor='background:rgba(251,191,36,.18)';
+    html+=`<div class="${cls}" style="${bgColor}" onclick="bukaSolatHari('${dateStr}',${day})">
+      <div class="calDate">${day}</div>
+      <div class="calCount">${bil}/5</div></div>`;
+  }
+  html+=`</div>`;
+  $('solatCalendar').innerHTML=html;
+}
+function prevMonth(){
+  const d=new Date();
+  myCalMonth=myCalMonth||{m:d.getMonth(),y:d.getFullYear()};
+  myCalMonth.m--;
+  if(myCalMonth.m<0){myCalMonth.m=11;myCalMonth.y--;}
+  lukisSolatCalendar();
+}
+function nextMonth(){
+  const d=new Date();
+  myCalMonth=myCalMonth||{m:d.getMonth(),y:d.getFullYear()};
+  myCalMonth.m++;
+  if(myCalMonth.m>11){myCalMonth.m=0;myCalMonth.y++;}
+  lukisSolatCalendar();
+}
+function bukaSolatHari(dateStr,dayNum){
+  if(DB.data.solat[dateStr]){myCalMonth=null;}
+  const s=DB.data.solat[dateStr]||{};
+  let html=`<div style="margin-bottom:16px"><b style="font-size:18px">${new Date(dateStr+'T00:00:00').toLocaleDateString('ms-MY',{dateStyle:'full'})}</b>
+    <div style="font-size:12px;color:var(--dim2);margin-top:4px">Tekan semula kalendar untuk kembali ke bulan ini</div></div>`;
+  html+=SOLAT.map(item=>{
+    const solatData=s[item.id];
+    const sel=!!solatData;
+    const jemaah=solatData&&typeof solatData==='object'&&solatData.berjemaah;
+    const solatWaktu=solatData&&typeof solatData==='object'?solatData.waktu:'';
+    const waktuDisplay=waktuSolat[item.id]||item.waktu;
+    let subText=waktuDisplay;
+    if(solatWaktu)subText=waktuDisplay+' • '+solatWaktu;
+    if(jemaah)subText+=' · 🧕';
+    return`<div class="solatCard${sel?' on':''}" onclick="solatBerjemaah('${dateStr}','${item.id}')">
+      <div class="solatInfo"><div class="sEmoji">${item.emoji}</div>
+        <div class="sText"><b>${item.nama}</b><small>${subText}</small></div></div>
+      <div class="solatCheck">${sel?'✓':''}</div></div>`;}).join('');
+  $('solatGrid').innerHTML=html;
+}
+function hariSolatKomplit(){
+  const k=hariIni(),s=DB.data.solat[k]||{};
+  return SOLAT.filter(x=>s[x.id]).length>=3;
+}
+
+/* ==================== SESI NAFAS ==================== */
+const hantu=$('hantu'),jejak=$('jejak'),penanda=$('penanda');
+const E={kaki:$('kaki'),torso:$('torso'),lengan:$('lengan'),dada:$('dada'),perut:$('perut'),diaf:$('diafragma'),
+ kepala:$('kepala'),mulut:$('mulut'),tapakK:$('tapakK'),tapakN:$('tapakN'),sfera:$('sfera'),sferaTepi:$('sferaTepi'),
+ zarah:$('zarah'),cakra:$('cakra'),mahkota:$('mahkota'),mahkotaP:$('mahkotaP'),aliran:$('nafasAliran'),anak:$('nafasAnak')};
+const cakraEls=CAKRA.map(c=>{const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+ const h=document.createElementNS("http://www.w3.org/2000/svg","circle");
+ h.setAttribute("r",6);h.setAttribute("fill",c);h.setAttribute("opacity",.18);
+ const k=document.createElementNS("http://www.w3.org/2000/svg","circle");
+ k.setAttribute("r",2.4);k.setAttribute("fill",c);g.append(h,k);E.cakra.appendChild(g);return{h,k};});
+const ZARAH=Array.from({length:26},()=>{const el=document.createElementNS("http://www.w3.org/2000/svg","circle");
+ el.setAttribute("r",.9+Math.random()*1.8);el.setAttribute("fill","rgba(255,255,255,.8)");E.zarah.appendChild(el);
+ const a=Math.random()*6.283,r=42+Math.random()*100;
+ return{el,x:180+Math.cos(a)*r*.62,y:70+Math.random()*250,sp:.4+Math.random()*.9,ph:Math.random()*6.283};});
+let S=null;
+const hentian=(t,pj)=>{const n=t.fasa.length;
+ if(t.sudut){const s=[0];for(let i=1;i<=n;i++)s.push(pj*i/n);return s;}
+ const jum=t.fasa.reduce((a,p)=>a+p.d,0);const s=[0];let ak=0;
+ t.fasa.forEach(p=>{ak+=p.d;s.push(pj*ak/jum);});return s;};
+const isiParu=t=>{let c=0;return t.fasa.map(p=>{const a=c,b=masuk(p.l)?1:keluar(p.l)?0:c;c=b;return[a,b];});};
+const jenisFasa=l=>masuk(l)?'in':keluar(l)?'out':'hold';
+const poseUntuk=(g,l,pus)=>{let p=g.pose[jenisFasa(l)]||BERDIRI;if(g.alt&&pus%2===0)p=cerminPose(p);return p;};
+$('mulaBtn').onclick=()=>{
+ const t=TEKNIK[pilihan],g=GERAKAN[gerakPilih];
+ $('sedia').classList.remove('on');$('sesi').style.background=t.bg;$('sesi').classList.add('on');
+ $('sesiTajuk').textContent=t.nama;$('sesiGerak').textContent=g.id==='tiada'?'Nafas sahaja':g.nama;
+ $('btnTenaga').classList.toggle('off',!tenagaOn);
+ AUDIO.senyap=false;AUDIO.mula();
+ const vs=parseFloat($('vol').value);AUDIO.setVol(isFinite(vs)?vs/100:.7);
+ $('btnAudio').textContent='🔊';$('btnAudio').classList.remove('off');
+ hantu.setAttribute('d',t.laluan);jejak.setAttribute('d',t.laluan);
+ const pj=hantu.getTotalLength();jejak.style.strokeDasharray=pj;jejak.style.strokeDashoffset=pj;
+ S={t,g,pj,stop:hentian(t,pj),isiP:isiParu(t),fasa:0,lalu:0,pusingan:1,jeda:false,akhir:performance.now(),
+    raf:0,tamat:false,jumlah:tempoh*60*1000,jumLalu:0,nafasKira:0,disimpan:false,
+    poseA:poseUntuk(g,t.fasa[t.fasa.length-1].l,1),poseB:poseUntuk(g,t.fasa[0].l,1),
+    niat:{in:$('niatIn').value.trim(),hold:$('niatHold').value.trim(),out:$('niatOut').value.trim()}};
+ $('btnJeda').textContent='❚❚';$('masaBaki').textContent='−'+mmss(tempoh*60);
+ isyaratFasa(t.fasa[0].l);S.raf=requestAnimationFrame(pusing);
+};
+const isyaratFasa=l=>{const j=jenisFasa(l);AUDIO.loceng(j);getar(j==='hold'?[14]:[26]);};
+function lukisBadan(t,label,k,e,dt,now,pose){
+ const roh=t.roh||{},on=tenagaOn?1:0,dK=t.dadaLemah??1;
+ const pz=Object.assign({},pose,{naik:pose.naik+Math.sin(now/2300)*1.1,condong:pose.condong+Math.sin(now/2900)*.8});
+ const r=kiraRangka(pz);
+ E.kaki.setAttribute('d',`M ${r.kakiKr.x} ${r.kakiKr.y} L ${r.lututKr.x} ${r.lututKr.y} L ${r.pinggulKiri.x} ${r.pinggulKiri.y} L ${r.pinggulKanan.x} ${r.pinggulKanan.y} L ${r.lututKn.x} ${r.lututKn.y} L ${r.kakiKn.x} ${r.kakiKn.y}`);
+ E.tapakK.setAttribute('cx',r.kakiKr.x);E.tapakK.setAttribute('cy',r.kakiKr.y);
+ E.tapakN.setAttribute('cx',r.kakiKn.x);E.tapakN.setAttribute('cy',r.kakiKn.y);
+ E.torso.setAttribute('d',`M ${r.pinggulKiri.x} ${r.pinggulKiri.y} L ${r.bahuKiri.x} ${r.bahuKiri.y} L ${r.bahuKanan.x} ${r.bahuKanan.y} L ${r.pinggulKanan.x} ${r.pinggulKanan.y} Z`);
+ E.lengan.setAttribute('d',`M ${r.tanganKr.x} ${r.tanganKr.y} L ${r.sikuKr.x} ${r.sikuKr.y} L ${r.bahuKiri.x} ${r.bahuKiri.y} M ${r.tanganKn.x} ${r.tanganKn.y} L ${r.sikuKn.x} ${r.sikuKn.y} L ${r.bahuKanan.x} ${r.bahuKanan.y}`);
+ E.kepala.setAttribute('cx',r.kepala.x);E.kepala.setAttribute('cy',r.kepala.y);
+ E.dada.setAttribute('cx',r.pusatDada.x);E.dada.setAttribute('cy',r.pusatDada.y);
+ E.dada.setAttribute('rx',18*(1+.13*e*dK));E.dada.setAttribute('ry',14*(1+.09*e*dK));
+ E.dada.setAttribute('transform',`rotate(${r.condong},${r.pusatDada.x},${r.pusatDada.y})`);
+ E.perut.setAttribute('cx',r.pusatPerut.x);E.perut.setAttribute('cy',r.pusatPerut.y);
+ E.perut.setAttribute('rx',15*(1+t.perut*e));E.perut.setAttribute('ry',12*(1+t.perut*.7*e));
+ E.perut.setAttribute('transform',`rotate(${r.condong},${r.pusatPerut.x},${r.pusatPerut.y})`);
+ const dk=gerakP(r.garisDiaf,r.condong-90,15),dn=gerakP(r.garisDiaf,r.condong+90,15),dt2=gerakP(r.garisDiaf,r.condong+180,-4+9*e);
+ E.diaf.setAttribute('d',`M ${dk.x} ${dk.y} Q ${dt2.x} ${dt2.y} ${dn.x} ${dn.y}`);
+ const nguap=/menguap/i.test(label),hela=/hela/i.test(label);
+ const m=gerakP(r.kepala,r.condong+pose.kepala+170,8);
+ E.mulut.setAttribute('cx',m.x);E.mulut.setAttribute('cy',m.y);
+ E.mulut.setAttribute('ry',nguap?1.4+8*Math.sin(k*Math.PI):hela?1.4+4*Math.sin(k*Math.PI):keluar(label)?3:1.4);
+ E.mulut.setAttribute('rx',nguap?6:4);
+ const h1=gerakP(r.kepala,r.condong+pose.kepala,20),h2=gerakP(r.kepala,r.condong+pose.kepala,40);
+ if(masuk(label)||keluar(label)){E.aliran.setAttribute('opacity',.3+.5*Math.sin(k*Math.PI));
+  const a=masuk(label)?h1:h2,b=masuk(label)?h2:h1;E.anak.setAttribute('d',`M ${b.x} ${b.y} L ${a.x} ${a.y}`);
+ } else E.aliran.setAttribute('opacity',0);
+ const sk=1+.16*e,kilau=1+.012*Math.sin(now/620);
+ E.sfera.setAttribute('opacity',on&&roh.aura?.28+.5*e:0);
+ E.sferaTepi.setAttribute('opacity',on&&roh.aura?.22+.45*e:0);
+ E.sfera.setAttribute('transform',`translate(180,190) scale(${sk*kilau}) translate(-180,-190)`);
+ E.sferaTepi.setAttribute('transform',`translate(180,190) scale(${sk*kilau*1.09}) translate(-180,-190)`);
+ const adaC=on&&roh.cakra;E.cakra.setAttribute('opacity',adaC?1:0);
+ if(adaC){const capai=roh.cakraRendah?e*4.2:e*7;
+  cakraEls.forEach((c,i)=>{const f=i/6,ttk=i<6?r.titikTulang(f*1.05):r.kepala;
+   const ny=jepit(capai-i,0,1),dnp=1+.16*ny*Math.sin(now/300+i);
+   c.h.setAttribute('cx',ttk.x);c.h.setAttribute('cy',ttk.y);c.k.setAttribute('cx',ttk.x);c.k.setAttribute('cy',ttk.y);
+   c.h.setAttribute('r',(4.5+6.5*ny)*dnp);c.h.setAttribute('opacity',.10+.38*ny);
+   c.k.setAttribute('r',1.7+2.4*ny);c.k.setAttribute('opacity',.35+.65*ny);});}
+ if(on&&roh.mahkota){const mk=gerakP(r.kepala,r.condong+pose.kepala,17);
+  const a1=gerakP(mk,r.condong,14),a2=gerakP(mk,r.condong-32,12),a3=gerakP(mk,r.condong+32,12);
+  E.mahkotaP.setAttribute('d',`M ${mk.x} ${mk.y} L ${a1.x} ${a1.y} M ${mk.x} ${mk.y} L ${a2.x} ${a2.y} M ${mk.x} ${mk.y} L ${a3.x} ${a3.y}`);
+  E.mahkota.setAttribute('opacity',Math.max(0,(e-.55)/.45)*.9);} else E.mahkota.setAttribute('opacity',0);
+ const adaZ=on&&roh.zarah;E.zarah.setAttribute('opacity',adaZ?1:0);
+ if(adaZ){const arah=masuk(label)?-1:keluar(label)?1:0,laju=(roh.lepas&&keluar(label))?1.9:1;
+  ZARAH.forEach(z=>{z.y+=arah*z.sp*laju*(dt/16);if(z.y<50)z.y=330;if(z.y>330)z.y=50;
+   const gy=Math.sin(now/700+z.ph)*6,sebar=keluar(label)?(1+.22*(1-e)):1;
+   z.el.setAttribute('cx',180+(z.x-180)*sebar+gy);z.el.setAttribute('cy',z.y);
+   z.el.setAttribute('opacity',arah===0?.16:.28+.45*Math.sin(k*Math.PI));});}
+ return pz;}
+const KAMUS={langit:{in:'angkat tangan ke langit',hold:'panjangkan tulang belakang',out:'turunkan tangan di sisi'},
+ panah:{in:'tolak sebelah, tarik busur',hold:'kekal dalam kuda-kuda',out:'kembali ke tengah'},
+ sayap:{in:'kembangkan sayap',hold:'rasa ruang di dada',out:'kumpul sayap ke sisi'},
+ tolak:{in:'tarik tangan ke dada',hold:'pusat berat di tengah',out:'tolak ke hadapan'},
+ bulan:{in:'hulur tangan ke atas',hold:'lentik lembut ke sisi',out:'turunkan ke jantung'},
+ lipat:{in:'panjangkan badan ke atas',hold:'ruang dalam tulang belakang',out:'lipat ke hadapan'}};
+function pusing(now){
+ if(!S)return;const dt=now-S.akhir;S.akhir=now;
+ if(!S.jeda&&!S.tamat){S.lalu+=dt;S.jumLalu+=dt;}
+ const f=S.t.fasa[S.fasa],tf=f.d*1000,k=Math.min(S.lalu/tf,1);
+ const a=S.stop[S.fasa],b=S.stop[S.fasa+1],di=a+(b-a)*k;
+ const p=hantu.getPointAtLength(di);
+ penanda.setAttribute('transform',`translate(${p.x},${p.y})`);
+ jejak.style.strokeDashoffset=S.pj-di;
+ const [i0,i1]=S.isiP[S.fasa],e=i0+(i1-i0)*k;
+ S.poseKini=lukisBadan(S.t,f.l,k,e,dt,now,campurPose(S.poseA,S.poseB,mudah(k)));
+ AUDIO.nafas(masuk(f.l),keluar(f.l),k,S.jeda||S.tamat);
+ $('fasaTxt').textContent=f.l;$('kiraTxt').textContent=Math.max(1,Math.ceil((tf-S.lalu)/1000));
+ $('niatTxt').textContent=masuk(f.l)?S.niat.in:keluar(f.l)?S.niat.out:S.niat.hold;
+ const nf=S.jeda?'Dijeda':masuk(f.l)?'Tarik nafas melalui hidung'
+  :/hela/i.test(f.l)?'Lepaskan dengan bunyi ahhh':/menguap/i.test(f.l)?'Buka mulut, biarkan kuap datang'
+  :keluar(f.l)?'Hembus perlahan melalui mulut':/rehat/i.test(f.l)?'Lembutkan rahang dan bahu':'Tahan dengan lembut';
+ const gk=(KAMUS[S.g.id]&&KAMUS[S.g.id][jenisFasa(f.l)])||'';
+ $('panduan').textContent=nf+(gk?' · '+gk:'');
+ $('isi').style.width=Math.min(100,(S.jumLalu/S.jumlah)*100)+'%';
+ $('masaLalu').textContent=mmss(S.jumLalu/1000);
+ $('masaBaki').textContent='−'+mmss(Math.max(0,(S.jumlah-S.jumLalu)/1000));
+ if(S.lalu>=tf&&!S.tamat){S.lalu=0;S.poseA=S.poseKini||S.poseB;S.fasa++;
+  if(S.fasa>=S.t.fasa.length){S.fasa=0;S.pusingan++;S.nafasKira++;jejak.style.strokeDashoffset=S.pj;}
+  S.poseB=poseUntuk(S.g,S.t.fasa[S.fasa].l,S.pusingan);isyaratFasa(S.t.fasa[S.fasa].l);}
+ if(S.jumLalu>=S.jumlah&&!S.tamat)return selesaiSesi();
+ S.raf=requestAnimationFrame(pusing);}
+function simpanSesi(sp){if(!S||S.disimpan)return;
+ const minit=Math.round(S.jumLalu/60000*10)/10;if(minit<.4)return;S.disimpan=true;
+ DB.tambah({jenis:'nafas',teknik:S.t.nama,gerakan:S.g.nama,minit,sasarMinit:Math.round(S.jumlah/60000),
+  nafasKira:S.nafasKira,selesai:!!sp});}
+function selesaiSesi(){S.tamat=true;
+ $('fasaTxt').textContent='Selesai';$('kiraTxt').textContent='✓';$('niatTxt').textContent='Terima kasih';
+ $('panduan').textContent='Berdiri diam seketika. Rasa kesannya dalam badan.';
+ $('isi').style.width='100%';jejak.style.strokeDashoffset=0;E.aliran.setAttribute('opacity',0);
+ AUDIO.nafas(false,false,0,true);AUDIO.gong();getar([30,60,30]);simpanSesi(true);setTimeout(tutupSesi,5000);}
+function tutupSesi(){if(S){simpanSesi(S.tamat);cancelAnimationFrame(S.raf);}S=null;AUDIO.henti();$('sesi').classList.remove('on');}
+$('btnJeda').onclick=()=>{if(!S||S.tamat)return;S.jeda=!S.jeda;$('btnJeda').textContent=S.jeda?'▶':'❚❚';};
+$('btnTenaga').onclick=()=>{tenagaOn=!tenagaOn;$('btnTenaga').classList.toggle('off',!tenagaOn);$('swTenaga').classList.toggle('on',tenagaOn);};
+$('btnAudio').onclick=()=>{AUDIO.setSenyap(!AUDIO.senyap);$('btnAudio').textContent=AUDIO.senyap?'🔇':'🔊';$('btnAudio').classList.toggle('off',AUDIO.senyap);};
+$('tamat').onclick=tutupSesi;
+
+/* ==================== ARENA EMOSI ==================== */
+let emosiPilih=0,kuat=6;
+$('eGrid').innerHTML=EMOSI.map((e,i)=>`<div class="eCard${i===0?' on':''}" data-i="${i}"><span>${e.emoji}</span><small>${e.nama}</small></div>`).join('');
+[...$('eGrid').children].forEach(el=>{el.onclick=()=>{emosiPilih=+el.dataset.i;
+ [...$('eGrid').children].forEach((c,i)=>c.classList.toggle('on',i===emosiPilih));};});
+$('kuatSlider').oninput=e=>{kuat=+e.target.value;$('kuatNum').textContent=kuat;};
+$('selepasSlider').oninput=e=>{$('selepasNum').textContent=e.target.value;};
+const kanvas=$('kanvas'),ctx2=kanvas.getContext('2d');
+let G=null;
+function saizKanvas(){const d=Math.min(window.devicePixelRatio||1,2),r=kanvas.getBoundingClientRect();
+ kanvas.width=Math.max(1,r.width*d);kanvas.height=Math.max(1,r.height*d);ctx2.setTransform(d,0,0,d,0,0);
+ if(G){G.W=r.width;G.H=r.height;}}
+window.addEventListener('resize',()=>{saizKanvas();saizJ();});
+$('btnLawan').onclick=()=>{
+ const em=EMOSI[emosiPilih];$('arena').classList.add('on');
+ $('arenaEmosi').textContent=em.nama+' '+em.emoji;
+ $('btnTumbuk').disabled=false;$('btnTendang').disabled=false;$('hasil').classList.remove('on');
+ AUDIO.pastikan();AUDIO.setVol(AUDIO.vol);$('arenaAudio').textContent=AUDIO.senyap?'🔇':'🔊';
+ requestAnimationFrame(()=>{saizKanvas();const r=kanvas.getBoundingClientRect();
+  G={em,W:r.width,H:r.height,hpMax:100,hp:100,perluHit:9+kuat*2,x:r.width/2,y:r.height*.42,
+     vx:(Math.random()<.5?-1:1)*(.9+kuat*.05),vy:.7,zarah:[],teks:[],cincin:[],goncang:0,
+     kombo:0,komboMax:0,komboMasa:0,hit:0,mula:performance.now(),akhir:performance.now(),
+     tamat:false,raf:0,nyala:0,cooldown:0,disimpan:false};
+  $('hpFill').style.width='100%';$('hpVal').textContent='100%';$('comboTxt').classList.remove('on');
+  $('arenaHint').textContent='Ketik terus pada bebola api, atau guna butang di bawah';
+  G.raf=requestAnimationFrame(gelungArena);});};
+const jariJari=()=>34+92*(G.hp/G.hpMax);
+function kenaHit(px,py,kh){if(!G||G.tamat)return;
+ G.hp=Math.max(0,G.hp-(G.hpMax/G.perluHit)*(kh?1.9:1));G.hit++;
+ const kini=performance.now();G.kombo=(kini-G.komboMasa<1400)?G.kombo+1:1;
+ G.komboMasa=kini;G.komboMax=Math.max(G.komboMax,G.kombo);
+ const dx=G.x-px,dy=G.y-py,m=Math.hypot(dx,dy)||1,ku=kh?7.5:4.6;
+ G.vx=jepit(G.vx+dx/m*ku,-14,14);G.vy=jepit(G.vy+dy/m*ku,-14,14);
+ G.goncang=kh?16:10;G.nyala=1;G.cincin.push({x:px,y:py,r:8,max:kh?120:80,hidup:1});
+ for(let i=0;i<(kh?26:16);i++){const a=Math.random()*6.283,s=2+Math.random()*(kh?9:6);
+  G.zarah.push({x:px,y:py,vx:Math.cos(a)*s,vy:Math.sin(a)*s,hidup:1,saiz:2+Math.random()*4,
+   warna:Math.random()<.55?G.em.w:'#fde68a'});}
+ G.teks.push({x:px,y:py-20,t:TEKS_HIT[Math.floor(Math.random()*TEKS_HIT.length)],hidup:1,saiz:kh?34:26});
+ AUDIO.hentak(kh);getar(kh?[38]:[20]);
+ const pk=Math.round(G.hp/G.hpMax*100);$('hpFill').style.width=pk+'%';$('hpVal').textContent=pk+'%';
+ if(G.kombo>1){$('comboTxt').textContent='×'+G.kombo;$('comboTxt').classList.add('on');}
+ if(G.hp<=0)hancur();}
+function hancur(){G.tamat=true;$('btnTumbuk').disabled=true;$('btnTendang').disabled=true;
+ $('comboTxt').classList.remove('on');$('arenaHint').textContent='Dah hilang. Tarik nafas panjang…';
+ for(let i=0;i<90;i++){const a=Math.random()*6.283,s=2+Math.random()*13;
+  G.zarah.push({x:G.x,y:G.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,hidup:1,saiz:2+Math.random()*5,
+   warna:Math.random()<.5?G.em.w:'#fff7ed'});}
+ G.cincin.push({x:G.x,y:G.y,r:10,max:420,hidup:1});G.goncang=24;AUDIO.letup();
+ getar([40,60,40,60,90]);setTimeout(tunjukHasil,1600);}
+function tunjukHasil(){if(!G)return;const em=G.em,masa=(performance.now()-G.mula)/1000;
+ $('hasilIkon').textContent='🕊️';$('hasilTajuk').textContent=em.reda;
+ const punca=$('puncaTxt').value.trim();
+ $('hasilSub').textContent=punca?`Tenaga daripada "${punca}" dah dilepaskan.`:'Tenaga itu dah dilepaskan.';
+ $('hHit').textContent=G.hit;$('hMasa').textContent=mmss(masa);$('hCombo').textContent='×'+G.komboMax;
+ const c=Math.max(0,kuat-4);$('selepasSlider').value=c;$('selepasNum').textContent=c;$('hasil').classList.add('on');}
+function simpanEmosi(){if(!G||G.disimpan||G.hit===0)return;G.disimpan=true;
+ DB.tambah({jenis:'emosi',emosi:G.em.id,emosiNama:G.em.nama,emoji:G.em.emoji,kuatSebelum:kuat,
+  kuatSelepas:+$('selepasSlider').value,hit:G.hit,kombo:G.komboMax,
+  saat:Math.round((performance.now()-G.mula)/1000),punca:$('puncaTxt').value.trim(),selesai:G.tamat});}
+function gelungArena(now){
+ if(!G)return;const dt=Math.min(40,now-G.akhir);G.akhir=now;const W=G.W,H=G.H;
+ if(!G.tamat){const r=jariJari(),laju=1+(1-G.hp/G.hpMax)*1.5;
+  G.x+=G.vx*laju*(dt/16);G.y+=G.vy*laju*(dt/16);G.vx*=.985;G.vy*=.985;
+  const mn=1.1+kuat*.06,kel=Math.hypot(G.vx,G.vy);
+  if(kel<mn){const a=Math.atan2(G.vy,G.vx)||Math.random()*6.283;G.vx=Math.cos(a)*mn;G.vy=Math.sin(a)*mn;}
+  const atas=110,bawah=H-190;
+  if(G.x<r){G.x=r;G.vx=Math.abs(G.vx);} if(G.x>W-r){G.x=W-r;G.vx=-Math.abs(G.vx);}
+  if(G.y<atas+r){G.y=atas+r;G.vy=Math.abs(G.vy);} if(G.y>bawah-r){G.y=bawah-r;G.vy=-Math.abs(G.vy);}}
+ G.goncang*=.88;G.nyala*=.9;
+ const gx=(Math.random()-.5)*G.goncang,gy=(Math.random()-.5)*G.goncang;
+ ctx2.clearRect(0,0,W,H);ctx2.save();ctx2.translate(gx,gy);
+ const bg=ctx2.createRadialGradient(W/2,H*.45,10,W/2,H*.45,Math.max(W,H)*.8);
+ bg.addColorStop(0,G.em.w2+'55');bg.addColorStop(1,'#08060d');ctx2.fillStyle=bg;ctx2.fillRect(-40,-40,W+80,H+80);
+ for(let i=G.cincin.length-1;i>=0;i--){const c=G.cincin[i];c.r+=(c.max-c.r)*.16;c.hidup-=dt/620;
+  if(c.hidup<=0){G.cincin.splice(i,1);continue;}
+  ctx2.beginPath();ctx2.arc(c.x,c.y,c.r,0,6.283);
+  ctx2.strokeStyle=`rgba(255,255,255,${c.hidup*.55})`;ctx2.lineWidth=3*c.hidup+1;ctx2.stroke();}
+ if(!G.tamat){const r=jariJari(),t=now/240;
+  for(let i=0;i<16;i++){const a=(i/16)*6.283+t*.4;
+   const pj=r*(1.05+.32*Math.abs(Math.sin(t*1.6+i*1.7))+G.nyala*.25);
+   ctx2.beginPath();ctx2.moveTo(G.x+Math.cos(a-.2)*r*.85,G.y+Math.sin(a-.2)*r*.85);
+   ctx2.quadraticCurveTo(G.x+Math.cos(a)*pj*1.15,G.y+Math.sin(a)*pj*1.15,G.x+Math.cos(a+.2)*r*.85,G.y+Math.sin(a+.2)*r*.85);
+   const gg=ctx2.createLinearGradient(G.x,G.y,G.x+Math.cos(a)*pj,G.y+Math.sin(a)*pj);
+   gg.addColorStop(0,G.em.w+'cc');gg.addColorStop(1,'rgba(255,220,120,0)');ctx2.fillStyle=gg;ctx2.fill();}
+  const cg=ctx2.createRadialGradient(G.x-r*.25,G.y-r*.3,r*.15,G.x,G.y,r);
+  cg.addColorStop(0,'#fff7d6');cg.addColorStop(.45,G.em.w);cg.addColorStop(1,G.em.w2);
+  ctx2.beginPath();ctx2.arc(G.x,G.y,r,0,6.283);ctx2.fillStyle=cg;ctx2.fill();
+  ctx2.strokeStyle=`rgba(255,255,255,${.35+G.nyala*.5})`;ctx2.lineWidth=2;ctx2.stroke();
+  ctx2.font=`${r*1.05}px system-ui,"Apple Color Emoji","Segoe UI Emoji"`;
+  ctx2.textAlign='center';ctx2.textBaseline='middle';ctx2.fillText(G.em.emoji,G.x,G.y+r*.04);}
+ for(let i=G.zarah.length-1;i>=0;i--){const z=G.zarah[i];z.x+=z.vx*(dt/16);z.y+=z.vy*(dt/16);
+  z.vy+=.16*(dt/16);z.vx*=.985;z.vy*=.985;z.hidup-=dt/900;
+  if(z.hidup<=0){G.zarah.splice(i,1);continue;}
+  ctx2.globalAlpha=Math.max(0,z.hidup);ctx2.fillStyle=z.warna;
+  ctx2.beginPath();ctx2.arc(z.x,z.y,z.saiz*z.hidup,0,6.283);ctx2.fill();}
+ ctx2.globalAlpha=1;
+ for(let i=G.teks.length-1;i>=0;i--){const tk=G.teks[i];tk.y-=.9*(dt/16);tk.hidup-=dt/780;
+  if(tk.hidup<=0){G.teks.splice(i,1);continue;}
+  ctx2.globalAlpha=Math.max(0,tk.hidup);
+  ctx2.font=`800 ${tk.saiz*(.7+tk.hidup*.4)}px system-ui,sans-serif`;
+  ctx2.textAlign='center';ctx2.textBaseline='middle';ctx2.lineWidth=4;
+  ctx2.strokeStyle='rgba(0,0,0,.55)';ctx2.strokeText(tk.t,tk.x,tk.y);
+  ctx2.fillStyle='#fff';ctx2.fillText(tk.t,tk.x,tk.y);}
+ ctx2.globalAlpha=1;ctx2.restore();
+ if(!G.tamat){$('arenaMasa').textContent=mmss((now-G.mula)/1000);
+  if(performance.now()-G.komboMasa>1400&&G.kombo>0){G.kombo=0;$('comboTxt').classList.remove('on');}}
+ G.raf=requestAnimationFrame(gelungArena);}
+kanvas.addEventListener('pointerdown',e=>{if(!G||G.tamat)return;
+ const r=kanvas.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+ if(Math.hypot(px-G.x,py-G.y)<jariJari()*1.2)kenaHit(px,py,false);
+ else G.teks.push({x:px,y:py,t:'…',hidup:.7,saiz:20});});
+$('btnTumbuk').onclick=()=>{if(!G||G.tamat)return;const a=Math.random()*6.283,r=jariJari();
+ kenaHit(G.x+Math.cos(a)*r*.8,G.y+Math.sin(a)*r*.8,false);};
+$('btnTendang').onclick=()=>{if(!G||G.tamat||G.cooldown>performance.now())return;
+ G.cooldown=performance.now()+620;const a=Math.random()*6.283,r=jariJari();
+ kenaHit(G.x+Math.cos(a)*r*.8,G.y+Math.sin(a)*r*.8,true);};
+$('arenaAudio').onclick=()=>{AUDIO.setSenyap(!AUDIO.senyap);$('arenaAudio').textContent=AUDIO.senyap?'🔇':'🔊';};
+function tutupArena(sp){if(G){if(sp)simpanEmosi();cancelAnimationFrame(G.raf);G=null;}
+ $('arena').classList.remove('on');$('hasil').classList.remove('on');}
+$('arenaKeluar').onclick=()=>tutupArena(true);
+$('btnHabis').onclick=()=>{simpanEmosi();tutupArena(false);tukarView('dash');};
+$('btnTenangkan').onclick=()=>{simpanEmosi();tutupArena(false);tukarView('dash');bukaSedia(0);};
+
+/* ==================== MODUL PERJALANAN TIUP ==================== */
+let tEmosi=0,tTahap=1,tKaedah='tahan';
+$('tGrid').innerHTML=EMOSI.map((e,i)=>`<div class="eCard${i===0?' on':''}" data-i="${i}">
+ <span>${e.objek}</span><small>${e.nama}</small></div>`).join('');
+[...$('tGrid').children].forEach(el=>{el.onclick=()=>{tEmosi=+el.dataset.i;
+ [...$('tGrid').children].forEach((c,i)=>c.classList.toggle('on',i===tEmosi));segarTiup();};});
+function lukisTahapList(){
+ $('tahapList').innerHTML=TAHAP.map((t,k)=>`<div class="opt2${k===tTahap?' on':''}" data-k="${k}">
+  <div class="oi">${['🌱','🌿','🌳'][k]}</div><div class="ob"><b>${t.nama}</b><small>${t.sub}</small></div>
+  <div class="os">${t.saat}s</div></div>`).join('');
+ [...$('tahapList').children].forEach(el=>{el.onclick=()=>{tTahap=+el.dataset.k;lukisTahapList();};});
+}
+function lukisKaedahList(){
+ const adaMic=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+ const adaGyro=typeof DeviceOrientationEvent!=='undefined';
+ $('kaedahList').innerHTML=KAEDAH.map(k=>{
+  const mati=(k.id==='mic'&&!adaMic)||(k.id==='condong'&&!adaGyro);
+  return `<div class="opt2${k.id===tKaedah?' on':''}${mati?' mati':''}" data-k="${k.id}" data-mati="${mati}">
+   <div class="oi">${k.ikon}</div><div class="ob"><b>${k.nama}</b><small>${k.sub}</small></div></div>`;}).join('');
+ [...$('kaedahList').children].forEach(el=>{el.onclick=()=>{
+  if(el.dataset.mati==='true')return; tKaedah=el.dataset.k; lukisKaedahList(); segarTiup();};});
+}
+function segarTiup(){
+ $('tKisah').textContent=EMOSI[tEmosi].kisah;
+ const k=KAEDAH.find(x=>x.id===tKaedah);
+ $('kaedahInfo').textContent=k?k.sub:'';
+}
+lukisTahapList(); lukisKaedahList(); segarTiup();
+
+/* --- kalibrasi mikrofon --- */
+const KEL=2*Math.PI*82;
+let calLangkah=0,calRaf=0,calSampel=[],calMasa=0,calAkhir=0;
+function calSet(t,p,btn,num,sub){$('calTajuk').textContent=t;$('calTeks').textContent=p;
+ $('calBtn').textContent=btn;$('calNum').textContent=num;$('calSub').textContent=sub;}
+function bukaKalib(){
+ $('kalib').classList.add('on');calLangkah=0;
+ calSet('Kebenaran mikrofon','Perjalanan ini boleh menggunakan mikrofon untuk mengesan hembusan sebenar. Audio diproses di peranti sahaja — tiada rakaman disimpan atau dihantar.',
+  'Benarkan mikrofon','–','sedia');
+ $('calArc').style.strokeDashoffset=KEL;$('calMeter').style.width='0%';$('calTukar').style.display='block';
+}
+$('calTukar').onclick=()=>{cancelAnimationFrame(calRaf);$('kalib').classList.remove('on');
+ tKaedah='tahan';lukisKaedahList();segarTiup();};
+$('calBtn').onclick=async()=>{
+ if(calLangkah===0){
+  $('calBtn').disabled=true;$('calBtn').textContent='Meminta kebenaran…';
+  const ok=await MIC.mula();$('calBtn').disabled=false;
+  if(!ok){calSet('Mikrofon tidak tersedia','Akses mikrofon ditolak atau tidak disokong. Awak boleh cuba lagi, atau guna kaedah lain seperti "Tekan & Tahan" yang tidak perlukan mikrofon langsung.',
+   'Cuba lagi','!','tiada');return;}
+  calLangkah=1;jalanKalib();
+ } else if(calLangkah===4){$('kalib').classList.remove('on');mulaJelajah();}
+};
+function jalanKalib(){
+ const lk=[{t:'Langkah 1 · Senyap',p:'Duduk diam dan bernafas biasa. Kami ukur bunyi latar selama 3 saat.',s:3000,k:'senyap'},
+  {t:'Langkah 2 · Tiupan lembut',p:'Tiup perlahan ke arah mikrofon secara berterusan.',s:3000,k:'lembut'},
+  {t:'Langkah 3 · Tiupan kuat',p:'Tiup sedikit lebih kuat — jangan sampai tidak selesa.',s:3000,k:'kuat'}][calLangkah-1];
+ $('calTukar').style.display='none';
+ calSet(lk.t,lk.p,'Sedang mengukur…',Math.ceil(lk.s/1000),'saat');$('calBtn').disabled=true;
+ calSampel=[];calMasa=0;
+ const jalan=now=>{const dt=now-calAkhir;calAkhir=now;calMasa+=dt;
+  const c=MIC.baca();calSampel.push(c);
+  const p=jepit(calMasa/lk.s,0,1);
+  $('calArc').style.strokeDashoffset=KEL-KEL*p;
+  $('calNum').textContent=Math.max(0,Math.ceil((lk.s-calMasa)/1000));
+  $('calMeter').style.width=jepit(c.rms*900,0,100)+'%';
+  if(calMasa<lk.s){calRaf=requestAnimationFrame(jalan);return;}
+  const sah=calSampel.slice(Math.floor(calSampel.length*.25));
+  const pur=k=>sah.reduce((s,x)=>s+x[k],0)/Math.max(1,sah.length);
+  DB.data.kalibrasi=DB.data.kalibrasi||{};
+  DB.data.kalibrasi[lk.k]=pur('rms');
+  if(lk.k!=='senyap'){DB.data.kalibrasi[lk.k+'Rata']=pur('rata');}
+  calLangkah++;
+  if(calLangkah<=3){setTimeout(jalanKalib,600);return;}
+  const K=DB.data.kalibrasi;
+  K.kuat=Math.max(K.kuat||0,(K.lembut||0)*1.35,(K.senyap||0)*4+.006);
+  K.rataAmbang=jepit(((K.lembutRata||.2)+(K.kuatRata||.2))/2*.75,.10,.42);
+  K.masa=new Date().toISOString();DB.simpan();paparKalibStatus();
+  calLangkah=4;$('calBtn').disabled=false;
+  calSet('Kalibrasi selesai','Julat hembusan peribadi awak dah ditetapkan. Boleh kalibrasi semula bila-bila dalam Tetapan.',
+   'Mula perjalanan','✓','sedia');
+  $('calArc').style.strokeDashoffset=0;$('calMeter').style.width='0%';getar([20,50,20]);
+ };
+ setTimeout(()=>{calAkhir=performance.now();calRaf=requestAnimationFrame(jalan);},700);
+}
+function paparKalibStatus(){const K=DB.data.kalibrasi;
+ $('calStatus').textContent=K&&K.masa?`Dikalibrasi pada ${new Date(K.masa).toLocaleString('ms-MY')}.`
+  :'Belum dikalibrasi. Kalibrasi membantu membezakan hembusan awak daripada bunyi sekeliling.';}
+$('btnKalibSemula').onclick=()=>{DB.data.kalibrasi=null;DB.simpan();paparKalibStatus();
+ tKaedah='mic';lukisKaedahList();segarTiup();bukaKalib();};
+
+/* --- kanvas perjalanan --- */
+const jk=$('jKanvas'),jc=jk.getContext('2d');
+let J=null;
+function saizJ(){const d=Math.min(window.devicePixelRatio||1,2),r=jk.getBoundingClientRect();
+ jk.width=Math.max(1,r.width*d);jk.height=Math.max(1,r.height*d);jc.setTransform(d,0,0,d,0,0);
+ if(J){J.W=r.width;J.H=r.height;}}
+
+$('btnMulaTiup').onclick=async()=>{
+ AUDIO.pastikan();
+ if(tKaedah==='mic'){
+  if(MIC.hidup&&DB.data.kalibrasi){mulaJelajah();}else{bukaKalib();}
+  return;
+ }
+ if(tKaedah==='condong'&&typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){
+  try{ const p=await DeviceOrientationEvent.requestPermission(); if(p!=='granted'){
+    alert('Kebenaran sensor gerakan ditolak. Sila pilih kaedah lain.');return;} }catch(e){}
+ }
+ mulaJelajah();
+};
+function mulaJelajah(){
+ const e=EMOSI[tEmosi],t=TAHAP[tTahap],k=KAEDAH.find(x=>x.id===tKaedah);
+ $('jelajah').classList.add('on');
+ $('jNama').textContent=e.latihan.toUpperCase();
+ $('jKaedah').textContent=k.nama;
+ $('jLabel').textContent=k.label;
+ $('jMin').style.left=t.ambang+'%';
+ $('jAudio').textContent=AUDIO.senyap?'🔇':'🔊';
+ $('jPad').classList.toggle('on',tKaedah==='tahan'||tKaedah==='irama');
+ $('jPad').textContent=tKaedah==='irama'?'Tekan hanya semasa tetingkap HEMBUS':'Tekan & tahan semasa menghembus';
+ INPUT.reset(tKaedah);
+ requestAnimationFrame(()=>{
+  saizJ();const r=jk.getBoundingClientRect();
+  J={e,t,k,W:r.width,H:r.height,pos:0,halaju:0,baki:t.saat*1000,sampel:[],puncak:0,zarah:[],
+     bintang:Array.from({length:44},()=>({x:Math.random(),y:Math.random(),s:Math.random()*1.6+.4,k:Math.random()})),
+     akhir:performance.now(),fasa:'kira',kiraMasa:0,kira:3,tamat:false,raf:0,disimpan:false};
+  $('jKira').classList.add('on');$('jKiraNum').textContent='3';
+  $('jHint').textContent='Bersedia…';
+  AUDIO.mulaAngin();
+  J.raf=requestAnimationFrame(gelungJ);});
+}
+/* input sentuh untuk kaedah tahan / irama / sapu */
+let sapuAkhirX=null;
+jk.addEventListener('pointerdown',e=>{INPUT.tekan=true;sapuAkhirX=e.clientX;
+ $('jPad').classList.add('aktif');});
+$('jPad').addEventListener('pointerdown',()=>{INPUT.tekan=true;$('jPad').classList.add('aktif');});
+window.addEventListener('pointerup',()=>{INPUT.tekan=false;sapuAkhirX=null;$('jPad').classList.remove('aktif');});
+window.addEventListener('pointercancel',()=>{INPUT.tekan=false;$('jPad').classList.remove('aktif');});
+jk.addEventListener('pointermove',e=>{
+ if(INPUT.kaedah!=='sapu'||!INPUT.tekan||sapuAkhirX===null)return;
+ const d=e.clientX-sapuAkhirX;sapuAkhirX=e.clientX;
+ if(d>0)INPUT.sapuKuasa=jepit(INPUT.sapuKuasa+d*1.5,0,100);
+});
+
+function gelungJ(now){
+ if(!J)return;
+ const dt=Math.min(50,now-J.akhir);J.akhir=now;
+ if(J.fasa==='kira'){
+  J.kiraMasa+=dt;const b=3-Math.floor(J.kiraMasa/1000);
+  if(b!==J.kira){J.kira=b;if(b>0){$('jKiraNum').textContent=b;AUDIO.nada(440,.4,.06);getar([15]);}}
+  if(J.kiraMasa>=3000){$('jKiraNum').textContent='MULA';AUDIO.nada(660,.7,.08);getar([30]);
+   setTimeout(()=>$('jKira').classList.remove('on'),420);J.fasa='main';
+   $('jHint').textContent=J.k.id==='mic'?'Tiup perlahan dan berterusan ke arah mikrofon'
+    :J.k.id==='tahan'?'Tekan & tahan sepanjang hembusan awak — lepas bila nafas habis'
+    :J.k.id==='irama'?'Tekan hanya semasa tetingkap HEMBUS'
+    :J.k.id==='condong'?'Condongkan telefon ke hadapan perlahan'
+    :'Sapu jari ke kanan berulang kali seperti mengipas';}
+ }
+ const kuat=INPUT.kira(dt);
+ if(J.fasa==='main'&&!J.tamat){
+  J.baki-=dt;J.sampel.push(kuat);J.puncak=Math.max(J.puncak,kuat);
+  const berkesan=Math.max(0,kuat-J.t.ambang)/Math.max(1,100-J.t.ambang);
+  J.halaju+=Math.pow(berkesan,1.15)*.145*(dt/16);
+  J.halaju*=Math.pow(.955,dt/16);
+  J.pos=jepit(J.pos+J.halaju*(dt/16),0,100);
+  AUDIO.anginGerak(J.pos/100,kuat/100);
+  if(kuat>J.t.ambang&&Math.random()<.22)getar([6]);
+  if(J.pos>=100){J.tamat=true;tamatJ(true);}
+  else if(J.baki<=0){J.baki=0;J.tamat=true;tamatJ(false);}
+ }
+ lukisJ(now,kuat);
+ $('jFill').style.width=kuat.toFixed(0)+'%';$('jPct').textContent=Math.round(kuat)+'%';
+ $('jMasa').textContent=(Math.max(0,J.baki)/1000).toFixed(1);
+ $('jJarak').textContent=Math.round(J.pos)+'%';
+ if(J.fasa==='main'&&!J.tamat){
+  if(J.k.id==='irama'){
+   $('jHint').textContent=INPUT.iramaFasa==='hembus'?'HEMBUS — tekan sekarang':'TARIK NAFAS — jangan tekan';
+  } else if(J.pos>82) $('jHint').textContent='Hampir sampai — kekalkan aliran yang sama';
+  else if(kuat<J.t.ambang*.5&&J.pos<95) $('jHint').textContent='Perlu sedikit lebih untuk menggerakkannya';
+  else if(kuat>92) $('jHint').textContent='Lembutkan sedikit — berterusan lebih penting daripada kuat';
+ }
+ J.raf=requestAnimationFrame(gelungJ);
+}
+function campur(a,b,t){const p=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+ const A=p(a),B=p(b);return `rgb(${Math.round(lerp(A[0],B[0],t))},${Math.round(lerp(A[1],B[1],t))},${Math.round(lerp(A[2],B[2],t))})`;}
+function lukisJ(now,kuat){
+ const W=J.W,H=J.H,e=J.e,maju=J.pos/100;
+ const g=jc.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,campur(e.langit[0],'#0b1120',maju*.55));
+ g.addColorStop(1,campur(e.langit[1],e.w,maju*.7));
+ jc.fillStyle=g;jc.fillRect(0,0,W,H);
+ J.bintang.forEach(b=>{const px=((b.x-maju*(.15+b.s*.12))%1+1)%1;
+  jc.globalAlpha=.15+.5*Math.abs(Math.sin(now/900+b.k*9));jc.fillStyle='#fff';
+  jc.beginPath();jc.arc(px*W,b.y*H*.68+46,b.s*.9,0,6.283);jc.fill();});
+ jc.globalAlpha=1;
+ const y=H*.5,x0=W*.14,x1=W*.86,ox=lerp(x0,x1,maju);
+ jc.strokeStyle='rgba(255,255,255,.14)';jc.lineWidth=2;jc.setLineDash([5,9]);
+ jc.beginPath();jc.moveTo(x0,y);jc.lineTo(x1,y);jc.stroke();jc.setLineDash([]);
+ const gr=jc.createLinearGradient(x0,0,ox,0);
+ gr.addColorStop(0,'rgba(255,255,255,.1)');gr.addColorStop(1,e.w);
+ jc.strokeStyle=gr;jc.lineWidth=4;jc.lineCap='round';
+ jc.beginPath();jc.moveTo(x0,y);jc.lineTo(ox,y);jc.stroke();
+ jc.textAlign='center';jc.textBaseline='middle';
+ jc.globalAlpha=.5;jc.font='16px system-ui';jc.fillStyle='#fff';jc.fillText('◦',x0,y);jc.globalAlpha=1;
+ const dp=1+.09*Math.sin(now/380)+maju*.35;
+ jc.save();jc.translate(x1,y);jc.scale(dp,dp);
+ jc.shadowColor=e.w;jc.shadowBlur=18+34*maju;
+ jc.font='34px system-ui,"Apple Color Emoji","Segoe UI Emoji"';
+ jc.globalAlpha=.45+.55*maju;jc.fillText(e.dest,0,0);jc.restore();jc.globalAlpha=1;
+ if(J.fasa==='main'&&kuat>J.t.ambang&&Math.random()<.55)
+  J.zarah.push({x:ox-14,y:y+(Math.random()-.5)*16,vx:-(.6+Math.random()*1.7),vy:(Math.random()-.5)*.7,hidup:1,s:1+Math.random()*2.6});
+ for(let i=J.zarah.length-1;i>=0;i--){const z=J.zarah[i];z.x+=z.vx;z.y+=z.vy;z.hidup-=.016;
+  if(z.hidup<=0){J.zarah.splice(i,1);continue;}
+  jc.globalAlpha=z.hidup*.75;jc.fillStyle=e.w;
+  jc.beginPath();jc.arc(z.x,z.y,z.s*z.hidup,0,6.283);jc.fill();}
+ jc.globalAlpha=1;
+ const apung=Math.sin(now/520)*5*(1-kuat/240),condong=jepit(J.halaju*3.2,0,18);
+ jc.save();jc.translate(ox,y+apung);jc.rotate(condong*Math.PI/180);
+ jc.shadowColor=e.w;jc.shadowBlur=22+kuat*.5;
+ jc.font=`${34+kuat*.10}px system-ui,"Apple Color Emoji","Segoe UI Emoji"`;
+ jc.fillText(e.objek,0,0);jc.restore();
+ if(J.k.id==='irama'){   // pemandu irama
+  const dlm=INPUT.iramaFasa==='hembus';
+  jc.globalAlpha=.75;jc.font='700 11px system-ui';jc.fillStyle=dlm?'#6ee7b7':'rgba(255,255,255,.5)';
+  jc.fillText(dlm?'HEMBUS':'TARIK',W/2,H*.16);
+  const kit=10000,p=(INPUT.iramaMasa%kit),fp=dlm?(p-4000)/6000:p/4000;
+  jc.strokeStyle=dlm?'#6ee7b7':'rgba(255,255,255,.35)';jc.lineWidth=3;
+  jc.beginPath();jc.arc(W/2,H*.16+26,14,-Math.PI/2,-Math.PI/2+6.283*jepit(fp,0,1));jc.stroke();
+  jc.globalAlpha=1;}
+ if(J.tamat&&J.pos>=100){jc.globalAlpha=.35;jc.fillStyle=e.w;
+  jc.beginPath();jc.arc(x1,y,60+Math.sin(now/200)*12,0,6.283);jc.fill();jc.globalAlpha=1;}
+}
+function konsistensi(){const s=J.sampel.filter(v=>v>J.t.ambang*.6);
+ if(s.length<6)return 0;const m=s.reduce((a,b)=>a+b,0)/s.length;if(m<=0)return 0;
+ const sd=Math.sqrt(s.reduce((a,b)=>a+(b-m)*(b-m),0)/s.length);
+ return Math.round(jepit(100*(1-sd/m),0,100));}
+function purataInt(){return J.sampel.length?Math.round(J.sampel.reduce((a,b)=>a+b,0)/J.sampel.length):0;}
+function simpanJ(berjaya){if(!J||J.disimpan)return;J.disimpan=true;
+ DB.tambah({jenis:'tiup',emosi:J.e.id,emosiNama:J.e.nama,emoji:J.e.objek,latihan:J.e.latihan,
+  kaedah:J.k.id,kaedahNama:J.k.nama,kesukaran:J.t.id,tempohSasar:J.t.saat,
+  tempohSebenar:Math.round((J.t.saat*1000-Math.max(0,J.baki))/100)/10,
+  jarak:Math.round(J.pos),purataIntensiti:purataInt(),puncakIntensiti:Math.round(J.puncak),
+  konsistensi:konsistensi(),berjaya:!!berjaya});}
+function tamatJ(berjaya){
+ const e=J.e;simpanJ(berjaya);
+ $('jhIkon').textContent=berjaya?e.dest:e.objek;
+ $('jhTajuk').textContent=berjaya?'Sampai ke destinasi':'Belum sampai destinasi';
+ $('jhMsg').textContent=berjaya?`${e.jaya} Kawalan yang baik — nafas awak kekal bersama perjalanan itu.`
+  :`Perjalanan awak berhenti pada ${Math.round(J.pos)}%. Tiada apa yang salah — cuba hembusan yang lebih panjang dan sekata.`;
+ $('jhJarak').textContent=Math.round(J.pos)+'%';
+ $('jhMasa').textContent=(Math.round((J.t.saat*1000-Math.max(0,J.baki))/100)/10).toFixed(1)+'s';
+ $('jhPurata').textContent=purataInt()+'%';$('jhKonsis').textContent=konsistensi()+'%';
+ if(berjaya){AUDIO.jaya();getar([30,60,30,60,90]);}else{AUDIO.belum();getar([26]);}
+ AUDIO.hentiAngin();
+ setTimeout(()=>$('jHasil').classList.add('on'),berjaya?1100:700);
+}
+function tutupJ(rekod){if(J){if(rekod&&J.fasa==='main'&&J.pos>2)simpanJ(false);cancelAnimationFrame(J.raf);J=null;}
+ AUDIO.hentiAngin();$('jelajah').classList.remove('on');$('jHasil').classList.remove('on');}
+$('jKeluar').onclick=()=>{tutupJ(true);tukarView('tiup');};
+$('jAudio').onclick=()=>{AUDIO.setSenyap(!AUDIO.senyap);$('jAudio').textContent=AUDIO.senyap?'🔇':'🔊';};
+$('jhUlang').onclick=()=>{if(J){cancelAnimationFrame(J.raf);J=null;}$('jHasil').classList.remove('on');mulaJelajah();};
+$('jhTukar').onclick=()=>{tutupJ(false);tukarView('tiup');};
+$('jhTamat').onclick=()=>{tutupJ(false);tukarView('dash');};
+
+/* ==================== ANALITIK ==================== */
+const kunciHari=d=>{const x=new Date(d);
+ return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;};
+const hariLalu=n=>{const x=new Date();x.setHours(0,0,0,0);x.setDate(x.getDate()-n);return x;};
+function kumpulHarian(hari){const peta={};
+  for(let i=hari-1;i>=0;i--)peta[kunciHari(hariLalu(i))]=[];
+  DB.data.rekod.forEach(r=>{const k=kunciHari(r.masa);if(peta[k])peta[k].push(r);});return peta;}
+function skorHari(list,tanggal=null){
+  const sasar=DB.data.sasarHarian||10;
+  const nafas=list.filter(r=>r.jenis==='nafas'),tiup=list.filter(r=>r.jenis==='tiup'),emo=list.filter(r=>r.jenis==='emosi');
+  const minit=nafas.reduce((s,r)=>s+(r.minit||0),0)+tiup.reduce((s,r)=>s+(r.tempohSebenar||0)/60,0);
+  const sesi=nafas.length+tiup.length;
+  const siapArr=[...nafas.map(r=>!!r.selesai),...tiup.map(r=>!!r.berjaya)];
+  const siap=siapArr.length?siapArr.filter(Boolean).length/siapArr.length:0;
+  let lega=0;
+  if(emo.length)lega=emo.reduce((s,r)=>{const b=Math.max(1,r.kuatSebelum||1);
+   return s+jepit((b-(r.kuatSelepas??b))/b,0,1);},0)/emo.length;
+  const solatKey=tanggal||kunciHari(new Date());
+  const solatHari=DB.data.solat[solatKey]||{};
+  const solatBil=Object.keys(solatHari).filter(k=>solatHari[k]).length;
+  const aMasa=Math.min(1,minit/sasar)*4,aSesi=Math.min(1,sesi/2)*2,aSiap=siap*2;
+  const aEmo=emo.length?lega*2:Math.min(1,minit/sasar)*2,aSolat=jepit(solatBil/5,0,1)*2;
+  return {skor:Math.min(10,Math.round((aMasa+aSesi+aSiap+aEmo+aSolat)*10)/10),
+   minit:Math.round(minit*10)/10,sesi,siap,lega,solat:solatBil,bilEmosi:emo.length,bilTiup:tiup.length,
+   konsis:tiup.length?Math.round(tiup.reduce((s,r)=>s+(r.konsistensi||0),0)/tiup.length):0};
+}
+function skorTempoh(hari){
+  const peta=kumpulHarian(hari),kunci=Object.keys(peta);
+  const arr=kunci.map(k=>skorHari(peta[k],k).skor);
+  const aktif=arr.filter(s=>s>0);
+  const pSemua=arr.reduce((a,b)=>a+b,0)/Math.max(1,arr.length);
+  const pAktif=aktif.length?aktif.reduce((a,b)=>a+b,0)/aktif.length:0;
+  const skor=hari===1?arr[arr.length-1]:Math.round((pSemua*.7+pAktif*.3)*10)/10;
+  const r=skorHari(Object.values(peta).flat(),kunciHari(new Date()));
+  return Object.assign({},r,{skor:Math.min(10,skor),hariAktif:aktif.length,jumlahHari:hari,peta,kunci});
+}
+const labelSkor=s=>s>=8.5?'Cemerlang':s>=7?'Sangat baik':s>=5?'Baik':s>=3?'Sederhana':s>0?'Baru bermula':'Belum ada data';
+const warnaSkor=s=>s>=8.5?'#34d399':s>=7?'#a78bfa':s>=5?'#60a5fa':s>=3?'#fbbf24':'#f87171';
+
+function janaCadangan(){
+ const c=[],hari=skorTempoh(1),minggu=skorTempoh(7),semua=DB.data.rekod;
+ const sasar=DB.data.sasarHarian||10;
+ if(!semua.length){
+  c.push({i:'🌱',t:'Mulakan dengan Inner Flow',p:'Cuba sesi 5 minit dengan pola 4·2·6 — rentak paling mudah untuk permulaan.',
+   btn:'Mula sekarang',aksi:()=>{tukarView('dash');bukaSedia(0);}});
+  return c;}
+ if(hari.minit===0){const j=new Date().getHours();
+  c.push({i:'⏰',t:'Belum aktif hari ini',p:`${j<12?'Pagi':j<18?'Petang':'Malam'} ini masih ada ruang. Satu sesi pendek pun dikira.`,
+   btn:'Mula 5 minit',aksi:()=>{tempoh=5;pilihTempohUI(5);bukaSedia(0);}});
+ } else if(hari.minit<sasar){
+  c.push({i:'🎯',t:`${Math.max(1,Math.round(sasar-hari.minit))} minit lagi ke sasaran`,
+   p:`Awak dah ${hari.minit} minit hari ini. Satu sesi pendek lagi cukup.`,btn:'Sambung',aksi:()=>bukaSedia(0)});
+  } else c.push({i:'✅',t:'Sasaran harian tercapai',p:`${hari.minit} minit hari ini. Naikkan sasaran dalam Tetapan kalau nak lebih.`});
+  if(hari.solat!==undefined&&hari.solat<5)
+   c.push({i:'🕯️',t:`Solat ${hari.solat}/5`,p:`Tandai solat yang belum dilaksanakan. Konsistensi solat meningkatkan ketenangan harian.`,
+    btn:'Buka jadual',aksi:()=>tukarView('solat')});
+  else if(hari.solat>=5)
+   c.push({i:'🌙',t:'Semua solat dilaksanakan',p:'5 solat sudah selesai. Keikhlasan adalah kunci.'});
+  const tiupSemua=semua.filter(r=>r.jenis==='tiup');
+ if(!tiupSemua.length){
+  c.push({i:'🌬️',t:'Cuba Perjalanan Tiup',p:'Hembusan awak menggerakkan objek ke destinasi. Kalau tak selesa guna mikrofon, ada kaedah Tekan & Tahan.',
+   btn:'Buka modul',aksi:()=>tukarView('tiup')});
+ } else {
+  const jaya=tiupSemua.filter(r=>r.berjaya).length/tiupSemua.length;
+  const kon=Math.round(tiupSemua.reduce((s,r)=>s+(r.konsistensi||0),0)/tiupSemua.length);
+  if(jaya<.4&&tiupSemua.length>=2)
+   c.push({i:'🌿',t:'Kurang sampai destinasi',p:`Baru ${Math.round(jaya*100)}% perjalanan sampai. Turunkan ke tahap Pemula dahulu — hembusan panjang datang dengan latihan.`,
+    btn:'Tetapkan Pemula',aksi:()=>{tTahap=0;lukisTahapList();tukarView('tiup');}});
+  else if(kon<50&&tiupSemua.length>=2)
+   c.push({i:'📏',t:`Konsistensi hembusan ${kon}%`,p:'Hembusan awak agak bergelombang. Cuba kaedah Irama Terpandu — ia melatih rentak sekata, bukan kekuatan.',
+    btn:'Guna Irama',aksi:()=>{tKaedah='irama';lukisKaedahList();segarTiup();tukarView('tiup');}});
+  else if(kon>=75)
+   c.push({i:'🏅',t:`Konsistensi ${kon}% — sangat stabil`,p:'Nafas awak sekata. Cuba tahap Lanjutan untuk kawalan yang lebih panjang.',
+    btn:'Tahap Lanjutan',aksi:()=>{tTahap=2;lukisTahapList();tukarView('tiup');}});
+ }
+  if(minggu.sesi>=3&&minggu.siap<.6)
+   c.push({i:'✂️',t:'Sesi selalu tak habis',p:`Hanya ${Math.round(minggu.siap*100)}% sesi minggu ini selesai penuh. Cuba tempoh lebih pendek — konsisten lebih penting daripada panjang.`,
+    btn:'Sesi 5 minit',aksi:()=>{tempoh=5;pilihTempohUI(5);bukaSedia(0);}});
+  const em=semua.filter(r=>r.jenis==='emosi');
+  if(em.length){
+   const kira={};em.forEach(r=>kira[r.emosi]=(kira[r.emosi]||0)+1);
+   const atas=Object.entries(kira).sort((a,b)=>b[1]-a[1])[0][0];
+   const padan={marah:[5,'Hela Nafas Lega'],geram:[5,'Hela Nafas Lega'],cemas:[2,'Nafas Kotak'],
+    takut:[4,'Nafas 4-7-8'],tertekan:[3,'Nafas Diafragma'],penat:[3,'Nafas Diafragma'],
+    sedih:[7,'Nafas Bersambung'],kecewa:[7,'Nafas Bersambung']}[atas];
+   if(padan){const nm=EMOSI.find(x=>x.id===atas);
+    c.push({i:nm?nm.emoji:'🔥',t:`${nm?nm.nama:atas} paling kerap direkod`,
+     p:`Selepas sesi arena, cuba ${padan[1]} untuk menurunkan sistem saraf.`,
+     btn:`Buka ${padan[1]}`,aksi:()=>bukaSedia(padan[0])});}
+  }
+  if(hari.solat!==undefined&&hari.solat<3)
+   c.push({i:'🕯️',t:'Solat belum lengkap',p:`Awak sudah solat ${hari.solat}/5 hari ini. Solat yang konsisten meningkatkan skor dan ketenangan.`,
+    btn:'Buka jadual',aksi:()=>{tukarView('solat');}});
+  else if(hari.solat>=5)
+   c.push({i:'🌙',t:'Solat sudah lengkap',p:'5 solat telah dilaksanakan. Teruskan kebiasyikan ini.'});
+   if(minggu.hariAktif>=5)c.push({i:'🏆',t:`${minggu.hariAktif} hari aktif minggu ini`,p:'Konsistensi awak kukuh. Masa sesuai untuk naikkan sasaran harian.'});
+  else if(minggu.hariAktif>0&&minggu.hariAktif<=2)
+   c.push({i:'📆',t:'Konsistensi masih longgar',p:`Baru ${minggu.hariAktif} hari aktif dalam 7 hari. Sesi 3 minit setiap hari lebih berkesan daripada satu sesi panjang seminggu sekali.`});
+  return c.slice(0,5);
+}
+function lukisGraf(hari){
+ const {peta,kunci}=skorTempoh(hari);
+ let label=[],nilai=[],skorArr=[];
+   if(hari<=7){const nm=['Ahd','Isn','Sel','Rab','Kha','Jum','Sab'];
+   kunci.forEach(k=>{const s=skorHari(peta[k],k);
+    label.push(nm[new Date(k+'T00:00:00').getDay()]);nilai.push(s.minit);skorArr.push(s.skor);});
+  } else {const bm=Math.ceil(hari/7);
+   for(let w=bm-1;w>=0;w--){const ks=kunci.slice(Math.max(0,kunci.length-(w+1)*7),kunci.length-w*7);
+    const l=ks.flatMap(k=>peta[k]||[]),s=skorHari(l);
+    label.push('M'+(bm-w));nilai.push(s.minit);
+   const sk=ks.map(k=>skorHari(peta[k]).skor);
+   skorArr.push(Math.round(sk.reduce((a,b)=>a+b,0)/Math.max(1,sk.length)*10)/10);}}
+ const W=100,H=52,n=nilai.length,maks=Math.max(DB.data.sasarHarian||10,...nilai,1);
+ const bw=W/n*.56,gap=W/n;let bar='',dot='',ln='';
+ nilai.forEach((v,i)=>{const h=(v/maks)*(H-16),x=gap*i+(gap-bw)/2,y=H-12-h;
+  bar+=`<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${bw.toFixed(2)}" height="${Math.max(1.2,h).toFixed(2)}"
+   rx="${(bw*.32).toFixed(2)}" fill="${v>0?'url(#bg1)':'rgba(255,255,255,.1)'}"/>`;
+  const sy=H-12-(skorArr[i]/10)*(H-16),sx=gap*i+gap/2;
+  dot+=`<circle cx="${sx.toFixed(2)}" cy="${sy.toFixed(2)}" r="1.5" fill="#fff"/>`;
+  ln+=`${i?'L':'M'}${sx.toFixed(2)} ${sy.toFixed(2)} `;});
+ const sy2=H-12-((DB.data.sasarHarian||10)/maks)*(H-16);
+ const lab=label.map((l,i)=>`<text x="${(gap*i+gap/2).toFixed(2)}" y="${H-3}" text-anchor="middle" font-size="4.2" fill="rgba(255,255,255,.4)">${l}</text>`).join('');
+ $('chartWrap').innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:150px">
+  <defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs>
+  ${hari<=7?`<line x1="0" y1="${sy2.toFixed(2)}" x2="${W}" y2="${sy2.toFixed(2)}" stroke="rgba(255,255,255,.22)" stroke-width=".5" stroke-dasharray="2 2"/>`:''}
+  ${bar}<path d="${ln}" fill="none" stroke="rgba(255,255,255,.55)" stroke-width=".7" stroke-linejoin="round"/>${dot}${lab}</svg>
+  <div style="display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:10.5px;color:rgba(255,255,255,.45)">
+   <span>▬ minit</span><span>— skor /10</span>${hari<=7?'<span>┈ sasaran</span>':''}</div>`;
+}
+let tempohAnalisis=1;
+function segarDashboard(){
+ const hari=tempohAnalisis===1?1:tempohAnalisis===7?7:30;
+ const r=skorTempoh(hari),skor=isFinite(r.skor)?r.skor:0,kel=2*Math.PI*44;
+ $('gaugeArc').style.strokeDashoffset=kel-(skor/10)*kel;
+ $('gaugeArc').setAttribute('stroke',warnaSkor(skor));
+ $('skorNum').textContent=skor.toFixed(1).replace('.0','');
+ $('skorLabel').textContent=labelSkor(skor);
+ const sasar=DB.data.sasarHarian||10;
+ $('skorNota').textContent=hari===1
+   ?(r.minit===0?'Belum ada aktiviti hari ini. Satu sesi pendek pun dikira.'
+     :`${r.minit} minit daripada sasaran ${sasar} minit${r.bilTiup?` · ${r.bilTiup} perjalanan tiup`:''}${r.bilEmosi?` · ${r.bilEmosi} pelepasan`:''}${r.solat?` · ${r.solat}/5 solat`:''}.`)
+   :`${r.hariAktif}/${r.jumlahHari} hari aktif · ${r.minit} minit · ${r.sesi} sesi${r.sesi?` · ${Math.round(r.siap*100)}% berjaya`:''}${r.solat?` · ${r.solat} solat`:''}`;
+  $('chartTajuk').textContent=hari===1?'Minit aktif · 7 hari lepas':hari===7?'Minit aktif · 7 hari':'Minit aktif · 4 minggu';
+  lukisGraf(hari===1?7:hari);
+  $('msSesi').textContent=r.sesi;$('msMinit').textContent=Math.round(r.minit);
+  $('msSolat').textContent=r.solat;$('msTiup').textContent=r.bilTiup;
+ const cad=janaCadangan(),wrap=$('cadanganWrap');wrap.innerHTML='';
+ cad.forEach(c=>{const el=document.createElement('div');el.className='rec';
+  el.innerHTML=`<div class="ri">${c.i}</div><div class="rb"><b>${c.t}</b><p>${c.p}</p>${c.btn?`<button>${c.btn}</button>`:''}</div>`;
+  const b=el.querySelector('button');if(b&&c.aksi)b.onclick=c.aksi;wrap.appendChild(el);});
+ paparLog($('logWrap'),5);
+ const j=new Date().getHours();
+ $('salam').textContent=j<12?'Selamat pagi,':j<18?'Selamat petang,':'Selamat malam,';
+}
+const masaRingkas=iso=>{const d=new Date(iso),jm=d.toTimeString().slice(0,5);
+ const bh=Math.floor((new Date().setHours(0,0,0,0)-new Date(iso).setHours(0,0,0,0))/86400000);
+ return bh===0?`Hari ini ${jm}`:bh===1?`Semalam ${jm}`:`${bh} hari lalu`;};
+function paparLog(bekas,had){
+ const list=[...DB.data.rekod].reverse().slice(0,had||999);
+ if(!list.length){bekas.innerHTML=`<div class="kosong">Belum ada rekod.<br>Setiap sesi akan muncul di sini.</div>`;return;}
+ bekas.innerHTML=list.map(r=>{
+  if(r.jenis==='nafas')return `<div class="logItem"><div class="li">🫁</div><div class="lb"><b>${r.teknik}</b>
+   <small>${r.minit} min · ${r.nafasKira} nafas${r.gerakan&&r.gerakan!=='Nafas sahaja'?' · '+r.gerakan:''}${r.selesai?'':' · tak habis'}</small>
+   </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
+  if(r.jenis==='tiup')return `<div class="logItem"><div class="li">${r.emoji||'🌬️'}</div><div class="lb">
+   <b>${r.latihan} ${r.berjaya?'· sampai':''}</b>
+   <small>${r.jarak}% jarak · ${r.konsistensi}% konsistensi · ${r.kaedahNama||r.kaedah}</small>
+   </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
+  const t=(r.kuatSebelum??0)-(r.kuatSelepas??0);
+  return `<div class="logItem"><div class="li">${r.emoji||'🔥'}</div><div class="lb"><b>${r.emosiNama||r.emosi}</b>
+   <small>${r.kuatSebelum} → ${r.kuatSelepas} ${t>0?`(−${t})`:''} · ${r.hit} hentakan</small>
+   </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;}).join('');
+}
+function paparRekodPenuh(){paparLog($('logPenuh'),0);}
+document.querySelectorAll('#segs .seg').forEach(s=>{s.onclick=()=>{
+ document.querySelectorAll('#segs .seg').forEach(x=>x.classList.remove('on'));s.classList.add('on');
+ tempohAnalisis=s.dataset.p==='hari'?1:s.dataset.p==='minggu'?7:30;segarDashboard();};});
+$('btnEksport').onclick=()=>{const s=JSON.stringify(DB.data,null,2);
+ try{const b=new Blob([s],{type:'application/json'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='innerflow-rekod.json';document.body.appendChild(a);a.click();a.remove();
+ }catch(e){alert(s.slice(0,2000));}};
+$('btnPadam').onclick=()=>{if(confirm('Padam semua rekod? Tindakan ini tidak boleh dibatalkan.'))DB.kosongkan();};
+
+/* ==================== MULA ==================== */
+(async()=>{
+  await DB.muat();
+  $('sasarSlider').value=DB.data.sasarHarian||10;
+  $('sasarNum').textContent=DB.data.sasarHarian||10;
+  paparKalibStatus();
+  segarDashboard();
+  muatWaktuSolat(true);
+})();
+</script>
+</body>
+</html>
