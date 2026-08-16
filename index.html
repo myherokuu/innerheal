@@ -100,6 +100,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mCard.pet{grid-column:1/-1;background:linear-gradient(120deg,rgba(244,114,182,.3),rgba(124,58,237,.16));
  display:flex;align-items:center;gap:16px;padding:18px}
 .mCard.pet .ic{margin:0;font-size:34px}
+.moodBox{display:flex;align-items:center;gap:14px;margin:0 var(--pad) 0;padding:16px;border:1px solid var(--line);
+ background:linear-gradient(120deg,rgba(167,139,250,.22),rgba(14,165,233,.1));border-radius:20px}
+.moodBox .moodEmoji{font-size:42px;flex:none}
+.moodBox .moodTxt{flex:1;min-width:0}
+.moodBox .moodTxt b{font-size:15px;font-weight:700;display:block}
+.moodBox .moodTxt p{font-size:11.5px;color:var(--dim2);margin-top:4px;line-height:1.5}
 .mCard.tiup .tb{flex:1;min-width:0}
 .mCard.tiup .ar{font-size:22px;opacity:.6}
 .segs{display:flex;gap:6px;margin:0 var(--pad);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:15px;padding:5px}
@@ -443,6 +449,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
  background:radial-gradient(circle at 35% 30%,rgba(167,139,250,.35),rgba(76,29,149,.15));cursor:pointer;box-shadow:0 0 34px rgba(167,139,250,.4);
  transition:transform .1s}
 #petDhikrCount:active{transform:scale(.92)}
+#petDhikrRing{position:relative;width:132px;height:132px;margin:16px auto 8px;cursor:pointer}
+#petDhikrRing:active{transform:scale(.94)}
+#petDhikrRing svg{position:absolute;inset:0;transform:rotate(-90deg)}
+#petDhikrRing .petRingTxt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+#petDhikrRing .petRingTxt b{font-size:30px;font-weight:700;color:#e9d5ff;font-variant-numeric:tabular-nums}
+#petDhikrRing .petRingTxt span{font-size:11px;color:var(--dim2);font-weight:600;margin-top:2px}
+.petKali{display:flex;align-items:center;gap:10px;margin:14px 0 4px;justify-content:center}
+.petKali small{font-size:11px;color:var(--dim2);letter-spacing:.08em;text-transform:uppercase}
+#petKaliList{display:flex;gap:7px}
+#petKaliList span{width:48px;padding:9px 0;text-align:center;border-radius:13px;border:1px solid var(--line);
+ background:var(--card);color:var(--dim);font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+#petKaliList span.on{background:linear-gradient(135deg,#a78bfa,#6d5bd0);color:#fff;border-color:transparent}
 </style>
 </head>
 <body>
@@ -483,6 +501,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="tb"><b>Pet Saya</b><small>Jaga pet: makan, senam, zikir &amp; tidur</small></div>
         <span class="ar">›</span>
       </div>
+    </div>
+    <div class="secTitle" style="margin-bottom:10px">Emosi saya sekarang</div>
+    <div class="moodBox" id="moodBox">
+      <div class="moodEmoji" id="moodEmoji">🧘</div>
+      <div class="moodTxt"><b id="moodLabel">Sedang baca…</b><p id="moodNota"></p></div>
+      <button class="btn teal sm" onclick="tukarView('pet')">Jaga pet</button>
     </div>
     <div class="secTitle" style="margin-bottom:10px">Analisis</div>
     <div class="segs" id="segs">
@@ -627,8 +651,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
          <div class="petA" onclick="petBuka('release')">🚽<small>Lepas</small></div>
          <div class="petA" onclick="petBuka('sport')">🏃<small>Bersenam</small></div>
          <div class="petA" id="petSleepBtn" style="color:#fbbf24" onclick="petTidur()">😴<small>Tidur</small></div>
+         <div class="petA" style="color:#86efac" onclick="petLogBuka()">📋<small>Rekod</small></div>
        </div>
      </div>
+     <div class="secTitle">Rekod harian pet</div>
+     <div id="petLog"></div>
+     <div class="nota">Setiap makanan, minuman, zikir, senaman &amp; tidur direkodkan pada hari ini.</div>
+     <div style="height:20px"></div>
    </div>
 
     <!-- REKOD -->
@@ -740,20 +769,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <div class="petOverlay" id="petDrink"><div class="petSheet">
   <div class="sHandle"></div>
-  <div class="sHead"><h3>Minum &amp; Zikir 🥤📿</h3><p>Apa yang dirasa perlu sekarang?</p></div>
+  <div class="sHead"><h3>Minum &amp; Zikir 🥤📿</h3><p>Pilih zikir &amp; berapa kali — atau minum air</p></div>
   <div class="petGrid">
     <div class="petOpt" onclick="petMinum()"><span class="po">🥤</span><b>Minum air</b><small>Segarkan diri</small></div>
-    <div class="petOpt" onclick="petZikirBuka()"><span class="po">📿</span><b>Zikir</b><small>Tenangkan fikiran</small></div>
+    <div class="petOpt" onclick="petZikirBuka(0)"><span class="po">📿</span><b>Astaghfirullah</b><small>Istighfar · <b id="zn0">33</b> kali</small></div>
+    <div class="petOpt" onclick="petZikirBuka(1)"><span class="po">📿</span><b>Subhanallah</b><small>Tasbih · <b id="zn1">33</b> kali</small></div>
+    <div class="petOpt" onclick="petZikirBuka(2)"><span class="po">📿</span><b>Alhamdulillah</b><small>Tahmid · <b id="zn2">33</b> kali</small></div>
+    <div class="petOpt" onclick="petZikirBuka(3)"><span class="po">📿</span><b>Allahu Akbar</b><small>Takbir · <b id="zn3">33</b> kali</small></div>
+    <div class="petOpt" onclick="petZikirBuka(4)"><span class="po">📿</span><b>La ilaha illallah</b><small>Tahlil · <b id="zn4">33</b> kali</small></div>
+  </div>
+  <div class="petKali"><small>Berapa kali:</small>
+    <div id="petKaliList">
+      <span class="on" onclick="petKali(33)">33</span>
+      <span onclick="petKali(66)">66</span>
+      <span onclick="petKali(99)">99</span>
+    </div>
   </div>
   <button class="btn ghost" style="margin-top:16px" onclick="petTutup('petDrink')">Batal</button>
 </div></div>
 
+<div class="petOverlay" id="petLogSheet"><div class="petSheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>📋 Rekod aktiviti</h3><p>Semua jaga-jaga pet yang awak rekodkan</p></div>
+  <div id="petLogPenuh"></div>
+  <button class="btn ghost" style="margin-top:16px" onclick="petTutup('petLogSheet')">Tutup</button>
+</div></div>
+
 <div class="petOverlay" id="petDhikr"><div class="petSheet" style="text-align:center">
   <div class="sHandle"></div>
-  <div class="sHead"><h3>📿 Zikir</h3><p>Tekan untuk setiap kiraan</p></div>
-  <div id="petDhikrCount" onclick="petZikirTambah()">0<br><small style="font-size:12px;font-weight:600;opacity:.6">/ 33</small></div>
-  <p style="font-size:15px;font-weight:700;margin:4px 0 2px">ASTAGHFIRULLAH</p>
-  <p style="font-size:11px;color:var(--dim2);margin-bottom:10px">Hitung sebanyak 33 kali untuk aura tenang</p>
+  <div class="sHead"><h3>📿 Zikir</h3><p>Tekan setiap kali awak baca</p></div>
+  <p style="font-size:15px;font-weight:700;margin:10px 0 0;color:#c4b5fd;letter-spacing:.05em;text-transform:uppercase" id="petZikirNama">ALHAMDULILLAH</p>
+  <div id="petDhikrRing"><svg viewBox="0 0 104 104" width="132" height="132"><circle cx="52" cy="52" r="44" fill="none" stroke="rgba(255,255,255,.13)" stroke-width="9"/><circle id="petZikirArc" cx="52" cy="52" r="44" fill="none" stroke="#a78bfa" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5" style="transition:stroke-dashoffset .18s,stroke .3s"/></svg>
+    <div class="petRingTxt" onclick="petZikirTambah()"><b id="petZikirCount">×1</b><span id="petZikirSisa">33 lagi</span></div>
+  </div>
+  <p style="font-size:11px;color:var(--dim2);margin-bottom:10px" id="petZikirHint">Tekan bulatan — 33 kali → aura tenang ✨</p>
   <button class="btn ghost" onclick="petTutup('petDhikr')">Selesai</button>
 </div></div>
 
@@ -2393,10 +2442,33 @@ function segarDashboard(){
  cad.forEach(c=>{const el=document.createElement('div');el.className='rec';
   el.innerHTML=`<div class="ri">${c.i}</div><div class="rb"><b>${c.t}</b><p>${c.p}</p>${c.btn?`<button>${c.btn}</button>`:''}</div>`;
   const b=el.querySelector('button');if(b&&c.aksi)b.onclick=c.aksi;wrap.appendChild(el);});
- paparLog($('logWrap'),5);
- const j=new Date().getHours();
- $('salam').textContent=j<12?'Selamat pagi,':j<18?'Selamat petang,':'Selamat malam,';
+paparLog($('logWrap'),5);
+  const j=new Date().getHours();
+  $('salam').textContent=j<12?'Selamat pagi,':j<18?'Selamat petang,':'Selamat malam,';
+  segarMood();
 }
+function segarMood(){
+  const box=$('moodBox');if(!box)return;
+  const kini=petHariIni();
+  const hari=(DB.data.rekod||[]).filter(r=>r.masa&&r.masa.slice(0,10)===kini);
+  const p=DB.data.pet;
+  const nPet=DB.data.petLog?DB.data.petLog.filter(r=>r.h===kini).length:0;
+  let e='🧘',t='Sedang baca…',n='Jaga pet atau catat emosi untuk mood hari ini.';
+  if(p){
+    const happ=p.happ??80,calm=p.calm??40,tire=p.tire??10,en=p.en??80;
+    if(detLepaskan(hari)&&calm>=55)n='Ada pelepasan emosi & aura tenang.';
+    if(tire>=70&&en<25){e='😪';t='Letih & lesu';n='Lepaskan letih — minum air, zikir atau tidur sebentar.';}
+    else if(calm<=15){e='😟';t='Gelisah';n='Fikiran sedang bergelora. Cuba teknik nafas atau zikir.';}
+    else if(happ>=70&&calm>=60){e='🥰';t='Tenang & gembira';n='Mood sangat stabil — pet awak sihat dan gembira.';}
+    else if(calm>=60){e='😌';t='Tenang';n='Aura tenang — bagus untuk fokus dan tidur.';}
+    else if(happ>=70){e='😊';t='Gembira';n='Tahap gembira tinggi. Teruskan jaga kebahagiaan pet.';}
+    else if(happ<=30){e='😔';t='Sedih & murung';n='Berinteraksi dengan pet, lepaskan beban atau zikir.';}
+    else{t='Stabil';e='🙂';n='Keadaan emosi seimbang. Teruskan rutin harian.';}
+    if(nPet)n+=` (${nPet} aktiviti pet hari ini).`;
+  }
+  $('moodEmoji').textContent=e;$('moodLabel').textContent=t;$('moodNota').textContent=n;
+}
+function detLepaskan(hari){return (hari||[]).some(r=>r.jenis==='emosi'||r.jenis==='nafas'||r.jenis==='tiup');}
 const masaRingkas=iso=>{const d=new Date(iso),jm=d.toTimeString().slice(0,5);
  const bh=Math.floor((new Date().setHours(0,0,0,0)-new Date(iso).setHours(0,0,0,0))/86400000);
  return bh===0?`Hari ini ${jm}`:bh===1?`Semalam ${jm}`:`${bh} hari lalu`;};
@@ -2411,6 +2483,10 @@ function paparLog(bekas,had){
    <b>${r.latihan} ${r.berjaya?'· sampai':''}</b>
    <small>${r.jarak}% jarak · ${r.konsistensi}% konsistensi · ${r.kaedahNama||r.kaedah}</small>
    </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
+  if(r.jenis==='pet')return `<div class="logItem"><div class="li">${r.emoji||'🐾'}</div><div class="lb">
+    <b>${r.petAksi||'Pet'}</b>
+    <small>${r.petDetail||''}</small>
+    </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
   const t=(r.kuatSebelum??0)-(r.kuatSelepas??0);
   return `<div class="logItem"><div class="li">${r.emoji||'🔥'}</div><div class="lb"><b>${r.emosiNama||r.emosi}</b>
    <small>${r.kuatSebelum} → ${r.kuatSelepas} ${t>0?`(−${t})`:''} · ${r.hit} hentakan</small>
@@ -2435,7 +2511,38 @@ const PET_SPORT=[
   {i:'🏃',n:'Berlari',c:'run'},{i:'💪',n:'Tekan Tubi',c:'pushup'},{i:'🤸',n:'Sit-up',c:'pushup'},
   {i:'🧘',n:'Regangan',c:'stretch'},{i:'🚶',n:'Berjalan',c:'run'},{i:'🏋️',n:'Angkat Beban',c:'pushup'}
 ];
-const PET={data:null,sedia:false,sibuk:false,tidur:false,kiraan:0,tapBand:0,mukaSibuk:null,lastMuka:''};
+const PET_ZIKIR=[
+  {i:'📿',n:'Astaghfirullah',k:'Istighfar'},
+  {i:'📿',n:'Subhanallah',k:'Tasbih'},
+  {i:'📿',n:'Alhamdulillah',k:'Tahmid'},
+  {i:'📿',n:'Allahu Akbar',k:'Takbir'},
+  {i:'📿',n:'La ilaha illallah',k:'Tahlil'}
+];
+const PET={data:null,sedia:false,sibuk:false,tidur:false,kiraan:0,tapBand:0,mukaSibuk:null,lastMuka:'',zikirPilih:0,ulang:33};
+const petHariIni=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const petJamKini=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+function petLog(e,aksi,detail){
+  if(!DB.data.petLog)DB.data.petLog=[];
+  DB.data.petLog.push({h:petHariIni(),j:petJamKini(),e:e,a:aksi,d:detail||''});
+  if(DB.data.petLog.length>300)DB.data.petLog.splice(0,DB.data.petLog.length-300);
+  DB.tambah({jenis:'pet',emoji:e,petAksi:aksi,petDetail:detail||''});
+  lukisPetLog();
+}
+function petLogBuka(){
+  const el=$('petLogPenuh');
+  const list=[...(DB.data.petLog||[])].reverse();
+  if(!list.length){el.innerHTML='<div class="kosong">Belum ada aktiviti.<br>Jaga pet awak dan semua akan direkodkan di sini.</div>';}
+  else el.innerHTML=list.map(r=>`<div class="logItem"><div class="li">${r.e}</div>
+    <div class="lb"><b>${r.a}</b><small>${r.d}</small></div><div class="lt">${r.h.slice(5)} · ${r.j}</div></div>`).join('');
+  petBuka('logSheet');
+}
+function lukisPetLog(){
+  const el=$('petLog');if(!el)return;
+  const list=(DB.data.petLog||[]).filter(r=>r.h===petHariIni()).reverse();
+  if(!list.length){el.innerHTML='<div class="kosong">Belum ada aktiviti hari ini.</div>';return;}
+  el.innerHTML=list.map(r=>`<div class="logItem"><div class="li">${r.e}</div>
+    <div class="lb"><b>${r.a}</b><small>${r.d}</small></div><div class="lt">${r.j}</div></div>`).join('');
+}
 const petC=n=>n<0?0:n>100?100:Math.round(n);
 const petRand=a=>a[Math.floor(Math.random()*a.length)];
 function petMuat(){
@@ -2457,6 +2564,7 @@ function petBukaView(){
   petOverlayTutupSemua();
   petJam();
   petDom();
+  lukisPetLog();
   setTimeout(petFrame,1500);
 }
 function petFrame(){
@@ -2467,13 +2575,22 @@ function petFrame(){
 function petHidup(){
   const d=PET.data;
   if(PET.tidur){
-    d.en=petC(d.en+0.5);d.hp=petC(d.hp+0.14);d.tire=petC(d.tire-0.4);d.happ=petC(d.happ+0.04);
-    d.calm=petC(d.calm+0.04);
+    d.en=petC(d.en+0.5);d.hp=petC(d.hp+0.14);d.tire=petC(d.tire-0.4);d.happ=petC(d.happ+0.05);
+    d.calm=petC(d.calm+0.05);d.stamina=petC(d.stamina+0.3);
   }else{
-    d.tire=petC(d.tire+0.1);d.en=petC(d.en-0.07);d.happ=petC(d.happ-0.03);d.calm=petC(d.calm-0.03);
-    if(d.en<25||d.hp<45)d.hp=petC(d.hp-0.05);else d.hp=petC(d.hp+0.02);
+    const st=d.stamina,e=d.en,cl=d.calm,hr=d.happ,tire=d.tire;
+    d.tire=petC(tire+0.1+((e<25?0.05:0)+(st<45?0.06:0)+(cl>60?-0.08:0)));
+    d.en=petC(e-0.07-(cl>65?0:0.03));
+    if(d.tire>55)d.happ=petC(hr-0.06);else if(hr>=60)d.happ=petC(hr-0.01);else d.happ=petC(hr-0.04);
+    if(d.tire>60)d.calm=petC(cl-0.06);else if(cl>55)d.calm=petC(cl+0.02);else d.calm=petC(cl-0.02);
+    if(d.stamina<45)d.tire=petC(d.tire+0.06);
+    else if(hr>60&&d.stamina<100)d.stamina=petC(d.stamina+0.08);
+    if(d.happ<20)d.calm=petC(d.calm-0.05);
+    if(d.tire<30&&hr>55)d.hp=petC(d.hp+0.04);else if(e<25||d.hp<45)d.hp=petC(d.hp-0.05);else d.hp=petC(d.hp+0.01);
     if(d.en<=20&&Math.random()<0.12){petBubble('Aku lapar… 🍚',1500);petMukaSibuk('≧﹏≦','yawn');}
     else if(d.tire>=75&&Math.random()<0.12){petBubble('Aku mengantuk 😪',1500);petMukaSibuk('(￣ρ￣)','yawn');}
+    else if(d.calm<=15&&Math.random()<0.1){petBubble('Aku gelisah… 😟',1500);petMukaSibuk('≧﹏≦');}
+    else if(d.happ>=75&&Math.random()<0.1){petBubble('Aku gembira kali ni! 🎉',1400);petMukaSibuk('≧◡≦');}
   }
   petSimpanKala();
 }
@@ -2534,13 +2651,13 @@ function petDom(){
   if(sb)sb.innerHTML=PET.tidur?'🌅<small>Bangun</small>':'😴<small>Tidur</small>';
 }
 function petBuka(id){
-  const map={food:'petFood',drink:'petDrink',release:'petRelease',sport:'petSport',positif:'petPositif'};
+  const map={food:'petFood',drink:'petDrink',release:'petRelease',sport:'petSport',positif:'petPositif',dhikr:'petDhikr',logSheet:'petLogSheet'};
   const el=$(map[id]);if(!el)return;
   if(id==='food')$('petFoodGrid').innerHTML=PET_FOOD.map((f,i)=>
     `<div class="petOpt" onclick="petMakan(${i})"><span class="po">${f.i}</span><b>${f.n}</b><small>+${f.hp} ❤️</small></div>`).join('');
   if(id==='sport')$('petSportGrid').innerHTML=PET_SPORT.map((s,i)=>
     `<div class="petOpt" onclick="petSenam(${i})"><span class="po">${s.i}</span><b>${s.n}</b><small>⚡ -10 · 💪 +8</small></div>`).join('');
-  if(id==='dhikr'){PET.kiraan=0;$('petDhikrCount').innerHTML='0<br><small style="font-size:12px;font-weight:600;opacity:.6">/ 33</small>';}
+  if(id==='dhikr'){PET.kiraan=0;const n=PET.ulang||33;$('petZikirCount').textContent='×0';$('petZikirSisa').textContent=n+' lagi';$('petZikirHint').textContent='Tekan bulatan — '+n+' kali → aura tenang ✨';$('petZikirArc').style.strokeDashoffset=276.5;$('petZikirArc').setAttribute('stroke','#6d5bd0');}
   el.classList.add('on');
 }
 function petTutup(id){const el=$(id);if(el)el.classList.remove('on');}
@@ -2593,6 +2710,7 @@ function petPositifSimpan(){
     const f=PET_FOOD[PET.foodPilih];
     d.hp=petC(d.hp+f.hp);d.en=petC(d.en+f.en);d.happ=petC(d.happ+8);
     PET.foodPilih=null;
+    petLog(f.i,'Makan '+f.n,'+'+f.hp+' ❤️ · '+f.en+' ⚡');
     petBubble('“'+t+'” ❤️ Nyam nyam… 🤤',2800);petCharAnim('celebrate');petDot(f.i);petDot('❤️');petDot('✨');
     petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
   }else{
@@ -2609,16 +2727,34 @@ function petMinum(){
   petTutup('petDrink');
   PET.sibuk=true;petCharAnim('celebrate');petBubble('Ahhh… segar! 🥤',1500);petDot('💧');
   d.en=petC(d.en+9);d.hp=petC(d.hp+4);d.happ=petC(d.happ+3);
+  petLog('🥤','Minum air','Segarkan diri');
   petSimpan();petDom();PET.sibuk=false;
 }
-function petZikirBuka(){petTutup('petDrink');petBuka('dhikr');}
+function petKali(n){
+  PET.ulang=n;
+  document.querySelectorAll('#petKaliList span').forEach(s=>s.classList.toggle('on',+s.textContent===n));
+  for(let i=0;i<5;i++){const el=$('zn'+i);if(el)el.textContent=n;}
+}
+function petZikirBuka(i){
+  PET.zikirPilih=i;
+  $('petZikirNama').textContent=PET_ZIKIR[i].n;
+  petTutup('petDrink');petBuka('dhikr');
+}
 function petZikirTambah(){
+  const n=PET.ulang||33;
   PET.kiraan++;const d=PET.data;
   d.zikir=(d.zikir||0)+1;
-  $('petDhikrCount').innerHTML=PET.kiraan+'<br><small style="font-size:12px;font-weight:600;opacity:.6">/ 33</small>';
+  const baki=Math.max(0,n-PET.kiraan);
+  $('petZikirCount').textContent='×'+PET.kiraan;
+  $('petZikirSisa').textContent=baki===0?'Selesai! ✨':baki+' lagi';
+  const kel=2*Math.PI*44;
+  $('petZikirArc').style.strokeDashoffset=kel-(PET.kiraan/n)*kel;
+  $('petZikirArc').setAttribute('stroke',PET.kiraan>=n?'#34d399':PET.kiraan>=n/2?'#a78bfa':'#6d5bd0');
   petDot('💫');petCharAnim('celebrate');
-  if(PET.kiraan>=33){
+  if(PET.kiraan>=n){
+    const z=PET_ZIKIR[PET.zikirPilih]||PET_ZIKIR[0];
     d.calm=petC(d.calm+9);d.tire=petC(d.tire-6);d.happ=petC(d.happ+4);
+    petLog('📿','Zikir '+z.n,n+' kali · '+z.k);
     petSimpan();petDom();petTutup('petDhikr');PET.kiraan=0;
     setTimeout(()=>{petBubble('✨ Tenang… Alhamdulillah 🕊️',2200);petCharAnim('celebrate');petDot('✨');petDot('💜');},400);
   }
@@ -2631,6 +2767,7 @@ function petLepas(){
   petAsap(txt||'fobia & rungsing');
   setTimeout(()=>{
     d.calm=petC(d.calm+10);d.tire=petC(d.tire-4);d.happ=petC(d.happ+4);
+    petLog('🚽','Lepaskan beban','“'+(txt||'fobia & rungsing')+'”');
     petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
     petBubble(petRand(['Legaaa… 😌','Beban dah hilang 💨','Fuh, lebih ringan!']),2000);
     petCharAnim('jump');petDot('💨');petDot('💨');
@@ -2656,10 +2793,11 @@ function petSenam(i){
   petTutup('petSport');
   PET.sibuk=true;petMukaSibuk('ˋωˊ',s.c);petBubble(s.n+'! 💪',1200);petDot('💦');
   setTimeout(()=>{
-    d.en=petC(d.en-10);d.stamina=petC(d.stamina+6);d.happ=petC(d.happ+7);d.hp=petC(d.hp+6);
+    d.en=petC(d.en-12);d.stamina=petC(d.stamina+6);d.happ=petC(d.happ+7);d.hp=petC(d.hp+6);d.tire=petC(d.tire+4);
     d.muscleXp=(d.muscleXp||0)+8;
     if(d.muscleXp>=100){d.muscle=Math.min(10,d.muscle+1);d.muscleXp-=100;
       setTimeout(()=>petBubble('💪 Otot naik ke Lv.'+d.muscle+'!',2400),500);}
+    petLog(s.i,'Bersenam '+s.n,'+6 ⚡ stamina · 💪 +8');
     petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
     petCharAnim('celebrate');petDot('💪');petDot('✨');
   },1600);
@@ -2672,6 +2810,7 @@ function petTidur(){
   $('petRoom').classList.add('on');
   petMukaSibuk('(￣ρ￣)','stretch');
   petBubble('Zzz… Zzz… 😴',1800);petDot('💤');
+  petLog('😴','Tidur','Zzz…');
   petSimpan();petDom();
   setTimeout(()=>{if(PET.tidur)petDot('💤');},2000);
 }
