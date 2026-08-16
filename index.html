@@ -195,11 +195,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .calDay{padding:8px 4px;text-align:center;border-radius:8px;cursor:pointer;transition:all .15s}
 .calDay.aktif{background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(168,85,247,.15));border:1px solid var(--acc2)}
+/* ==================== PEMAKANAN ==================== */
+.mTag{display:inline-block;font-size:10px;padding:3px 8px;border-radius:8px;margin:3px 4px 0 0;background:rgba(255,255,255,.07);color:var(--dim)}
+.mTag.bad{background:rgba(248,113,113,.16);color:#fca5a5}
+.mTag.warn{background:rgba(251,191,36,.16);color:#fbbf24}
+.mTag.good{background:rgba(52,211,153,.16);color:#34d399}
+.chipRow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+.chip{padding:9px 12px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.06);
+  font-size:12px;color:var(--dim);cursor:pointer;transition:all .15s;user-select:none}
+.chip.on{background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(168,85,247,.15));border-color:var(--acc2);color:#fff}
+.mRing{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;border:2px solid var(--line);font-size:10px;font-weight:700;color:var(--dim2)}
+.mCard.on .mRing{border-color:#fff;background:linear-gradient(135deg,#38bdf8,#a78bfa);color:#fff}
 .calDay.inactive{opacity:.4}
 .calDay .calDate{font-size:12px;font-weight:700}
 .calDay .calCount{font-size:9px;color:rgba(255,255,255,.5)}
 #sedia{position:absolute;inset:0;z-index:50;background:rgba(7,7,15,.8);backdrop-filter:blur(18px);display:none;flex-direction:column}
 #sedia.on{display:flex}
+#mkEditor{position:absolute;inset:0;z-index:50;background:rgba(7,7,15,.8);backdrop-filter:blur(18px);display:none;flex-direction:column}
+#mkEditor.on{display:flex}
 .sheet{margin-top:auto;background:var(--panel);border-top:1px solid var(--line);border-radius:28px 28px 0 0;max-height:90%;overflow-y:auto;padding-bottom:calc(var(--bot) + 20px)}
 .sHandle{width:40px;height:4px;border-radius:3px;background:rgba(255,255,255,.25);margin:12px auto 4px}
 .sHead{padding:12px var(--pad) 0}
@@ -440,7 +454,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
      <div id="solatOffline" style="display:none;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:10px 14px;font-size:12px;color:#fbbf24;margin:8px var(--pad);">
        ⚠️ Mode luar talian — menggunakan jadual solat standard. Sambungkan internet untuk masa berkaitan sebenar.
      </div>
-     <div class="nota">Tekan hari mana saja untuk lihat rekod solat. Klik solat untuk tandakan selesai.</div>
+<div class="nota">Tekan hari mana saja untuk lihat rekod solat. Klik solat untuk tandakan selesai.</div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- PEMAKANAN -->
+   <div class="view" data-view="makan">
+     <div class="hero"><div class="hi">Kehidupan sehari hari</div><h3>Pemakanan</h3></div>
+     <div class="secTitle">Catatan hari ini</div>
+     <div id="makanGrid"></div>
+     <div id="makanNota" style="margin:14px var(--pad) 0"></div>
+     <div class="nota">Catat setiap majlis makan &amp; minuman. Makan lewat 8 malam, makanan segera, dan gula akan menurunkan markah harian.</div>
      <div style="height:20px"></div>
    </div>
 
@@ -501,6 +525,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="dItem" data-go="emosi"><span>🔥</span><span>Lepaskan Emosi</span></div>
     <div class="dItem" data-go="tiup"><span>🌬️</span><span>Perjalanan Tiup</span></div>
     <div class="dItem" data-go="solat"><span>🕯️</span><span>Jadual Solat</span></div>
+    <div class="dItem" data-go="makan"><span>🍽️</span><span>Pemakanan</span></div>
     <div class="dItem" data-go="rekod"><span>▤</span><span>Rekod</span></div>
     <div class="dItem" data-go="tetapan"><span>⚙</span><span>Tetapan</span></div>
   </div>
@@ -519,6 +544,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
   <button class="btn" id="mulaBtn">Mula Sesi</button>
   <button class="btn ghost" id="batalBtn">Batal</button>
+</div></div>
+
+<div id="mkEditor"><div class="sheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3 id="mkNama">Sarapan</h3><p id="mkSub">Makan tepat pada masanya untuk nilai terbaik</p></div>
+  <div class="secTitle">Makanan</div>
+  <div class="field" style="margin:0 var(--pad)"><label>Makanan</label><input id="mkMakanan" placeholder="cth: Nasi lemak, roti bakar"></div>
+  <div class="secTitle">Minuman</div>
+  <div class="field" style="margin:0 var(--pad)"><label>Minuman</label><input id="mkMinuman" placeholder="cth: Teh tarik, air kosong"></div>
+  <div class="secTitle">Waktu makan</div>
+  <div class="field" style="margin:0 var(--pad)"><label>Waktu</label><input type="time" id="mkWaktu"></div>
+  <div class="chipRow" style="padding:0 var(--pad)">
+    <div class="chip" id="mkFast">🍔 Makanan segera</div>
+    <div class="chip" id="mkGulaM">🍬 Gula (makanan)</div>
+    <div class="chip" id="mkGulaMn">🥤 Gula (minuman)</div>
+  </div>
+  <div style="padding:2px var(--pad)">
+    <button class="btn" id="mkSimpan">Simpan</button>
+    <button class="btn ghost" id="mkPadam">Padam catatan ini</button>
+    <button class="btn ghost" id="mkBatal">Batal</button>
+  </div>
 </div></div>
 
 <div id="sesi">
@@ -646,7 +692,7 @@ const mmss=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 /* ==================== DB ==================== */
 const DB={
  kunci:'innerflow_db_v2',
-  data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},rekod:[]},
+  data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},pemakanan:{},rekod:[]},
  async muat(){
   let s=null;
   try{if(window.storage){const r=await window.storage.get(this.kunci);if(r&&r.value)s=r.value;}}catch(e){}
@@ -995,7 +1041,7 @@ $('btnLogin').onclick=cubaLogin;
 $('inPass').addEventListener('keydown',e=>{if(e.key==='Enter')cubaLogin();});
 $('inUser').addEventListener('keydown',e=>{if(e.key==='Enter')$('inPass').focus();});
 $('btnLogout').onclick=()=>{tutupDrawer();$('inPass').value='';$('login').style.display='flex';tukarView('dash');};
-const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',rekod:'Rekod',tetapan:'Tetapan'};
+const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',rekod:'Rekod',tetapan:'Tetapan'};
 function bukaDrawer(){$('drawer').classList.add('on');$('scrim').classList.add('on');$('burger').classList.add('x');}
 function tutupDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on');$('burger').classList.remove('x');}
 $('burger').onclick=()=>$('drawer').classList.contains('on')?tutupDrawer():bukaDrawer();
@@ -1006,6 +1052,7 @@ function tukarView(v){
   $('tajukView').textContent=TAJUK[v]||'Inner Flow';$('bodyScroll').scrollTop=0;
   if(v==='dash')segarDashboard(); if(v==='rekod')paparRekodPenuh();
   if(v==='solat'){muatWaktuSolat(true).then(()=>{lukisSolat();lukisSolatCalendar();});}
+  if(v==='makan')lukisPemakanan();
 }
 document.querySelectorAll('.dItem').forEach(el=>{el.onclick=()=>{tukarView(el.dataset.go);tutupDrawer();};});
 
@@ -1355,6 +1402,98 @@ function hariSolatKomplit(){
   const k=hariIni(),s=DB.data.solat[k]||{};
   return SOLAT.filter(x=>s[x.id]).length>=3;
 }
+
+/* ==================== PEMAKANAN ==================== */
+const MAKAN=[
+  {id:'sarapan',nama:'Sarapan',emoji:'🌅',waktu:'07:00'},
+  {id:'tengah',nama:'Makan Tengahari',emoji:'☀️',waktu:'13:00'},
+  {id:'malam',nama:'Makan Malam',emoji:'🌙',waktu:'20:00'}
+];
+let pilihMakanId='sarapan';
+function penaltiMakan(hari){
+  const p=DB.data.pemakanan?DB.data.pemakanan[hari]||{}:{};
+  let bil=0,tolak=[];
+  MAKAN.forEach(m=>{
+    const d=p[m.id];if(!d)return;
+    bil++;
+    const jam=parseInt((d.waktu||'').split(':')[0],10);
+    if(!isNaN(jam)&&jam>=20)tolak.push({m:m.nama,p:.6,t:'Makan lewat 8 malam'});
+    if(d.fastfood)tolak.push({m:m.nama,p:.7,t:'Makanan segera'});
+    if(d.gulaMakanan)tolak.push({m:m.nama,p:.5,t:'Gula'});
+    if(d.gulaMinuman)tolak.push({m:m.nama,p:.5,t:'Gula minuman'});
+  });
+  const markah=Math.max(0,Math.round(((bil/3)*2-tolak.reduce((s,t)=>s+t.p,0))*10)/10);
+  return {bil,tolak,markah};
+}
+function lukisPemakanan(){
+  const k=hariIni(),p=DB.data.pemakanan?DB.data.pemakanan[k]||{}:{};
+  const info=penaltiMakan(k);
+  $('makanGrid').innerHTML=MAKAN.map(m=>{
+    const d=p[m.id],sel=!!d;
+    let sub;
+    if(d){
+      const tags=[];
+      if(d.makanan)tags.push(`<span class="mTag">${d.makanan}</span>`);
+      if(d.minuman)tags.push(`<span class="mTag">${d.minuman}</span>`);
+      if(d.waktu){
+        const jam=parseInt(d.waktu.split(':')[0],10);
+        tags.push(`<span class="mTag ${!isNaN(jam)&&jam>=20?'bad':'good'}">${d.waktu}</span>`);
+      }
+      if(d.fastfood)tags.push(`<span class="mTag bad">🍔 segera</span>`);
+      if(d.gulaMakanan)tags.push(`<span class="mTag bad">🍬 gula</span>`);
+      if(d.gulaMinuman)tags.push(`<span class="mTag bad">🥤 gula</span>`);
+      sub=`<div class="sText"><b>${m.nama}</b><div style="margin-top:4px">${tags.join('')}</div></div>`;
+    }else{
+      sub=`<div class="sText"><b>${m.nama}</b><small>Belum dicatat — tekan untuk rekod</small></div>`;
+    }
+    return`<div class="solatCard${sel?' on':''}" onclick="bukaMakan('${m.id}')">
+      <div class="solatInfo"><div class="sEmoji">${m.emoji}</div>${sub}</div>
+      <div class="mRing">${sel?'✓':m.waktu}</div></div>`;
+  }).join('');
+  let nota=info.bil===0?'Belum ada catatan hari ini.':`${info.bil}/3 majlis dicatat. Markah pemakanan: ${info.markah}/2.`;
+  if(info.tolak.length)nota+='<br><span class="mTag bad">'+info.tolak.map(t=>t.t+' ('+t.m+')').join('</span> <span class="mTag bad">')+'</span>';
+  $('makanNota').innerHTML=`<div style="font-size:13px;color:var(--dim);line-height:1.7">${nota}</div>`;
+}
+function bukaMakan(id){
+  pilihMakanId=id;
+  const m=MAKAN.find(x=>x.id===id);
+  const d=DB.data.pemakanan?DB.data.pemakanan[hariIni()]?DB.data.pemakanan[hariIni()][id]||{}:{};
+  $('mkNama').textContent=m.nama;
+  $('mkSub').textContent=d&&d.makanan?'Sunting catatan makan':'Rekod makan untuk '+m.nama.toLowerCase();
+  $('mkMakanan').value=d.makanan||'';
+  $('mkMinuman').value=d.minuman||'';
+  const nw=new Date(),cur=nw.getHours().toString().padStart(2,'0')+':'+nw.getMinutes().toString().padStart(2,'0');
+  $('mkWaktu').value=d.waktu||cur;
+  $('mkFast').classList.toggle('on',!!d.fastfood);
+  $('mkGulaM').classList.toggle('on',!!d.gulaMakanan);
+  $('mkGulaMn').classList.toggle('on',!!d.gulaMinuman);
+  $('mkEditor').classList.add('on');
+}
+function mkSimpanMakan(){
+  const k=hariIni();
+  if(!DB.data.pemakanan)DB.data.pemakanan={};
+  if(!DB.data.pemakanan[k])DB.data.pemakanan[k]={};
+  DB.data.pemakanan[k][pilihMakanId]={
+    makanan:$('mkMakanan').value.trim(),
+    minuman:$('mkMinuman').value.trim(),
+    waktu:$('mkWaktu').value,
+    fastfood:$('mkFast').classList.contains('on'),
+    gulaMakanan:$('mkGulaM').classList.contains('on'),
+    gulaMinuman:$('mkGulaMn').classList.contains('on')
+  };
+  DB.simpan();$('mkEditor').classList.remove('on');lukisPemakanan();segarDashboard();getar([20,40]);
+}
+function mkPadamMakan(){
+  const k=hariIni();
+  if(DB.data.pemakanan&&DB.data.pemakanan[k])delete DB.data.pemakanan[k][pilihMakanId];
+  DB.simpan();$('mkEditor').classList.remove('on');lukisPemakanan();segarDashboard();getar([15,25]);
+}
+$('mkFast').onclick=()=>$('mkFast').classList.toggle('on');
+$('mkGulaM').onclick=()=>$('mkGulaM').classList.toggle('on');
+$('mkGulaMn').onclick=()=>$('mkGulaMn').classList.toggle('on');
+$('mkSimpan').onclick=mkSimpanMakan;
+$('mkPadam').onclick=mkPadamMakan;
+$('mkBatal').onclick=()=>$('mkEditor').classList.remove('on');
 
 /* ==================== SESI NAFAS ==================== */
 const hantu=$('hantu'),jejak=$('jejak'),penanda=$('penanda');
@@ -1898,10 +2037,12 @@ function skorHari(list,tanggal=null){
   const solatKey=tanggal||kunciHari(new Date());
   const solatHari=DB.data.solat[solatKey]||{};
   const solatBil=Object.keys(solatHari).filter(k=>solatHari[k]).length;
+  const makanInfo=penaltiMakan(solatKey);
   const aMasa=Math.min(1,minit/sasar)*4,aSesi=Math.min(1,sesi/2)*2,aSiap=siap*2;
   const aEmo=emo.length?lega*2:Math.min(1,minit/sasar)*2,aSolat=jepit(solatBil/5,0,1)*2;
-  return {skor:Math.min(10,Math.round((aMasa+aSesi+aSiap+aEmo+aSolat)*10)/10),
-   minit:Math.round(minit*10)/10,sesi,siap,lega,solat:solatBil,bilEmosi:emo.length,bilTiup:tiup.length,
+  const aMakan=Math.min(2,makanInfo.markah);
+  return {skor:Math.min(10,Math.round((aMasa+aSesi+aSiap+aEmo+aSolat+aMakan)*10)/10),
+   minit:Math.round(minit*10)/10,sesi,siap,lega,solat:solatBil,makan:makanInfo.bil,bilEmosi:emo.length,bilTiup:tiup.length,
    konsis:tiup.length?Math.round(tiup.reduce((s,r)=>s+(r.konsistensi||0),0)/tiup.length):0};
 }
 function skorTempoh(hari){
@@ -1936,6 +2077,13 @@ function janaCadangan(){
     btn:'Buka jadual',aksi:()=>tukarView('solat')});
   else if(hari.solat>=5)
    c.push({i:'🌙',t:'Semua solat dilaksanakan',p:'5 solat sudah selesai. Keikhlasan adalah kunci.'});
+  const pem=penaltiMakan(kunciHari(new Date()));
+  if(pem.bil<3&&pem.bil>0)
+   c.push({i:'🍽️',t:`Pemakanan ${pem.bil}/3`,p:'Ada majlis makan belum dicatat. Lengkapkan untuk markah penuh — elak makan lewat 8 malam, makanan segera & gula.',
+    btn:'Buka Pemakanan',aksi:()=>tukarView('makan')});
+  else if(pem.tolak.length)
+   c.push({i:'🥗',t:'Pemakanan perlu perhatian',p:pem.tolak.slice(0,2).map(t=>t.t).join(' & ')+' dikesan hari ini. Cuba pilihan lebih sihat untuk markah penuh.',
+    btn:'Lihat Pemakanan',aksi:()=>tukarView('makan')});
   const tiupSemua=semua.filter(r=>r.jenis==='tiup');
  if(!tiupSemua.length){
   c.push({i:'🌬️',t:'Cuba Perjalanan Tiup',p:'Hembusan awak menggerakkan objek ke destinasi. Kalau tak selesa guna mikrofon, ada kaedah Tekan & Tahan.',
@@ -2017,8 +2165,8 @@ function segarDashboard(){
  $('skorLabel').textContent=labelSkor(skor);
  const sasar=DB.data.sasarHarian||10;
  $('skorNota').textContent=hari===1
-   ?(r.minit===0?'Belum ada aktiviti hari ini. Satu sesi pendek pun dikira.'
-     :`${r.minit} minit daripada sasaran ${sasar} minit${r.bilTiup?` · ${r.bilTiup} perjalanan tiup`:''}${r.bilEmosi?` · ${r.bilEmosi} pelepasan`:''}${r.solat?` · ${r.solat}/5 solat`:''}.`)
+?(r.minit===0?'Belum ada aktiviti hari ini. Satu sesi pendek pun dikira.'
+      :`${r.minit} minit daripada sasaran ${sasar} minit${r.bilTiup?` · ${r.bilTiup} perjalanan tiup`:''}${r.bilEmosi?` · ${r.bilEmosi} pelepasan`:''}${r.solat?` · ${r.solat}/5 solat`:''}${r.makan?` · ${r.makan}/3 majlis makan`:''}.`)
    :`${r.hariAktif}/${r.jumlahHari} hari aktif · ${r.minit} minit · ${r.sesi} sesi${r.sesi?` · ${Math.round(r.siap*100)}% berjaya`:''}${r.solat?` · ${r.solat} solat`:''}`;
   $('chartTajuk').textContent=hari===1?'Minit aktif · 7 hari lepas':hari===7?'Minit aktif · 7 hari':'Minit aktif · 4 minggu';
   lukisGraf(hari===1?7:hari);
