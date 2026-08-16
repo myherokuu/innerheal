@@ -1116,7 +1116,7 @@ function formatTimestamp(ts){
 }
 async function dapatkanWaktuSolat(zone,tahun,bulan){
   if(!zone)zone=DEFAULT_ZONE;
-  const bulanStr=bulan!==null&&bulan!==undefined?String(bulan+1).padStart(2,'0'):'';
+  const bulanStr=bulan!==null&&bulan!==undefined?String(bulan+1):'';
   const tahunStr=tahun!==null&&tahun!==undefined?tahun:'';
   let url=`${API_URL}/${zone}?year=${tahunStr}&month=${bulanStr}`.replace(/[?&]$/,'').replace(/(\?&)/,'?');
   if(CORS_PROXY)url=CORS_PROXY+encodeURIComponent(url);
