@@ -97,6 +97,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mCard.tiup{grid-column:1/-1;background:linear-gradient(120deg,rgba(34,211,238,.32),rgba(14,116,144,.14));
  display:flex;align-items:center;gap:16px;padding:18px}
 .mCard.tiup .ic{margin:0;font-size:34px}
+.mCard.pet{grid-column:1/-1;background:linear-gradient(120deg,rgba(244,114,182,.3),rgba(124,58,237,.16));
+ display:flex;align-items:center;gap:16px;padding:18px}
+.mCard.pet .ic{margin:0;font-size:34px}
 .mCard.tiup .tb{flex:1;min-width:0}
 .mCard.tiup .ar{font-size:22px;opacity:.6}
 .segs{display:flex;gap:6px;margin:0 var(--pad);background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:15px;padding:5px}
@@ -326,6 +329,120 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .jhCell{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px 12px}
 .jhCell b{display:block;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
 .jhCell small{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim2);margin-top:4px}
+
+/* ==================== PET (VIRTUAL PET) ==================== */
+#petView{min-height:calc(100vh - 210px)}
+#petScene{position:relative;overflow:hidden;border-radius:0;height:calc(100vh - 200px);min-height:520px;
+ background:linear-gradient(180deg,#162447 0%,#1f406a 45%,#345b8a 72%,#4b6c8f 100%);transition:background 1.6s ease}
+#petSky,#petSun,#petMoon,#petStars,#petGround,#petRoom{position:absolute;inset:0;pointer-events:none}
+#petSun{inset:auto auto auto auto;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle,#fff3b0,#fbbf24);
+ left:12%;top:12%;box-shadow:0 0 46px rgba(251,191,36,.55);opacity:1;transition:all 1.6s ease}
+#petSun.night{opacity:0;transform:translateY(70px)}
+#petMoon{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 34% 34%,#f8fafc,#cbd5e1);
+ left:74%;top:14%;box-shadow:0 0 34px rgba(226,232,240,.5);opacity:0;transform:translateY(70px);transition:all 1.6s ease}
+#petMoon.night{opacity:1;transform:translateY(0)}
+#petStars{opacity:0;transition:opacity 1.6s ease}
+#petStars.night{opacity:1}
+#petStars i{position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;
+ box-shadow:0 0 10px rgba(255,255,255,.9);animation:petTw 2.4s ease-in-out infinite}
+@keyframes petTw{0%,100%{opacity:.15}50%{opacity:.9}}
+#petGround{inset:auto 0 0 0;height:34%;background:linear-gradient(180deg,rgba(52,91,138,0),rgba(23,37,66,.45));
+ border-radius:60% 60% 0 0/26px 26px 0 0}
+#petRoom{inset:auto 0 0 0;height:30%;background:linear-gradient(180deg,rgba(15,23,42,.25),rgba(15,23,42,.65));transition:opacity 1.2s ease}
+#petRoom.on{opacity:1}
+#petStars i{background:#e2e8f0}
+.petHud{display:flex;justify-content:space-between;gap:8px;padding:12px 12px 4px;position:relative;z-index:5}
+.petHud .ph{background:rgba(10,12,30,.55);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:6px 9px;
+ font-size:11px;display:flex;align-items:center;gap:6px;backdrop-filter:blur(6px)}
+.petHud .ph b{font-weight:700;font-variant-numeric:tabular-nums}
+.petStats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:6px 12px;position:relative;z-index:5}
+.ps{background:rgba(10,12,30,.55);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px 6px 8px;text-align:center}
+.ps small{display:block;font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:4px}
+.ps .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
+.ps .bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#34d399,#22d3ee);transition:width .6s ease}
+.ps.muscle .bar i{background:linear-gradient(90deg,#f97316,#fbbf24)}
+.ps.stam .bar i{background:linear-gradient(90deg,#60a5fa,#38bdf8)}
+.ps.happ .bar i{background:linear-gradient(90deg,#f472b6,#e879f9)}
+.ps.calm .bar i{background:linear-gradient(90deg,#a78bfa,#8b5cf6)}
+.ps.tire .bar i{background:linear-gradient(90deg,#f87171,#fb923c)}
+.petStage{position:relative;z-index:4;display:flex;align-items:flex-end;justify-content:center;height:46%;margin-top:6%}
+#petChar{position:relative;width:130px;height:150px;cursor:pointer;transition:transform .25s;transform-origin:50% 100%}
+#petChar:active{transform:scale(.96)}
+#petChar.jump{animation:petJump .7s ease}
+@keyframes petJump{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-38px) scale(.97,.1)}70%{transform:translateY(0) scale(1.06)}100%{transform:translateY(0) scale(1)}}
+#petChar.run{animation:petRun .5s infinite}
+@keyframes petRun{0%,100%{transform:translateX(-6px) rotate(-2deg)}50%{transform:translateX(6px) rotate(2deg)}}
+#petChar.pushup{animation:petPush 1s infinite}
+@keyframes petPush{0%,100%{transform:translateY(0)}50%{transform:translateY(46px)}}
+#petChar.stretch{animation:petStretch 1.2s ease}
+@keyframes petStretch{0%{transform:scale(1)}45%{transform:scaleY(1.24) scaleX(.86)}100%{transform:scale(1)}}
+#petChar.celebrate{animation:petCelebrate .9s ease}
+@keyframes petCelebrate{0%{transform:scale(1)}25%{transform:scale(1.18)}50%{transform:scale(.9)}75%{transform:scale(1.1)}100%{transform:scale(1)}}
+#petChar.yawn .petHead{animation:petYawn 1s ease}
+@keyframes petYawn{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.3)}}
+.petBody{position:absolute;left:50%;bottom:14px;width:96px;height:88px;transform:translateX(-50%);
+ border-radius:46% 46% 42% 42%;background:linear-gradient(160deg,#8b5cf6,#6d28d9);
+ border:3px solid rgba(255,255,255,.22);box-shadow:inset -12px -10px 24px rgba(0,0,0,.22),0 14px 30px rgba(0,0,0,.35)}
+.petHead{position:absolute;left:50%;bottom:82px;width:88px;height:78px;transform:translateX(-50%);
+ border-radius:50% 50% 46% 46%;background:linear-gradient(160deg,#a78bfa,#7c3aed);
+ border:3px solid rgba(255,255,255,.28);box-shadow:inset -10px -8px 20px rgba(0,0,0,.18);z-index:2;display:flex;align-items:center;justify-content:center}
+#petFace{font-size:30px;line-height:1;letter-spacing:-2px;transform:translateY(-2px)}
+.petAura{position:absolute;left:50%;top:50%;width:170px;height:170px;transform:translate(-50%,-50%);
+ border-radius:50%;border:3px solid rgba(167,139,250,.55);opacity:0;transition:opacity .8s ease;z-index:0;animation:petAura 2.6s ease-in-out infinite}
+.petAura.on{opacity:1}
+@keyframes petAura{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+.petEar{position:absolute;width:20px;height:26px;border-radius:60% 60% 10% 10%;background:#7c3aed;border:2px solid rgba(255,255,255,.2)}
+.petEar.l{left:-16px;top:-2px;transform:rotate(-16deg)}
+.petEar.r{right:-16px;top:-2px;transform:rotate(16deg)}
+.petArm{position:absolute;bottom:56px;width:16px;height:34px;border-radius:10px;background:#8b5cf6;
+ border:2px solid rgba(255,255,255,.22);transition:transform .3s}
+.petArm.l{left:8px;transform-origin:50% 0;transform:rotate(-22deg)}
+.petArm.r{right:8px;transform-origin:50% 0;transform:rotate(22deg)}
+#petChar.wave .petArm.r{transform:rotate(-78deg);animation:petWave .5s ease-in-out infinite}
+@keyframes petWave{0%,100%{transform:rotate(-78deg)}50%{transform:rotate(-108deg)}}
+.petLeg{position:absolute;bottom:0;width:18px;height:26px;border-radius:8px;background:#7c3aed;
+ border:2px solid rgba(255,255,255,.2);transition:transform .3s}
+.petLeg.l{left:20px}
+.petLeg.r{right:20px}
+#petChar.run .petLeg.l{animation:petLegA .3s infinite}
+#petChar.run .petLeg.r{animation:petLegB .3s infinite}
+@keyframes petLegA{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
+@keyframes petLegB{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
+.petShadow{position:absolute;left:50%;bottom:-6px;width:110px;height:16px;transform:translateX(-50%);
+ border-radius:50%;background:rgba(0,0,0,.28);filter:blur(4px)}
+#petBubble{position:absolute;left:50%;bottom:230px;transform:translateX(-50%);max-width:230px;z-index:9;
+ background:rgba(255,255,255,.96);color:#1e1b4b;font-size:13px;font-weight:600;padding:9px 13px;border-radius:16px;
+ box-shadow:0 10px 26px rgba(0,0,0,.3);opacity:0;transition:opacity .25s;text-align:center;pointer-events:none}
+#petBubble.on{opacity:1}
+#petBubble::after{content:'';position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);
+ width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid rgba(255,255,255,.96)}
+.petPets{position:absolute;inset:0;pointer-events:none;z-index:3}
+.petDot{position:absolute;font-size:18px;animation:petFloat 1s ease-out forwards}
+@keyframes petFloat{0%{transform:translateY(0) scale(.7);opacity:1}100%{transform:translateY(-70px) scale(1.2);opacity:0}}
+.petActions{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:8;
+ display:flex;gap:8px;width:calc(100% - 24px);justify-content:center}
+.petA{flex:1;max-width:70px;height:60px;border-radius:18px;border:1px solid rgba(255,255,255,.18);
+ background:rgba(10,12,30,.6);backdrop-filter:blur(6px);font-size:23px;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:transform .15s,background .2s;color:#fff}
+.petA:active{transform:scale(.93);background:rgba(167,139,250,.3)}
+.petA small{font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.petOverlay{position:fixed;inset:0;z-index:80;background:rgba(6,8,18,.82);backdrop-filter:blur(14px);
+ display:none;flex-direction:column;justify-content:flex-end;padding:0}
+.petOverlay.on{display:flex}
+.petSheet{background:var(--panel);border-top:1px solid var(--line);border-radius:26px 26px 0 0;
+ max-height:82%;overflow-y:auto;padding:18px var(--pad) calc(var(--bot) + 24px)}
+.petGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.petOpt{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 8px;text-align:center;
+ cursor:pointer;transition:transform .15s,background .2s}
+.petOpt:active{transform:scale(.94)}
+.petOpt .po{font-size:30px;display:block}
+.petOpt b{display:block;font-size:13px;margin-top:8px}
+.petOpt small{display:block;font-size:10px;color:var(--dim2);margin-top:3px}
+#petDhikrCount{width:120px;height:120px;margin:18px auto 8px;border-radius:50%;font-size:30px;font-weight:700;
+ display:flex;align-items:center;justify-content:center;border:3px solid var(--acc2);color:#e9d5ff;
+ background:radial-gradient(circle at 35% 30%,rgba(167,139,250,.35),rgba(76,29,149,.15));cursor:pointer;box-shadow:0 0 34px rgba(167,139,250,.4);
+ transition:transform .1s}
+#petDhikrCount:active{transform:scale(.92)}
 </style>
 </head>
 <body>
@@ -359,6 +476,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="mCard tiup" onclick="tukarView('tiup')">
         <span class="ic">🌬️</span>
         <div class="tb"><b>Perjalanan Tiup</b><small>Hembusan awak menggerakkan objek ke destinasi</small></div>
+        <span class="ar">›</span>
+      </div>
+      <div class="mCard pet" onclick="tukarView('pet')">
+        <span class="ic">🐣</span>
+        <div class="tb"><b>Pet Saya</b><small>Jaga pet: makan, senam, zikir &amp; tidur</small></div>
         <span class="ar">›</span>
       </div>
     </div>
@@ -468,6 +590,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
      <div style="height:20px"></div>
    </div>
 
+   <!-- PET -->
+   <div class="view" data-view="pet" id="petView">
+     <div id="petScene">
+       <div id="petSky"></div><div id="petStars"></div>
+       <div id="petSun"></div><div id="petMoon"></div>
+       <div id="petRoom"></div><div id="petGround"></div>
+       <div class="petHud">
+         <div class="ph">🕐 <b id="petClock">--</b></div>
+         <div class="ph">📅 Hari <b id="petDay">1</b></div>
+         <div class="ph">❤️ <b id="petHp">80</b></div>
+         <div class="ph">⚡ <b id="petEn">80</b></div>
+       </div>
+       <div class="petStats">
+         <div class="ps muscle"><small>💪 Lv.<span id="petMus">1</span></small><div class="bar"><i id="petMusBar" style="width:0%"></i></div></div>
+         <div class="ps stam"><small>🏃 Stamina</small><div class="bar"><i id="petStamBar" style="width:50%"></i></div></div>
+         <div class="ps happ"><small>😊 Gembira</small><div class="bar"><i id="petHapBar" style="width:80%"></i></div></div>
+         <div class="ps calm"><small>😌 Tenang</small><div class="bar"><i id="petCalmBar" style="width:40%"></i></div></div>
+         <div class="ps tire"><small>😴 Letih</small><div class="bar"><i id="petTireBar" style="width:10%"></i></div></div>
+       </div>
+       <div class="petPets" id="petDots"></div>
+       <div class="petStage" id="petStage">
+         <div id="petChar" onclick="petTap()">
+           <div class="petShadow"></div>
+           <div class="petEar l"></div><div class="petEar r"></div>
+           <div class="petBody"></div>
+           <div class="petArm l"></div><div class="petArm r"></div>
+           <div class="petLeg l"></div><div class="petLeg r"></div>
+           <div class="petHead"><span class="petAura"></span><span id="petFace">◕ ◕</span></div>
+         </div>
+       </div>
+       <div id="petBubble"></div>
+       <div class="petActions">
+         <div class="petA" onclick="petBuka('food')">🍚<small>Makan</small></div>
+         <div class="petA" onclick="petBuka('drink')">🥤<small>Minum</small></div>
+         <div class="petA" onclick="petBuka('release')">🚽<small>Lepas</small></div>
+         <div class="petA" onclick="petBuka('sport')">🏃<small>Bersenam</small></div>
+         <div class="petA" id="petSleepBtn" style="color:#fbbf24" onclick="petTidur()">😴<small>Tidur</small></div>
+       </div>
+     </div>
+   </div>
+
     <!-- REKOD -->
    <div class="view" data-view="rekod">
     <div class="secTitle">Semua rekod</div>
@@ -526,6 +689,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="dItem" data-go="tiup"><span>🌬️</span><span>Perjalanan Tiup</span></div>
     <div class="dItem" data-go="solat"><span>🕯️</span><span>Jadual Solat</span></div>
     <div class="dItem" data-go="makan"><span>🍽️</span><span>Pemakanan</span></div>
+    <div class="dItem" data-go="pet"><span>🐣</span><span>Pet Saya</span></div>
     <div class="dItem" data-go="rekod"><span>▤</span><span>Rekod</span></div>
     <div class="dItem" data-go="tetapan"><span>⚙</span><span>Tetapan</span></div>
   </div>
@@ -565,6 +729,57 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <button class="btn ghost" id="mkPadam">Padam catatan ini</button>
     <button class="btn ghost" id="mkBatal">Batal</button>
   </div>
+</div></div>
+
+<div class="petOverlay" id="petFood"><div class="petSheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>Pilih makanan 🍚</h3><p>Beri yang terbaik untuk dirimu sendiri ❤️</p></div>
+  <div class="petGrid" id="petFoodGrid"></div>
+  <button class="btn ghost" style="margin-top:16px" onclick="petTutup('petFood')">Batal</button>
+</div></div>
+
+<div class="petOverlay" id="petDrink"><div class="petSheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>Minum &amp; Zikir 🥤📿</h3><p>Apa yang dirasa perlu sekarang?</p></div>
+  <div class="petGrid">
+    <div class="petOpt" onclick="petMinum()"><span class="po">🥤</span><b>Minum air</b><small>Segarkan diri</small></div>
+    <div class="petOpt" onclick="petZikirBuka()"><span class="po">📿</span><b>Zikir</b><small>Tenangkan fikiran</small></div>
+  </div>
+  <button class="btn ghost" style="margin-top:16px" onclick="petTutup('petDrink')">Batal</button>
+</div></div>
+
+<div class="petOverlay" id="petDhikr"><div class="petSheet" style="text-align:center">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>📿 Zikir</h3><p>Tekan untuk setiap kiraan</p></div>
+  <div id="petDhikrCount" onclick="petZikirTambah()">0<br><small style="font-size:12px;font-weight:600;opacity:.6">/ 33</small></div>
+  <p style="font-size:15px;font-weight:700;margin:4px 0 2px">ASTAGHFIRULLAH</p>
+  <p style="font-size:11px;color:var(--dim2);margin-bottom:10px">Hitung sebanyak 33 kali untuk aura tenang</p>
+  <button class="btn ghost" onclick="petTutup('petDhikr')">Selesai</button>
+</div></div>
+
+<div class="petOverlay" id="petRelease"><div class="petSheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>🚽 Lepaskan beban</h3><p>Apa yang mahu awak lepaskan sekarang?</p></div>
+  <div class="field" style="margin:4px 0 14px"><label>Fikiran negatif</label>
+    <input id="petLepasTxt" placeholder="cth: kerja bertimbun…" maxlength="60"></div>
+  <button class="btn" onclick="petLepas()">RELEASE ✨</button>
+  <button class="btn ghost" onclick="petTutup('petRelease')">Batal</button>
+</div></div>
+
+<div class="petOverlay" id="petSport"><div class="petSheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>🏃 Bersenam</h3><p>Pilih aktiviti — makan tenaga, tambah otot &amp; stamina</p></div>
+  <div class="petGrid" id="petSportGrid"></div>
+  <button class="btn ghost" style="margin-top:16px" onclick="petTutup('petSport')">Batal</button>
+</div></div>
+
+<div class="petOverlay" id="petPositif"><div class="petSheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>Berikan fikiran yang positif ❤️</h3><p>Kekal tenang selepas makan:</p></div>
+  <div class="field" style="margin:10px 0 14px"><label>Afirmasi</label>
+    <input id="petPositifTxt" placeholder="Aku boleh buat yang terbaik." maxlength="40"></div>
+  <button class="btn" onclick="petPositifSimpan()">Tunjukkan pada pet</button>
+  <button class="btn ghost" onclick="petTutup('petPositif')">Nanti saja</button>
 </div></div>
 
 <div id="sesi">
@@ -1041,7 +1256,7 @@ $('btnLogin').onclick=cubaLogin;
 $('inPass').addEventListener('keydown',e=>{if(e.key==='Enter')cubaLogin();});
 $('inUser').addEventListener('keydown',e=>{if(e.key==='Enter')$('inPass').focus();});
 $('btnLogout').onclick=()=>{tutupDrawer();$('inPass').value='';$('login').style.display='flex';tukarView('dash');};
-const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',rekod:'Rekod',tetapan:'Tetapan'};
+const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',pet:'Pet Saya',rekod:'Rekod',tetapan:'Tetapan'};
 function bukaDrawer(){$('drawer').classList.add('on');$('scrim').classList.add('on');$('burger').classList.add('x');}
 function tutupDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on');$('burger').classList.remove('x');}
 $('burger').onclick=()=>$('drawer').classList.contains('on')?tutupDrawer():bukaDrawer();
@@ -1053,6 +1268,7 @@ function tukarView(v){
   if(v==='dash')segarDashboard(); if(v==='rekod')paparRekodPenuh();
   if(v==='solat'){muatWaktuSolat(true).then(()=>{lukisSolat();lukisSolatCalendar();});}
   if(v==='makan')lukisPemakanan();
+  if(v==='pet')petBukaView();
 }
 document.querySelectorAll('.dItem').forEach(el=>{el.onclick=()=>{tukarView(el.dataset.go);tutupDrawer();};});
 
@@ -2209,6 +2425,250 @@ $('btnEksport').onclick=()=>{const s=JSON.stringify(DB.data,null,2);
   a.href=URL.createObjectURL(b);a.download='innerflow-rekod.json';document.body.appendChild(a);a.click();a.remove();
  }catch(e){alert(s.slice(0,2000));}};
 $('btnPadam').onclick=()=>{if(confirm('Padam semua rekod? Tindakan ini tidak boleh dibatalkan.'))DB.kosongkan();};
+
+/* ==================== PET (VIRTUAL PET) ==================== */
+const PET_FOOD=[
+  {i:'🍎',n:'Epal',hp:6,en:12},{i:'🍚',n:'Nasi',hp:12,en:18},{i:'🥗',n:'Salad',hp:5,en:9},
+  {i:'🍌',n:'Pisang',hp:7,en:12},{i:'🥛',n:'Susu',hp:6,en:8},{i:'🍞',n:'Roti',hp:8,en:12}
+];
+const PET_SPORT=[
+  {i:'🏃',n:'Berlari',c:'run'},{i:'💪',n:'Tekan Tubi',c:'pushup'},{i:'🤸',n:'Sit-up',c:'pushup'},
+  {i:'🧘',n:'Regangan',c:'stretch'},{i:'🚶',n:'Berjalan',c:'run'},{i:'🏋️',n:'Angkat Beban',c:'pushup'}
+];
+const PET={data:null,sedia:false,sibuk:false,tidur:false,kiraan:0,tapBand:0,mukaSibuk:null,lastMuka:''};
+const petC=n=>n<0?0:n>100?100:Math.round(n);
+const petRand=a=>a[Math.floor(Math.random()*a.length)];
+function petMuat(){
+  if(DB.data.pet&&typeof DB.data.pet.muscle==='number'){PET.data=DB.data.pet;}
+  else{PET.data={dibuat:Date.now(),hp:80,en:80,muscle:1,muscleXp:0,stamina:50,happ:80,calm:40,tire:10,zikir:0};}
+  if(!document.getElementById('petStars').children.length){
+    for(let i=0;i<42;i++){
+      const s=document.createElement('i');
+      s.style.left=Math.random()*100+'%';s.style.top=Math.random()*55+'%';
+      s.style.animationDelay=(Math.random()*2)+'s';
+      document.getElementById('petStars').appendChild(s);
+    }
+  }
+  PET.sedia=true;
+}
+function petSimpan(){DB.data.pet=PET.data;DB.simpan();}
+function petBukaView(){
+  if(!PET.sedia)petMuat();
+  petOverlayTutupSemua();
+  petJam();
+  petDom();
+  setTimeout(petFrame,1500);
+}
+function petFrame(){
+  if(!PET.sedia||!PET.data)return;
+  petJam();petHidup();petDom();
+  setTimeout(petFrame,1600);
+}
+function petHidup(){
+  const d=PET.data;
+  if(PET.tidur){
+    d.en=petC(d.en+0.5);d.hp=petC(d.hp+0.14);d.tire=petC(d.tire-0.4);d.happ=petC(d.happ+0.04);
+    d.calm=petC(d.calm+0.04);
+  }else{
+    d.tire=petC(d.tire+0.1);d.en=petC(d.en-0.07);d.happ=petC(d.happ-0.03);d.calm=petC(d.calm-0.03);
+    if(d.en<25||d.hp<45)d.hp=petC(d.hp-0.05);else d.hp=petC(d.hp+0.02);
+    if(d.en<=20&&Math.random()<0.12){petBubble('Aku lapar… 🍚',1500);petMukaSibuk('≧﹏≦','yawn');}
+    else if(d.tire>=75&&Math.random()<0.12){petBubble('Aku mengantuk 😪',1500);petMukaSibuk('(￣ρ￣)','yawn');}
+  }
+  petSimpanKala();
+}
+let petSimpanKira=0;
+function petSimpanKala(){if((petSimpanKira++)%12===0)petSimpan();}
+function petJam(){
+  const n=new Date(),h=n.getHours(),m=n.getMinutes();
+  const jam=((h+11)%12)+1,ampm=h<12?'AM':'PM';
+  $('petClock').textContent=jam+':'+String(m).padStart(2,'0')+' '+ampm;
+  const night=PET.tidur||h>=19||h<6;
+  $('petSun').classList.toggle('night',night);
+  $('petMoon').classList.toggle('night',night);
+  $('petStars').classList.toggle('night',night);
+  const sc=$('petScene');
+  if(PET.tidur)sc.style.background='linear-gradient(180deg,#0b1026 0%,#171d3a 55%,#20264a 100%)';
+  else if(h>=6&&h<11)sc.style.background='linear-gradient(180deg,#3b7a9e 0%,#5b9cc0 50%,#84b8cc 100%)';
+  else if(h>=11&&h<17)sc.style.background='linear-gradient(180deg,#162447 0%,#1f406a 45%,#345b8a 72%,#4b6c8f 100%)';
+  else if(h>=17&&h<19)sc.style.background='linear-gradient(180deg,#5d2450 0%,#9c4a3c 55%,#db7f3f 100%)';
+  else sc.style.background='linear-gradient(180deg,#0b1026 0%,#171d3a 55%,#20264a 100%)';
+}
+function petMuka(){
+  const d=PET.data;
+  if(PET.mukaSibuk)return PET.mukaSibuk;
+  if(PET.tidur)return '(￣ρ￣)';
+  if(d.tire>=75)return '≧﹏≦';
+  if(d.hp<45||d.en<25)return '︶︿︶';
+  if(d.happ>72&&d.calm>60)return '◕‿◕';
+  if(d.happ>70)return '≧◡≦';
+  return '◕ ◕';
+}
+function petMukaSibuk(muka,anim){
+  PET.mukaSibuk=muka||null;
+  if(anim)petCharAnim(anim);
+  setTimeout(()=>{PET.mukaSibuk=null;},1900);
+}
+function petCharAnim(kelas){
+  const ch=$('petChar');
+  ch.classList.remove('jump','run','pushup','stretch','celebrate','yawn','wave');
+  void ch.offsetWidth;
+  if(kelas)ch.classList.add(kelas);
+  setTimeout(()=>{ch.classList.remove(kelas);},1300);
+}
+function petDom(){
+  const d=PET.data;
+  $('petDay').textContent=Math.max(1,Math.floor((Date.now()-d.dibuat)/86400000)+1);
+  $('petHp').textContent=petC(d.hp);$('petEn').textContent=petC(d.en);
+  $('petMus').textContent=d.muscle;
+  $('petMusBar').style.width=Math.round(jepit(d.muscleXp||0,0,100))+'%';
+  $('petStamBar').style.width=Math.round(jepit(d.stamina,0,100))+'%';
+  $('petHapBar').style.width=Math.round(jepit(d.happ,0,100))+'%';
+  $('petCalmBar').style.width=Math.round(jepit(d.calm,0,100))+'%';
+  $('petTireBar').style.width=Math.round(jepit(d.tire,0,100))+'%';
+  const muka=petMuka();
+  if(muka!==PET.lastMuka){$('petFace').textContent=muka;PET.lastMuka=muka;}
+  const aura=document.querySelector('#petChar .petAura');
+  if(aura)aura.classList.toggle('on',d.calm>=70&&!PET.tidur);
+  const sb=$('petSleepBtn');
+  if(sb)sb.innerHTML=PET.tidur?'🌅<small>Bangun</small>':'😴<small>Tidur</small>';
+}
+function petBuka(id){
+  const map={food:'petFood',drink:'petDrink',release:'petRelease',sport:'petSport',positif:'petPositif'};
+  const el=$(map[id]);if(!el)return;
+  if(id==='food')$('petFoodGrid').innerHTML=PET_FOOD.map((f,i)=>
+    `<div class="petOpt" onclick="petMakan(${i})"><span class="po">${f.i}</span><b>${f.n}</b><small>+${f.hp} ❤️</small></div>`).join('');
+  if(id==='sport')$('petSportGrid').innerHTML=PET_SPORT.map((s,i)=>
+    `<div class="petOpt" onclick="petSenam(${i})"><span class="po">${s.i}</span><b>${s.n}</b><small>⚡ -10 · 💪 +8</small></div>`).join('');
+  if(id==='dhikr'){PET.kiraan=0;$('petDhikrCount').innerHTML='0<br><small style="font-size:12px;font-weight:600;opacity:.6">/ 33</small>';}
+  el.classList.add('on');
+}
+function petTutup(id){const el=$(id);if(el)el.classList.remove('on');}
+function petOverlayTutupSemua(){document.querySelectorAll('.petOverlay').forEach(o=>o.classList.remove('on'));}
+function petBubble(txt,ms){
+  const b=$('petBubble');
+  b.textContent=txt;b.classList.add('on');
+  clearTimeout(PET._bb);
+  if(ms)PET._bb=setTimeout(()=>b.classList.remove('on'),ms||1500);
+}
+function petDot(txt){
+  const st=$('petStage'),ch=$('petChar');
+  if(!st||!ch)return;
+  const r=ch.getBoundingClientRect(),s=st.getBoundingClientRect();
+  const el=document.createElement('span');
+  el.className='petDot';el.textContent=txt;
+  el.style.left=(r.left-s.left+r.width/2+petRand([-40,-15,15,40]))+'px';
+  el.style.top=(r.top-s.top-10)+'px';
+  $('#petDots').appendChild(el);
+  setTimeout(()=>el.remove(),1100);
+}
+function petTap(){
+  if(!PET.sedia||!PET.data||PET.sibuk)return;
+  if(PET.tidur){petBubble('Zzz… 😴',1200);return;}
+  const d=PET.data;PET.tapBand++;
+  if(d.en<22){petBubble('Aku lapar… 🍚',1500);petMukaSibuk('≧﹏≦','yawn');petDot('🍚');}
+  else if(d.tire>=70){petBubble('Aku mengantuk 😪',1500);petMukaSibuk('(￣ρ￣)','yawn');petDot('😴');}
+  else if(PET.tapBand%6===0){petBubble('Hei! Berhenti lah 😅',1300);petMukaSibuk('￢_￢');petDot('😅');}
+  else if(Math.random()<0.28){petBubble(petRand(['😆','hehe','❤️','😊']),1300);petCharAnim('jump');petMukaSibuk('≧◡≦');petDot('✨');}
+  else if(d.calm>55){petBubble('Aku sayang awak 💜',1500);petMukaSibuk('˘◡˘');petDot('💜');}
+  else{petBubble('Wah, terkejut!',1000);petMukaSibuk('◎_◎','celebrate');petDot('！');}
+}
+function petMakan(i){
+  const f=PET_FOOD[i],d=PET.data;
+  petTutup('petFood');
+  PET.sibuk=true;petMukaSibuk('●﹏●','celebrate');
+  petBubble('Nyam nyam… 🤤',1400);petDot(f.i);
+  setTimeout(()=>{
+    d.hp=petC(d.hp+f.hp);d.en=petC(d.en+f.en);d.happ=petC(d.happ+8);
+    petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
+    petBuka('positif');
+  },1500);
+}
+function petPositifSimpan(){
+  const t=$('petPositifTxt').value.trim()||'Aku boleh buat yang terbaik.';
+  petTutup('petPositif');$('petPositifTxt').value='';
+  petBubble('“'+t+'” ❤️',2600);petCharAnim('celebrate');petDot('❤️');petDot('✨');
+}
+function petMinum(){
+  const d=PET.data;
+  petTutup('petDrink');
+  PET.sibuk=true;petCharAnim('celebrate');petBubble('Ahhh… segar! 🥤',1500);petDot('💧');
+  d.en=petC(d.en+9);d.hp=petC(d.hp+4);d.happ=petC(d.happ+3);
+  petSimpan();petDom();PET.sibuk=false;
+}
+function petZikirBuka(){petTutup('petDrink');petBuka('dhikr');}
+function petZikirTambah(){
+  PET.kiraan++;const d=PET.data;
+  d.zikir=(d.zikir||0)+1;
+  $('petDhikrCount').innerHTML=PET.kiraan+'<br><small style="font-size:12px;font-weight:600;opacity:.6">/ 33</small>';
+  petDot('💫');petCharAnim('celebrate');
+  if(PET.kiraan>=33){
+    d.calm=petC(d.calm+9);d.tire=petC(d.tire-6);d.happ=petC(d.happ+4);
+    petSimpan();petDom();petTutup('petDhikr');PET.kiraan=0;
+    setTimeout(()=>{petBubble('✨ Tenang… Alhamdulillah 🕊️',2200);petCharAnim('celebrate');petDot('✨');petDot('💜');},400);
+  }
+}
+function petLepas(){
+  const txt=$('petLepasTxt').value.trim();
+  petTutup('petRelease');$('petLepasTxt').value='';
+  const d=PET.data;
+  PET.sibuk=true;petMukaSibuk('◎_◎');
+  petAsap(txt||'fobia & rungsing');
+  setTimeout(()=>{
+    d.calm=petC(d.calm+10);d.tire=petC(d.tire-4);d.happ=petC(d.happ+4);
+    petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
+    petBubble(petRand(['Legaaa… 😌','Beban dah hilang 💨','Fuh, lebih ringan!']),2000);
+    petCharAnim('jump');petDot('💨');petDot('💨');
+  },2300);
+}
+function petAsap(txt){
+  const sc=$('petScene'),ch=$('petChar');
+  if(!sc)return;
+  const el=document.createElement('div');
+  el.textContent='“'+txt+'”';
+  el.style.cssText='position:absolute;left:50%;bottom:40%;transform:translateX(-50%);font-size:14px;font-weight:700;color:#e2e8f0;white-space:nowrap;opacity:.95;z-index:12;transition:all 2.4s ease;text-align:center;max-width:80%';
+  sc.appendChild(el);
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+    el.style.transform='translate(-50%,-110px) scale(1.35)';
+    el.style.opacity='0';el.style.filter='blur(8px)';
+  });});
+  setTimeout(()=>el.remove(),2600);
+  petDot('💨');petDot('💨');petDot('🌫️');
+}
+function petSenam(i){
+  const s=PET_SPORT[i],d=PET.data;
+  if(d.en<12){petBubble('Tak cukup tenaga… 😮‍💨',1500);petMukaSibuk('︶︿︶');return;}
+  petTutup('petSport');
+  PET.sibuk=true;petMukaSibuk('ˋωˊ',s.c);petBubble(s.n+'! 💪',1200);petDot('💦');
+  setTimeout(()=>{
+    d.en=petC(d.en-10);d.stamina=petC(d.stamina+6);d.happ=petC(d.happ+7);d.hp=petC(d.hp+6);
+    d.muscleXp=(d.muscleXp||0)+8;
+    if(d.muscleXp>=100){d.muscle=Math.min(10,d.muscle+1);d.muscleXp-=100;
+      setTimeout(()=>petBubble('💪 Otot naik ke Lv.'+d.muscle+'!',2400),500);}
+    petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
+    petCharAnim('celebrate');petDot('💪');petDot('✨');
+  },1600);
+}
+function petTidur(){
+  if(!PET.sedia||!PET.data)return;
+  if(PET.tidur)return petBangun();
+  if(PET.sibuk)return;
+  PET.tidur=true;
+  $('petRoom').classList.add('on');
+  petMukaSibuk('(￣ρ￣)','stretch');
+  petBubble('Zzz… Zzz… 😴',1800);petDot('💤');
+  petSimpan();petDom();
+  setTimeout(()=>{if(PET.tidur)petDot('💤');},2000);
+}
+function petBangun(){
+  if(!PET.tidur)return;
+  PET.tidur=false;
+  $('petRoom').classList.remove('on');
+  PET.mukaSibuk=null;
+  petCharAnim('stretch');petBubble('Good morning! ☀️',2000);
+  petDot('☀️');petDot('☀️');petDot('✨');
+  petSimpan();petDom();
+}
 
 /* ==================== MULA ==================== */
 (async()=>{
