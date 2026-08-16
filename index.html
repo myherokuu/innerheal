@@ -1100,6 +1100,12 @@ const ZONE_MAP={
   'SGR01':'Selangor',
   'TRG01':'Terengganu'
 };
+const ZONE_CITY_MAP={
+  'WLY01':'Kuala Lumpur','JHR01':'Johor Bahru','KDH01':'Alor Setar','KTN01':'Kota Bharu',
+  'MEL01':'Melaka','NSN01':'Seremban','PHG01':'Kuantan','PER01':'Ipoh','PNG01':'George Town',
+  'PRK01':'Ipoh','PTK01':'Putrajaya','SGR01':'Shah Alam','TRG01':'Kuala Terengganu',
+  'SWK01':'Kuching','SWK02':'Kota Kinabalu'
+};
 let waktuSolat={};
 let currentLocation={lat:null,lng:null,q:'Malaysia',zone:DEFAULT_ZONE};
 const solatMap={
@@ -1113,6 +1119,29 @@ function formatTimestamp(ts){
   const d=new Date(ts*1000);
   if(isNaN(d.getTime()))return '---';
   return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+async function dapatkanWaktuSolatAladhan(zone,tahun,bulan){
+  const city=ZONE_CITY_MAP[zone]||'Kuala Lumpur';
+  const bulanStr=bulan!==null&&bulan!==undefined?String(bulan+1):'1';
+  const tahunStr=tahun!==null&&tahun!==undefined?tahun:new Date().getFullYear();
+  const url=`https://api.aladhan.com/v1/calendarByCity/${tahunStr}/${bulanStr}?city=${encodeURIComponent(city)}&country=Malaysia&method=11`;
+  const r=await fetch(url,{mode:'cors'});
+  if(!r.ok)throw new Error(`Aladhan HTTP ${r.status}`);
+  const d=await r.json();
+  if(!d.data||d.code!==200)throw new Error(d.status||'Aladhan failed');
+  const normal=s=>String(s||'').split(' ')[0];
+  const todayNum=new Date().getDate();
+  const today=d.data.find(x=>Number(x.date.gregorian.day)===todayNum)||d.data[0];
+  const w={};
+  w.subuh=normal(today.timings.Fajr);
+  w.zohor=normal(today.timings.Dhuhr);
+  w.asar=normal(today.timings.Asr);
+  w.maghrib=normal(today.timings.Maghrib);
+  w.isyak=normal(today.timings.Isha);
+  w.location={zone:'ALH:'+city,zoneName:city};
+  w.source='aladhan';
+  w.lastUpdate=Date.now();
+  return w;
 }
 async function dapatkanWaktuSolat(zone,tahun,bulan){
   if(!zone)zone=DEFAULT_ZONE;
@@ -1128,11 +1157,8 @@ async function dapatkanWaktuSolat(zone,tahun,bulan){
       d=await r.json();
     }catch(e1){
       if(CORS_PROXY)throw e1;
-      console.log('Direct fetch failed, trying with proxy...');
-      const proxyUrl=`https://api.allorigins.win/raw/${encodeURIComponent(url)}`;
-      const rp=await fetch(proxyUrl,{mode:'cors'});
-      if(!rp.ok)throw new Error(`Proxy HTTP ${rp.status}`);
-      d=await rp.json();
+      console.log('waktusolat failed, trying Aladhan fallback...');
+      return await dapatkanWaktuSolatAladhan(zone,tahun,bulan);
     }
     if(d.prayers){
       const today=new Date();
@@ -1145,10 +1171,14 @@ async function dapatkanWaktuSolat(zone,tahun,bulan){
       w.maghrib=formatTimestamp(todayPrayer.maghrib);
       w.isyak=formatTimestamp(todayPrayer.isha);
       w.location={zone:d.zone,zoneName:ZONE_MAP[d.zone]||d.zone};
+      w.source='waktusolat';
       w.raw=d;
       w.lastUpdate=Date.now();
       return w;
-    }else throw new Error(d.message||'No prayer times found');
+    }else{
+      console.log('waktusolat no data, trying Aladhan fallback...');
+      return await dapatkanWaktuSolatAladhan(zone,tahun,bulan);
+    }
   }catch(e){
     console.error('API error:',e);
     return null;
