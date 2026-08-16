@@ -1457,7 +1457,8 @@ function lukisPemakanan(){
 function bukaMakan(id){
   pilihMakanId=id;
   const m=MAKAN.find(x=>x.id===id);
-  const d=DB.data.pemakanan?DB.data.pemakanan[hariIni()]?DB.data.pemakanan[hariIni()][id]||{}:{};
+  const k=hariIni(),hari=DB.data.pemakanan?DB.data.pemakanan[k]||{}:{};
+  const d=hari[id]||{};
   $('mkNama').textContent=m.nama;
   $('mkSub').textContent=d&&d.makanan?'Sunting catatan makan':'Rekod makan untuk '+m.nama.toLowerCase();
   $('mkMakanan').value=d.makanan||'';
