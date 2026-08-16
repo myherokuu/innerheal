@@ -779,7 +779,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="field" style="margin:10px 0 14px"><label>Afirmasi</label>
     <input id="petPositifTxt" placeholder="Aku boleh buat yang terbaik." maxlength="40"></div>
   <button class="btn" onclick="petPositifSimpan()">Tunjukkan pada pet</button>
-  <button class="btn ghost" onclick="petTutup('petPositif')">Nanti saja</button>
+  <button class="btn ghost" onclick="petPositifBatal()">Batal</button>
 </div></div>
 
 <div id="sesi">
@@ -2440,7 +2440,7 @@ const petC=n=>n<0?0:n>100?100:Math.round(n);
 const petRand=a=>a[Math.floor(Math.random()*a.length)];
 function petMuat(){
   if(DB.data.pet&&typeof DB.data.pet.muscle==='number'){PET.data=DB.data.pet;}
-  else{PET.data={dibuat:Date.now(),hp:80,en:80,muscle:1,muscleXp:0,stamina:50,happ:80,calm:40,tire:10,zikir:0};}
+  else{PET.data={dibuat:Date.now(),hp:80,en:80,muscle:1,muscleXp:0,stamina:50,happ:80,calm:40,tire:10,zikir:0};DB.data.pet=PET.data;}
   if(!document.getElementById('petStars').children.length){
     for(let i=0;i<42;i++){
       const s=document.createElement('i');
@@ -2559,7 +2559,7 @@ function petDot(txt){
   el.className='petDot';el.textContent=txt;
   el.style.left=(r.left-s.left+r.width/2+petRand([-40,-15,15,40]))+'px';
   el.style.top=(r.top-s.top-10)+'px';
-  $('#petDots').appendChild(el);
+  $('petDots').appendChild(el);
   setTimeout(()=>el.remove(),1100);
 }
 function petTap(){
@@ -2574,20 +2574,35 @@ function petTap(){
   else{petBubble('Wah, terkejut!',1000);petMukaSibuk('◎_◎','celebrate');petDot('！');}
 }
 function petMakan(i){
-  const f=PET_FOOD[i],d=PET.data;
+  if(PET.sibuk)return;
+  const f=PET_FOOD[i];
   petTutup('petFood');
-  PET.sibuk=true;petMukaSibuk('●﹏●','celebrate');
-  petBubble('Nyam nyam… 🤤',1400);petDot(f.i);
-  setTimeout(()=>{
-    d.hp=petC(d.hp+f.hp);d.en=petC(d.en+f.en);d.happ=petC(d.happ+8);
-    petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
-    petBuka('positif');
-  },1500);
+  PET.foodPilih=i;
+  PET.sibuk=true;petMukaSibuk('◕_◕','celebrate');
+  petBubble(f.n+'! Kasi aku fikiran positif dulu ❤️',1800);petDot(f.i);
+  $('petPositifTxt').value='';
+  $('petPositifTxt').focus();
+  $('petPositifTxt').placeholder='cth: Aku boleh buat yang terbaik.';
+  setTimeout(()=>{if(PET.foodPilih!==null&&PET.foodPilih!==undefined)petBuka('positif');},600);
 }
 function petPositifSimpan(){
   const t=$('petPositifTxt').value.trim()||'Aku boleh buat yang terbaik.';
+  const d=PET.data;
   petTutup('petPositif');$('petPositifTxt').value='';
-  petBubble('“'+t+'” ❤️',2600);petCharAnim('celebrate');petDot('❤️');petDot('✨');
+  if(PET.foodPilih!==null&&PET.foodPilih!==undefined){
+    const f=PET_FOOD[PET.foodPilih];
+    d.hp=petC(d.hp+f.hp);d.en=petC(d.en+f.en);d.happ=petC(d.happ+8);
+    PET.foodPilih=null;
+    petBubble('“'+t+'” ❤️ Nyam nyam… 🤤',2800);petCharAnim('celebrate');petDot(f.i);petDot('❤️');petDot('✨');
+    petSimpan();petDom();PET.sibuk=false;PET.mukaSibuk=null;
+  }else{
+    petBubble('“'+t+'” ❤️',2400);petCharAnim('celebrate');petDot('❤️');
+  }
+}
+function petPositifBatal(){
+  PET.foodPilih=null;PET.sibuk=false;PET.mukaSibuk=null;
+  petTutup('petPositif');$('petPositifTxt').value='';
+  petBubble('Oh… lain kali ya 🤗',1500);
 }
 function petMinum(){
   const d=PET.data;
