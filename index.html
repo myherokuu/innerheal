@@ -2068,6 +2068,7 @@ sw('swTenaga',v=>{tenagaOn=v;$('btnTenaga').classList.toggle('off',!v);});
 sw('swPetPeringat',v=>{DB.data.peringat=DB.data.peringat||{};DB.data.peringat.pet=v;if(!v)pHantarBuang();else pInisialisasi();DB.simpan();});
 $('petMasaPeringat').oninput=e=>{DB.data.peringat=DB.data.peringat||{};DB.data.peringat.masa=e.target.value;DB.simpan();petCekPeringat();};
 let SW=null,PUSH_KEY=null,PUSH_SERVER=false,PUSH_SUB=null;
+const VAPID_PUB='BJnrU3qs9hLRJp6GIOLfxH5Fmt_Z6SI0-OoZd0rFS0liyaobtRYB85WLQqceUPdnc9RgUmYEh0zXoK6bdoS0vyQ';
 function psHost(){return location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='https:';}
 async function pApi(p,b){
   if(!psHost())return null;
@@ -2081,7 +2082,7 @@ async function petDaftarSW(){
   try{const r=await navigator.serviceWorker.register('sw.js');SW=r;await navigator.serviceWorker.ready;return r;}catch(e){return null;}
 }
 async function pDapatKunci(){
-  try{const r=await fetch('/api/vapidPublicKey');const j=await r.json();PUSH_KEY=j.key;return PUSH_KEY;}catch(e){return null;}
+  PUSH_KEY=VAPID_PUB;return PUSH_KEY;
 }
 function pUrl62(b){const raw=atob(b.replace(/-/g,'+').replace(/_/g,'/'));
   const arr=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return arr;}
