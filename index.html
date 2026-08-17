@@ -19,7 +19,7 @@
       safari_web_id: "web.onesignal.auto.37a647a2-1bdc-46a8-a505-4f4cc6400a46",
       serviceWorkerPath: base + 'OneSignalSDKWorker.js',
       serviceWorkerParam: { scope: base },
-      notifyButton: { enable: true },
+      notifyButton: { enable: false },
       allowLocalhostAsSecureOrigin: true
     });
   });
@@ -259,6 +259,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .rec .rb p{font-size:12.5px;color:var(--dim);margin-top:4px;line-height:1.55}
 .rec .rb button{margin-top:11px;padding:9px 16px;border:none;border-radius:11px;font-family:inherit;
  font-size:12.5px;font-weight:700;color:#fff;background:rgba(124,108,240,.55);cursor:pointer}
+.dietPanel{margin:0 var(--pad) 6px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px 16px;cursor:pointer;transition:.2s}
+.dietPanel:active{transform:scale(.98)}
+.dietRow{display:flex;gap:9px}
+.dietMeal{flex:1;text-align:center;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:9px 4px;opacity:.4;filter:grayscale(1)}
+.dietMeal.on{opacity:1;filter:none;border-color:rgba(124,108,240,.55);background:rgba(124,108,240,.13)}
+.dietMeal .e{font-size:18px;line-height:1}
+.dietMeal small{display:block;font-size:9.5px;color:var(--dim2);margin-top:4px}
+.dietMeal.on small{color:var(--acc2)}
+.dietMeal .mk{display:block;font-size:9.5px;font-weight:800;color:var(--acc2);margin-top:2px}
+.dietFoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:11px;padding-top:11px;border-top:1px dashed var(--line)}
+.dietFoot span{font-size:11.5px;color:var(--dim);line-height:1.5}
+.dietFoot .ar{font-size:13px;color:var(--acc2);flex:0 0 auto}
 .logItem{margin:0 var(--pad) 9px;background:var(--card);border:1px solid var(--line);border-radius:17px;padding:13px 15px;display:flex;gap:13px;align-items:center}
 .logItem .li{font-size:19px;flex:0 0 auto}
 .logItem .lb{flex:1;min-width:0}
@@ -933,6 +945,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="moodPct"><span id="moodPctNum">0</span><small>/ 100</small></div>
       </div>
       <div class="moodFoot"><button class="moodPill" onclick="tukarView('pet')">Jaga pet</button></div>
+    </div>
+    <div class="secTitle" style="margin-bottom:10px">Pemakanan hari ini</div>
+    <div class="dietPanel" id="dietPanel" onclick="tukarView('makan')">
+      <div class="dietRow" id="dietRow"></div>
+      <div class="dietFoot"><span id="dietNota">Belum ada catatan hari ini.</span><span class="ar">›</span></div>
     </div>
     <div class="secTitle" style="margin-bottom:10px">Analisis</div>
     <div class="segs" id="segs">
@@ -2252,7 +2269,10 @@ async function petDaftarSW(){
   if(!('serviceWorker' in navigator))return null;
   try{
    const r=await navigator.serviceWorker.register('OneSignalSDKWorker.js');SW=r;
-   navigator.serviceWorker.addEventListener('controllerchange',()=>{location.reload();});
+   navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(sessionStorage.getItem('pfReload'))return;
+    sessionStorage.setItem('pfReload','1');location.reload();
+   });
    await navigator.serviceWorker.ready;return r;
   }catch(e){return null;}
 }
@@ -2266,7 +2286,21 @@ async function pLanggan(){
   if(!SW||!('PushManager' in window)){petPeringatStatus('Pelayar tidak menyokong Web Push');return false;}
   if(!PUSH_KEY)PUSH_KEY=await pDapatKunci();
   if(!PUSH_KEY){petPeringatStatus('Server push belum sedia.');return false;}
-  if(/\.github\.io$/i.test(location.hostname)){return false;}
+  if(/\.github\.io$/i.test(location.hostname)){
+    if(window.OneSignal&&OneSignal.Notifications){
+      try{
+        const izin=await OneSignal.Notifications.requestPermission(true);
+        if(izin){
+          petPeringatStatus('Push aktif — OneSignal ✅');
+          DB.data.peringat=DB.data.peringat||{};DB.data.peringat.push=true;DB.simpan();
+          return true;
+        }
+        petPeringatStatus('Notifikasi tidak dibenarkan.');
+        return false;
+      }catch(e){petPeringatStatus('Gagal langgan OneSignal: '+((e&&e.name)||'error'));return false;}
+    }
+    return false;
+  }
   const ping=await pApi('ping');if(!(ping&&ping.ok)){petPeringatStatus('Server push tidak dicapai — langganan dilangkau.');return false;}
   try{
     let sub=await SW.pushManager.getSubscription();
@@ -2656,6 +2690,23 @@ function penaltiMakan(hari){
   });
   const markah=Math.max(0,Math.round(((bil/3)*2-tolak.reduce((s,t)=>s+t.p,0))*10)/10);
   return {bil,tolak,markah};
+}
+function lukisDietDash(){
+  const el=$('dietRow');if(!el)return;
+  const k=hariIni(),p=DB.data.pemakanan?DB.data.pemakanan[k]||{}:{};
+  const info=penaltiMakan(k);
+  el.innerHTML=MAKAN.map(m=>{
+    const d=p[m.id];
+    const mk=d?(()=>{
+      const j=d.waktu?parseInt(d.waktu.split(':')[0],10):NaN;
+      return d.fastfood?'0.3':d.gulaMakanan||d.gulaMinuman?'0.7':!isNaN(j)&&j>=20?'0.7':'1.0';
+    })():'';
+    return `<div class="dietMeal${d?' on':''}"><div class="e">${m.emoji}</div><small>${m.nama}</small>${d?`<div class="mk">${mk}</div>`:''}</div>`;
+  }).join('');
+  const nota=info.bil===0?'Belum ada catatan hari ini.'
+    :info.tolak.length?`${info.bil}/3 majlis dikira · markah ${info.markah}/2 · ${info.tolak[0].t}`
+    :`${info.bil}/3 majlis dicatat · markah penuh ${info.markah}/2.`;
+  $('dietNota').textContent=nota;
 }
 function lukisPemakanan(){
   const k=hariIni(),p=DB.data.pemakanan?DB.data.pemakanan[k]||{}:{};
@@ -3592,6 +3643,7 @@ paparLog($('logWrap'),5);
   const j=new Date().getHours();
   $('salam').textContent=j<12?'Selamat pagi,':j<18?'Selamat petang,':'Selamat malam,';
   segarMood();
+  lukisDietDash();
   lukisAch();
   achSemak();
 }
