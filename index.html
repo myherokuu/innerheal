@@ -2095,6 +2095,8 @@ async function pLanggan(){
   if(!SW||!('PushManager' in window)){petPeringatStatus('Pelayar tidak menyokong Web Push');return false;}
   if(!PUSH_KEY)PUSH_KEY=await pDapatKunci();
   if(!PUSH_KEY){petPeringatStatus('Server push belum sedia.');return false;}
+  if(/\.github\.io$/i.test(location.hostname)){return false;}
+  const ping=await pApi('ping');if(!(ping&&ping.ok)){petPeringatStatus('Server push tidak dicapai — langganan dilangkau.');return false;}
   try{
     let sub=await SW.pushManager.getSubscription();
     if(!sub)sub=await SW.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pUrl62(PUSH_KEY)});
