@@ -1442,9 +1442,9 @@ const EMOSI=[
 const TEKS_HIT=['DUAR!','BAM!','POW!','WUSH!','HENTAK!','LEPAS!','BOOM!'];
 
 const TAHAP=[
- {id:'pemula',nama:'Pemula',saat:6,ambang:12,sub:'Hembusan pendek dan lembut'},
- {id:'sederhana',nama:'Sederhana',saat:10,ambang:16,sub:'Hembusan berterusan sederhana'},
- {id:'lanjutan',nama:'Lanjutan',saat:16,ambang:20,sub:'Kawalan nafas panjang'}
+ {id:'pemula',nama:'Pemula',saat:30,ambang:12,sub:'Hembusan pendek dan lembut'},
+ {id:'sederhana',nama:'Sederhana',saat:60,ambang:16,sub:'Hembusan berterusan sederhana'},
+ {id:'lanjutan',nama:'Lanjutan',saat:120,ambang:20,sub:'Kawalan nafas panjang'}
 ];
 /* KAEDAH INPUT — alternatif kepada mikrofon */
 const KAEDAH=[
@@ -2591,7 +2591,7 @@ $('tGrid').innerHTML=EMOSI.map((e,i)=>`<div class="eCard${i===0?' on':''}" data-
 function lukisTahapList(){
  $('tahapList').innerHTML=TAHAP.map((t,k)=>`<div class="opt2${k===tTahap?' on':''}" data-k="${k}">
   <div class="oi">${['🌱','🌿','🌳'][k]}</div><div class="ob"><b>${t.nama}</b><small>${t.sub}</small></div>
-  <div class="os">${t.saat}s</div></div>`).join('');
+  <div class="os">${t.saat>=60?(t.saat/60)+' min':t.saat+'s'}</div></div>`).join('');
  [...$('tahapList').children].forEach(el=>{el.onclick=()=>{tTahap=+el.dataset.k;lukisTahapList();};});
 }
 function lukisKaedahList(){
