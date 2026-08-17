@@ -6,11 +6,11 @@ push notification jadual dari server Node.js sendiri.
 ## Struktur
 
 ```
-index.html          — Aplikasi (PWA)
-manifest.webmanifest — Install prompt
-sw.js               — Service Worker (cache + push + notification click)
-icon-192/512.png    — Ikon
-server/             — Node.js push server (self-host)
+index.html                — Aplikasi (PWA)
+manifest.webmanifest       — Install prompt
+OneSignalSDKWorker.js      — Service Worker (OneSignal + cache + push + notification click)
+icon-192/512.png           — Ikon
+server/                    — Node.js push server (self-host)
 ```
 
 ## Jadual Peringatan (automatik, waktu Asia/Kuala_Lumpur)

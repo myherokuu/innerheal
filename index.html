@@ -9,6 +9,21 @@
 <meta name="theme-color" content="#7c6cf0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    var base = location.pathname.replace(/[^/]*$/, '') || '/';
+    await OneSignal.init({
+      appId: "2ae22ea0-95ee-46eb-ab51-dd4256855d1e",
+      safari_web_id: "web.onesignal.auto.37a647a2-1bdc-46a8-a505-4f4cc6400a46",
+      serviceWorkerPath: base + 'OneSignalSDKWorker.js',
+      serviceWorkerParam: { scope: base },
+      notifyButton: { enable: true },
+      allowLocalhostAsSecureOrigin: true
+    });
+  });
+</script>
 <style>
 :root{--pad:20px;--bg:#0a0a14;--panel:#12121f;--card:rgba(255,255,255,.055);
  --line:rgba(255,255,255,.1);--dim:rgba(255,255,255,.55);--dim2:rgba(255,255,255,.38);
@@ -2236,7 +2251,7 @@ async function pApi(p,b){
 async function petDaftarSW(){
   if(!('serviceWorker' in navigator))return null;
   try{
-   const r=await navigator.serviceWorker.register('sw.js');SW=r;
+   const r=await navigator.serviceWorker.register('OneSignalSDKWorker.js');SW=r;
    navigator.serviceWorker.addEventListener('controllerchange',()=>{location.reload();});
    await navigator.serviceWorker.ready;return r;
   }catch(e){return null;}
