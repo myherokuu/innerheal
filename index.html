@@ -3262,7 +3262,7 @@ function lukisAch(){
  $('rkLvl').textContent='Lv.'+(lv+1);
  const inNext=next?Math.max(1,next.xp-cur.xp):1;const pct=next?jepit((xp-cur.xp)/inNext,0,1)*100:100;
  $('rkBarFill').style.width=pct+'%';
- $('rkXP').textContent=xp;$('rkKonsis').textContent=kiraKonsis()+'%';$('rkStreak').textContent=kiraStreak();
+ $('rkXP').textContent=xp;$('rkSesuai').textContent=kiraKonsis()+'%';$('rkStreak').textContent=kiraStreak();
  const grid=$('badgeGrid');if(!grid)return;
  const dapati=[];ACHIEVE.forEach(a=>{if(achTerbuka(a.id))dapati.push(a);});
  const tunjuk=dapati.slice(-8).reverse();
