@@ -2142,7 +2142,7 @@ function petPeringat(){
   const hari=petHariIniJ();
   if(p.hantar===hari)return;
   if(petSudahMakanHariIni())return;
-  DB.data.peringat.hantar=hari;DB.simpan();
+  DB.data.peringat=DB.data.peringat||p;DB.data.peringat.hantar=hari;DB.simpan();
   const o={body:'Pet awak masih lapar! Makanlah sekali 😊🍚',icon:'icon-192.png',badge:'icon-192.png',tag:'pet-makan'+hari,data:{url:'index.html'}};
   try{
     if(SW&&SW.showNotification){SW.showNotification('🍚 Belum Makan Pet',o);}
