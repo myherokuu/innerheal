@@ -261,6 +261,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
  background:rgba(255,255,255,.05);font-size:12.5px;font-weight:700;color:var(--dim);cursor:pointer;transition:.2s}
 .bk small{display:block;font-size:20px}
 .bk.on{background:rgba(52,211,153,.2);border-color:#34d399;color:#34d399}
+.blTabs{display:flex;gap:8px;margin:16px var(--pad) 0}
+.blTab{flex:1;padding:12px 6px;border-radius:14px;border:1px solid var(--line);
+ background:rgba(255,255,255,.05);font-weight:700;font-size:13px;color:var(--dim);cursor:pointer;transition:.2s;text-align:center}
+.blTab.on{background:rgba(52,211,153,.2);border-color:#34d399;color:#34d399}
 .blSen{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .blUndo{margin:8px var(--pad) 0;text-align:center;font-size:12px;color:var(--dim2)}
 .blUndo a{color:#f87171;cursor:pointer;text-decoration:underline}
@@ -1006,6 +1010,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
    <!-- PERBELANJAAN -->
    <div class="view" data-view="belanja">
      <div class="hero"><div class="hi">Kawal wang, tenang jiwa</div><h3>Perbelanjaan</h3></div>
+     <div class="blTabs">
+       <div class="blTab on" id="blTabHarian" onclick="blTab('harian')">📅 Harian</div>
+       <div class="blTab" id="blTabBulanan" onclick="blTab('bulanan')">🗓️ Bulanan</div>
+       <div class="blTab" id="blTabAktiviti" onclick="blTab('aktiviti')">🕘 Aktiviti Saya</div>
+     </div>
+     <div id="blPanelHarian">
      <div class="secTitle">Sasaran simpanan hari ini</div>
      <div class="blHero" id="blHero">
        <div class="bhLbl">Had belanja harian</div>
@@ -1039,6 +1049,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
      </div>
      <div class="nota">Kaunseling kewangan? Tiada. Tapi menyimpan wang dan berbelanja sedar membantu minda tenang. Setiap simpanan dicatat sebagai markah harian.</div>
      <div style="height:20px"></div>
+     </div>
+
+     <div id="blPanelBulanan" style="display:none">
+     <div class="secTitle">Sasaran belanja bulan ini</div>
+     <div class="blHero" id="blBulanHero">
+       <div class="bhLbl" id="blBulanNama">Bulan ini</div>
+       <div class="bhRow"><div><div class="bhPos" id="blBulanRancang">RM 0</div></div>
+         <div style="text-align:right"><div class="bhLbl">Selesai</div><div class="bhPos" id="blBulanSelesai">0/0</div></div></div>
+       <div class="bhBar"><i id="blBulanFill" style="width:0%"></i></div>
+       <div class="bhMeta"><span id="blBulanBil">0 item</span><b id="blBulanBaki">RM 0</b></div>
+     </div>
+     <div class="secTitle">Rancang item bulanan</div>
+     <div class="panel" style="padding:6px 16px 14px">
+       <div class="field"><label>Perkara</label><input id="blRancangNama" maxlength="40" placeholder="cth: Bil internet"></div>
+       <div class="field"><label>Jumlah (RM)</label><input id="blRancangJumlah" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00"></div>
+       <button class="btn teal" id="blBtnRancang" onclick="blRancangTambah()">＋ Tambah Sasaran Bulanan</button>
+     </div>
+     <div class="secTitle">Senarai sasaran bulan ini</div>
+     <div id="blBulanSenarai"></div>
+     <div class="secTitle">Rekod &amp; tutup bulan</div>
+     <div class="panel" style="padding:16px">
+       <div style="font-size:12.5px;color:var(--dim);line-height:1.7;margin-bottom:12px" id="blBulanInfo"></div>
+       <button class="btn" id="blBtnBulanTutup" onclick="blTutupBulan()">📒 Tutup Rekod Bulan Ini</button>
+     </div>
+     <div class="nota">Perancangan bulanan membantu minda yakin. Apabila bulan bertukar, senarai akan dibersihkan dan rekod bulan lalu disimpan sekali sahaja.</div>
+     <div style="height:20px"></div>
+     </div>
+
+     <div id="blPanelAktiviti" style="display:none">
+     <div class="secTitle">Aktiviti perbelanjaan</div>
+     <div id="blAktivitiSenarai"></div>
+     <div class="nota">Semua catatan &amp; rekod perbelanjaan anda tersenarai di sini.</div>
+     <div style="height:20px"></div>
+     </div>
    </div>
 
    <!-- PET -->
@@ -3172,6 +3216,7 @@ function kiraXP(){
   else if(r.jenis==='emosi')xp+=8;
   else if(r.jenis==='pet')xp+=6;
   else if(r.jenis==='belanja')xp+=2;
+  else if(r.jenis==='belbulan')xp+=50;
  });
  const bl=DB.data.belanja;
  if(bl){const keys=Object.keys(bl.hari||{});
@@ -3218,6 +3263,8 @@ const ACHIEVE=[
   {id:'blg10',ikon:'💸',tajuk:'Pemerhati dana',hur:'Catat 10 perbelanjaan',sasaran:10,bitung:()=>{const b=DB.data.belanja;let c=0;Object.values(b&&b.hari||{}).forEach(a=>c+=a.length);return c;}},
   {id:'bls1',ikon:'🎯',tajuk:'Sasaran simpanan',hur:'1 hari lengkap sasaran simpanan',sasaran:1,bitung:()=>{const b=DB.data.belanja;return b?Object.keys(b.siap||{}).length:0;}},
   {id:'bls7',ikon:'🏦',tajuk:'Bijak berjimat',hur:'7 hari lengkap sasaran simpanan',sasaran:7,bitung:()=>{const b=DB.data.belanja;return b?Object.keys(b.siap||{}).length:0;}},
+  {id:'bb1',ikon:'📆',tajuk:'Rancang wang',hur:'Tutup 1 rekod bulanan',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='belbulan').length},
+  {id:'bb3',ikon:'🗓️',tajuk:'Pengurus dana',hur:'Tutup 3 rekod bulanan',sasaran:3,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='belbulan').length},
  {id:'blL1',ikon:'🎈',tajuk:'Lepas beban',hur:'Lepas 1 tabiat buruk',sasaran:1,bitung:()=>{const b=DB.data.balon?(DB.data.balon.buruk||[]).filter(h=>h.status==='released').length:0;return b;}},
  {id:'blL5',ikon:'🌱',tajuk:'Bebas bekal',hur:'Lepas 5 tabiat buruk',sasaran:5,bitung:()=>{const b=DB.data.balon?(DB.data.balon.buruk||[]).filter(h=>h.status==='released').length:0;return b;}},
  {id:'blB1',ikon:'🌻',tajuk:'Tabiat baik',hur:'Check-in 7 tabiat baik',sasaran:7,bitung:()=>{const b=DB.data.balon?(DB.data.balon.baik||[]).reduce((s,h)=>s+(h.hari||[]).length,0):0;return b;}},
@@ -3474,6 +3521,9 @@ function paparLog(bekas,had){
    return `<div class="logItem"><div class="li">${kat?kat.ik:'💸'}</div><div class="lb"><b>${r.n}</b>
     <small>${kat?kat.n:''} · RM ${Number(r.j).toFixed(2)}${r.belon?' · 🎯 sasaran':''}</small>
     </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;}
+  if(r.jenis==='belbulan')return `<div class="logItem"><div class="li">📒</div><div class="lb"><b>Rekod bulan ${r.namaBulan||r.bulan}</b>
+   <small>RM ${Number(r.totPlan||0).toFixed(2)} dirancang · ${r.selesai||0}/${r.nItem||0} selesai</small>
+   </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
   const t=(r.kuatSebelum??0)-(r.kuatSelepas??0);
   return `<div class="logItem"><div class="li">${r.emoji||'🔥'}</div><div class="lb"><b>${r.emosiNama||r.emosi}</b>
    <small>${r.kuatSebelum} → ${r.kuatSelepas} ${t>0?`(−${t})`:''} · ${r.hit} hentakan</small>
@@ -4372,7 +4422,7 @@ const BEL_KAT=[
  {id:'lain',ik:'📦',n:'Lain-lain'}
 ];
 let belKat='makan';
-function blData(){if(!DB.data.belanja)DB.data.belanja={had:50,hari:{},siap:{}};return DB.data.belanja;}
+function blData(){if(!DB.data.belanja)DB.data.belanja={had:50,hari:{},siap:{},bulan:{},bulanTutup:{}};return DB.data.belanja;}
 function blHad(){return blData().had||50;}
 function blHari(k){k=k||kunciHari(new Date());const b=blData();if(!b.hari[k])b.hari[k]=[];return b.hari[k];}
 function blJumlah(k){return blHari(k).reduce((s,e)=>s+(Number(e.j)||0),0);}
@@ -4428,6 +4478,110 @@ function blPadam(idx){
  DB.data.rekod=DB.data.rekod.filter(r=>!(r.jenis==='belanja'&&r.t===e.t));
  DB.simpan();lukisBelanja();segarDashboard();blToast('Catatan dibuang 🗑️');
 }
+function blTab(t){
+ $('blTabHarian').classList.toggle('on',t==='harian');
+ $('blTabBulanan').classList.toggle('on',t==='bulanan');
+ $('blTabAktiviti').classList.toggle('on',t==='aktiviti');
+ $('blPanelHarian').style.display=t==='harian'?'':'none';
+ $('blPanelBulanan').style.display=t==='bulanan'?'':'none';
+ $('blPanelAktiviti').style.display=t==='aktiviti'?'':'none';
+ if(t==='bulanan')lukisBelanjaBulan();
+ if(t==='aktiviti')lukisBelanjaAktiviti();
+}
+function kunciBulan(d){const x=d||new Date();return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');}
+function blNamaBulan(k){const p=k.split('-');const n=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];return n[+p[1]-1]+' '+p[0];}
+function blBulanData(k){const b=blData();if(!b.bulan)b.bulan={};if(!b.bulan[k])b.bulan[k]=[];return b.bulan[k];}
+function blBulanJumlah(k){return blBulanData(k).reduce((s,e)=>s+(Number(e.j)||0),0);}
+function blBulanSelesai(k){return blBulanData(k).filter(e=>e.done).length;}
+function blRancangTambah(){
+ const nama=$('blRancangNama').value.trim(),jml=parseFloat($('blRancangJumlah').value);
+ if(!nama){$('blRancangNama').focus();blToast('Tulis nama sasaran dahulu ✍️');return;}
+ if(!(jml>0)){$('blRancangJumlah').focus();blToast('Masukkan jumlah (RM) yang sah 🔢');return;}
+ const k=kunciBulan(),b=blData();
+ if(!b.bulan)b.bulan={};if(!b.bulan[k])b.bulan[k]=[];
+ b.bulan[k].push({n:nama,j:jml,done:false,t:Date.now()});
+ $('blRancangNama').value='';$('blRancangJumlah').value='';
+ DB.simpan();lukisBelanjaBulan();blToast('Sasaran bulanan ditambah 💹');
+}
+function blRancangTog(idx){
+ const k=kunciBulan(),b=blData(),arr=blBulanData(k),e=arr[idx];
+ if(!e)return;
+ e.done=!e.done;
+ DB.simpan();lukisBelanjaBulan();
+ const btn=$('blBtnRancang');
+ if(e.done){skorPop($('blBulanHero'),'+50 PTS',true);AUDIO.chaChing();getar([30,50,30]);}
+ else {getar([20,30]);}
+}
+function blRancangPadam(idx){
+ const k=kunciBulan(),b=blData(),arr=blBulanData(k);
+ if(!arr[idx])return;
+ arr.splice(idx,1);DB.simpan();lukisBelanjaBulan();blToast('Sasaran dibuang 🗑️');
+}
+function blTutupBulan(){
+ const k=kunciBulan(),b=blData();
+ if(b.bulanTutup[k]){blToast('Bulan ini sudah direkod ✅');return;}
+ const arr=blBulanData(k),totPlan=blBulanJumlah(k),selesai=blBulanSelesai(k);
+ if(arr.length&&selesai<arr.length){blToast('Selesaikan semua sasaran atau padam item dahulu 🎯');return;}
+ if(!arr.length&&!totPlan){blToast('Tiada sasaran untuk direkod 📭');return;}
+ const masa=new Date().toISOString();
+ DB.data.rekod.push({jenis:'belbulan',bulan:k,namaBulan:blNamaBulan(k),totPlan:Math.round(totPlan*100)/100,selesai,nItem:arr.length,masa,t:Date.now()});
+ b.bulanTutup[k]=true;DB.simpan();
+ const btn=$('blBtnBulanTutup');blSquish(btn);skorPop(btn,'+150 PTS',true);
+ AUDIO.chaChing();getar([40,60,40]);
+ lukisBelanjaBulan();segarDashboard();achSemak();
+}
+function blBulanSema(){
+ const k=kunciBulan(),b=blData();
+ if(!b.bulan)b.bulan={};if(!b.bulanTutup)b.bulanTutup={};
+ const prev=b.bulanAktif;
+ if(prev&&prev!==k){
+  const lama=blBulanData(prev);
+  if(!b.bulanTutup[prev]&&lama.length){
+   const totPlan=lama.reduce((s,e)=>s+(Number(e.j)||0),0),
+    sel=lama.filter(e=>e.done).length,masa=new Date().toISOString();
+   DB.data.rekod.push({jenis:'belbulan',bulan:prev,namaBulan:blNamaBulan(prev),totPlan:Math.round(totPlan*100)/100,selesai:sel,nItem:lama.length,masa,t:Date.now()});
+   b.bulanTutup[prev]=true;
+  }
+ }
+ b.bulanAktif=k;DB.simpan();
+}
+function lukisBelanjaBulan(){
+ const k=kunciBulan(),b=blData(),arr=blBulanData(k);
+ const tot=blBulanJumlah(k),selesai=blBulanSelesai(k),hadTot=Math.max(1,tot);
+ $('blBulanNama').textContent='Sasaran belanja bulan ini · '+blNamaBulan(k);
+ $('blBulanRancang').textContent='RM '+tot.toFixed(2);
+ $('blBulanSelesai').textContent=selesai+'/'+arr.length;
+ $('blBulanBil').textContent=arr.length+' item';
+ $('blBulanBaki').textContent='RM '+arr.filter(e=>e.done).reduce((s,e)=>s+(Number(e.j)||0),0).toFixed(2);
+ $('blBulanFill').style.width=Math.min(100,Math.round(selesai/arr.length*100))+'%';
+ $('blBulanSenarai').innerHTML=arr.length?arr.slice().reverse().map((e,i)=>{
+  const ix=arr.length-1-i;
+  return `<div class="logItem" style="cursor:pointer" onclick="blRancangTog(${ix})">
+   <div class="li" style="color:${e.done?'#34d399':'var(--dim2)'}">${e.done?'✅':'◻️'}</div>
+   <div class="lb"><b style="${e.done?'text-decoration:line-through;opacity:.55':''}">${e.n}</b>
+    <small>RM ${Number(e.j).toFixed(2)}${e.done?' · selesai':''}</small></div>
+   <div class="lt">RM ${Number(e.j).toFixed(2)}<span style="cursor:pointer;color:#f87171;font-size:12px;display:block" onclick="event.stopPropagation();blRancangPadam(${ix})">✕</span></div></div>`}).join('')
+  :'<div class="kosong">Belum ada sasaran bulanan.<br>Rancang item untuk kekal dalam had bulan ini 💹</div>';
+ const tutup=!!b.bulanTutup[k];
+ $('blBtnBulanTutup').textContent=tutup?'✅ Bulan Ini Telah Direkod':'📒 Tutup Rekod Bulan Ini';
+ $('blBtnBulanTutup').style.opacity=tutup?'.6':'1';
+ $('blBulanInfo').innerHTML=tutup
+  ?`Rekod bulan <b>${blNamaBulan(k)}</b> telah disimpan. Apabila bulan bertukar, senarai akan dibersihkan untuk permulaan baharu.`
+  :`Selesaikan semua sasaran untuk mahkota bulanan <b>+150 PTS</b> dan rekod sekali sahaja. Apabila bulan bertukar, senarai dibersihkan &amp; rekod bulan lalu kekal dalam log.`;
+}
+function lukisBelanjaAktiviti(){
+ const list=DB.data.rekod.filter(r=>r.jenis==='belanja'||r.jenis==='belbulan').reverse().slice(0,100);
+ const el=$('blAktivitiSenarai');
+ if(!list.length){el.innerHTML='<div class="kosong">Belum ada aktiviti perbelanjaan.<br>Catat atau rancang untuk mulakan.</div>';return;}
+ el.innerHTML=list.map(r=>{
+  if(r.jenis==='belbulan')return `<div class="logItem"><div class="li">📒</div><div class="lb"><b>Rekod bulan ${r.namaBulan||r.bulan}</b>
+   <small>RM ${Number(r.totPlan||0).toFixed(2)} dirancang · ${r.selesai}/${r.nItem} selesai</small>
+   </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
+  const kat=BEL_KAT.find(x=>x.id===r.k);
+  return `<div class="logItem"><div class="li">${kat?kat.ik:'💸'}</div><div class="lb"><b>${r.n}</b>
+   <small>${kat?kat.n:''} · RM ${Number(r.j).toFixed(2)}${r.belon?' · 🎯 sasaran':''}</small>
+   </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;}).join('');
+}
 function skorPop(anchor,txt,ok){
  if(!anchor)return;
  const r=anchor.getBoundingClientRect();
@@ -4452,6 +4606,7 @@ function blSquish(el){el.classList.remove('squish');void el.offsetWidth;el.class
 function blGoyang(el){if(!el)return;el.classList.remove('goyang');void el.offsetWidth;el.classList.add('goyang');}
 function lukisBelanja(){
  const k=kunciHari(new Date());
+ blBulanSema();
  const b=blData(),tot=blJumlah(k),had=blHad(),jimat=Math.round((had-tot)*100)/100;
  const siap=!!b.siap[k];
  $('blHad').value=had;$('blHadNlbl').textContent=had;
@@ -4496,6 +4651,7 @@ function lukisBelanjaDash(){
   muatWaktuSolat(true);
   pInisialisasi();
   petCekPeringat();
+  blBulanSema();
 })();
 </script>
 </body>
