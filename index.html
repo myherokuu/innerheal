@@ -292,8 +292,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .blHero.buruk{background:linear-gradient(135deg,rgba(248,113,113,.2),rgba(190,18,60,.08));border-color:rgba(248,113,113,.35)}
 .blHero.buruk .bhPos{color:#f87171}
 .blHero.buruk .bhMeta b{color:#f87171}
-.blHero.buruk .bhBar i{background:linear-gradient(90deg,#f87171,#fb7185)}
-.blHadRow{margin:14px var(--pad) 0}
+ .blHero.buruk .bhBar i{background:linear-gradient(90deg,#f87171,#fb7185)}
+ .smJar{position:relative;width:118px;height:132px;margin:10px auto 6px;overflow:hidden;border:3px solid rgba(255,255,255,.22);
+  border-radius:14px 14px 34px 34px;background:rgba(255,255,255,.06)}
+ .smJar::before{content:'□';position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:34px;height:12px;
+  background:#fbbf24;border-radius:4px 4px 0 0;color:#7c3aed;font-size:9px;line-height:14px;text-align:center}
+ .smJarFill{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#fde68a,#f59e0b);
+  transition:height .6s cubic-bezier(.22,1,.36,1)}
+ .smJarCoin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;pointer-events:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+ .smJarCoin.bounce{animation:smBounce .55s}
+ @keyframes smBounce{0%{transform:translateY(0) rotate(0)}35%{transform:translateY(-14px) rotate(-10deg)}70%{transform:translateY(0) rotate(6deg)}100%{transform:translateY(0) rotate(0)}}
+ .smKorel{display:flex;flex-direction:column;gap:10px}
+ .smKorel .kr{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+ .smKorel .kr b{font-size:14px}
+ .smKorel .krB{display:flex;gap:6px}
+ .smKorel .krB i{display:block;height:9px;border-radius:99px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+ .smKorel .krB .bel{background:linear-gradient(90deg,#f87171,#fb7185)}
+ .smKorel .krB .simp{background:linear-gradient(90deg,#34d399,#22d3ee)}
+ .blHadRow{margin:14px var(--pad) 0}
 .blKats{display:flex;flex-wrap:wrap;gap:8px;margin:14px var(--pad) 0}
 .bk{flex:1 0 calc(33.33% - 6px);text-align:center;padding:11px 4px;border-radius:14px;border:1px solid var(--line);
  background:rgba(255,255,255,.05);font-size:12.5px;font-weight:700;color:var(--dim);cursor:pointer;transition:.2s}
@@ -969,10 +985,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <span class="ar">›</span>
       </div>
     </div>
-    <div class="secTitle" style="margin-bottom:0px;margin-top:6px">Simpanan hari ini</div>
+    <div class="secTitle" style="margin-bottom:0px;margin-top:6px">Simpanan bulan ini</div>
     <div class="panel" style="padding:14px 16px">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><small style="font-size:11px;color:var(--dim2)">Had RM <span id="bdHad">50</span></small>
+        <div><small style="font-size:11px;color:var(--dim2)">Sasaran RM <span id="bdHad">100</span></small>
         <div style="font-size:20px;font-weight:800" id="bdSimpan">RM 0</div></div>
         <button class="moodPill" onclick="tukarView('belanja')">Urus</button>
       </div>
@@ -1124,46 +1140,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
        <div class="blTab" id="blTabBulanan" onclick="blTab('bulanan')">🗓️ Bulanan</div>
        <div class="blTab" id="blTabAktiviti" onclick="blTab('aktiviti')">🕘 Aktiviti Saya</div>
      </div>
-     <div id="blPanelPerbelanjaan">
-     <div class="secTitle">Catat perbelanjaan</div>
-     <div class="panel" style="padding:6px 16px 14px">
-       <div class="field"><label>Perkara</label><input id="blNama" maxlength="40" placeholder="cth: Nasi lemak"></div>
-       <div class="field"><label>Jumlah (RM)</label><input id="blJumlah" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00"></div>
-       <button class="btn teal" id="blBtnCatat" onclick="blCatat()">＋ Catat Perbelanjaan</button>
-     </div>
-     <div class="secTitle">Kategori</div>
-     <div class="blKats" id="blKats"></div>
-     <div class="secTitle">Senarai hari ini</div>
-     <div id="blSenarai"></div>
-     <div class="nota">Catat setiap perbelanjaan di sini. Wang yang anda simpan akan dikira dalam tab Simpanan.</div>
-     <div style="height:20px"></div>
-     </div>
+      <div id="blPanelPerbelanjaan">
+      <div class="secTitle">Catat perbelanjaan</div>
+      <div class="panel" style="padding:6px 16px 14px">
+        <div class="field"><label>Perkara</label><input id="blNama" maxlength="40" placeholder="cth: Nasi lemak"></div>
+        <div class="field"><label>Jumlah (RM)</label><input id="blJumlah" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00"></div>
+        <button class="btn teal" id="blBtnCatat" onclick="blCatat()">＋ Catat Perbelanjaan</button>
+      </div>
+      <div class="secTitle">Kategori</div>
+      <div class="blKats" id="blKats"></div>
+      <div class="secTitle">Had belanja harian</div>
+      <div class="blHero" id="blHero">
+        <div class="bhLbl">Had belanja harian</div>
+        <div class="bhRow"><div><div class="bhPos" id="blHadNun">RM 50</div></div>
+          <div style="text-align:right"><div class="bhLbl">Baki</div><div class="bhPos" id="blJimat">RM 0</div></div></div>
+        <div class="bhBar"><i id="blBarFill" style="width:0%"></i></div>
+        <div class="bhMeta"><span id="blBilangan">0 catatan</span><b id="blBaki">RM 0</b></div>
+      </div>
+      <div class="panel" style="padding:6px 16px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px">
+          <small style="font-size:12px;color:var(--dim2)">Had belanja harian (RM)</small>
+          <b id="blHadNlbl">50</b>
+        </div>
+        <input type="range" class="slider" id="blHad" min="1" max="500" step="1" value="50">
+        <button class="btn ghost sm" style="width:auto;font-size:12px;padding:9px 14px" onclick="blSetHad()">💾 Simpan had</button>
+      </div>
+      <div class="secTitle">Siapkan sasaran</div>
+      <div class="panel" style="padding:16px">
+        <div style="font-size:12.5px;color:var(--dim);line-height:1.7;margin-bottom:12px" id="blSiapInfo"></div>
+        <button class="btn" id="blBtnSiap" onclick="blTandai()">🎯 Tandai Sasaran Lengkap</button>
+      </div>
+      <div class="secTitle">Senarai hari ini</div>
+      <div id="blSenarai"></div>
+      <div class="nota">Catat setiap perbelanjaan di sini. Baki yang tidak dibelanjakan boleh anda masukkan ke tab Simpanan.</div>
+      <div style="height:20px"></div>
+      </div>
 
-     <div id="blPanelSimpanan" style="display:none">
-     <div class="secTitle">Sasaran simpanan hari ini</div>
-     <div class="blHero" id="blHero">
-       <div class="bhLbl">Had belanja harian</div>
-       <div class="bhRow"><div><div class="bhPos" id="blHadNun">RM 50</div></div>
-         <div style="text-align:right"><div class="bhLbl">Simpanan</div><div class="bhPos" id="blJimat">RM 0</div></div></div>
-       <div class="bhBar"><i id="blBarFill" style="width:0%"></i></div>
-       <div class="bhMeta"><span id="blBilangan">0 catatan</span><b id="blBaki">RM 0</b></div>
-     </div>
-     <div class="panel" style="padding:6px 16px 12px">
-       <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px">
-         <small style="font-size:12px;color:var(--dim2)">Had belanja harian (RM)</small>
-         <b id="blHadNlbl">50</b>
-       </div>
-       <input type="range" class="slider" id="blHad" min="1" max="500" step="1" value="50">
-       <button class="btn ghost sm" style="width:auto;font-size:12px;padding:9px 14px" onclick="blSetHad()">💾 Simpan had</button>
-     </div>
-     <div class="secTitle">Siapkan sasaran</div>
-     <div class="panel" style="padding:16px">
-       <div style="font-size:12.5px;color:var(--dim);line-height:1.7;margin-bottom:12px" id="blSiapInfo"></div>
-       <button class="btn" id="blBtnSiap" onclick="blTandai()">🎯 Tandai Sasaran Lengkap</button>
-     </div>
-     <div class="nota">Simpanan dihitung daripada had harian tolak jumlah perbelanjaan. Tidak melebihi had = mental anda tenang.</div>
-     <div style="height:20px"></div>
-     </div>
+      <div id="blPanelSimpanan" style="display:none">
+      <div class="secTitle">Tabung Simpanan Saya</div>
+      <div class="blHero" id="smHero">
+        <div class="smJar"><div class="smJarFill" id="smJarFill" style="height:0%"></div><div class="smJarCoin" id="smJarCoin">🪙</div></div>
+        <div class="bhLbl">Simpanan bulan ini</div>
+        <div class="bhRow"><div><div class="bhPos" id="smJumlahNun">RM 0</div></div>
+          <div style="text-align:right"><div class="bhLbl">Sasaran</div><div class="bhPos" id="smSasaranNun">RM 100</div></div></div>
+        <div class="bhBar"><i id="smBarFill" style="width:0%"></i></div>
+        <div class="bhMeta"><span id="smBil">0 rekod</span><b id="smBaki">RM 0</b></div>
+      </div>
+      <div class="secTitle">Catat simpanan</div>
+      <div class="panel" style="padding:6px 16px 14px">
+        <div class="field"><label>Perkara</label><input id="smNama" maxlength="40" placeholder="cth: Duit raya, gaji"></div>
+        <div class="field"><label>Jumlah (RM)</label><input id="smJumlah" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00"></div>
+        <button class="btn teal" id="smBtnCatat" onclick="smCatat()">＋ Masukkan ke Tabung</button>
+      </div>
+      <div class="secTitle">Sasaran simpanan bulan ini</div>
+      <div class="panel" style="padding:6px 16px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px">
+          <small style="font-size:12px;color:var(--dim2)">Sasaran simpanan bulanan (RM)</small>
+          <b id="smSasaranLbl">100</b>
+        </div>
+        <input type="range" class="slider" id="smSasaran" min="10" max="5000" step="10" value="100">
+        <button class="btn ghost sm" style="width:auto;font-size:12px;padding:9px 14px" onclick="smSetSasaran()">💾 Simpan sasaran</button>
+      </div>
+      <div class="secTitle">Korelasi bulan ini</div>
+      <div class="panel" style="padding:16px">
+        <div id="smKorel"></div>
+      </div>
+      <div class="secTitle">Rekod simpanan</div>
+      <div id="smSenarai"></div>
+      <div class="nota">Simpanan direkod berasingan daripada perbelanjaan. Hubungan bulan ini (belanja &amp; simpan) dapat dilihat dalam Korelasi.</div>
+      <div style="height:20px"></div>
+      </div>
 
      <div id="blPanelBulanan" style="display:none">
      <div class="secTitle">Sasaran belanja bulan ini</div>
@@ -4481,6 +4527,8 @@ function tdTab(t){
   const filt=$('tdFilter');
   filt.classList.toggle('on',t==='arkib');
   if(t==='arkib'){$('tdCari').value='';$('tdTarik').value='';}
+  const frm=$('tdForm');
+  if(frm)frm.style.display=t==='rancang'?'':'none';
   tdLukis();
 }
 function tdPadamFilter(){
@@ -4568,6 +4616,7 @@ function tdTukar(id,st){
 }
 function tdEdit(id){
   const x=tdSemua().find(t=>t.id===id);if(!x)return;
+  if(TD_tab!=='rancang')tdTab('rancang');
   TD_id=id;$('tdTajuk').value=x.tajuk;$('tdMula').value=x.mula||'';$('tdSasaran').value=x.sasaran||'';
   $('tdAktual').value=x.aktual||'';$('tdAktualField').style.display=x.st===3?'block':'none';
   $('tdBtn').textContent='💾 Simpan';document.querySelector('.view[data-view="todo"]').scrollIntoView({top:0});
@@ -4811,6 +4860,65 @@ function blHad(){return blData().had||50;}
 function blHari(k){k=k||kunciHari(new Date());const b=blData();if(!b.hari[k])b.hari[k]=[];return b.hari[k];}
 function blJumlah(k){return blHari(k).reduce((s,e)=>s+(Number(e.j)||0),0);}
 function blSimpan(k){const h=blHad(),j=blJumlah(k||kunciHari(new Date()));return j<=h?Math.round((h-j)*100)/100:0;}
+function smData(){if(!DB.data.simpan)DB.data.simpan={sasaran:100,hari:{}};return DB.data.simpan;}
+function smSasaran(){return smData().sasaran||100;}
+function smHari(k){k=k||kunciHari(new Date());const s=smData();if(!s.hari[k])s.hari[k]=[];return s.hari[k];}
+function smJumlah(k){return smHari(k).reduce((s,e)=>s+(Number(e.j)||0),0);}
+function smBulanJumlah(){const s=smData(),mb=kunciBulan();let t=0;for(const hk in s.hari){if(hk.startsWith(mb))t+=s.hari[hk].reduce((x,e)=>x+(Number(e.j)||0),0);}return t;}
+function smBulanBil(){const s=smData(),mb=kunciBulan();let n=0;for(const hk in s.hari){if(hk.startsWith(mb))n+=s.hari[hk].length;}return n;}
+function smBulanSenarai(){const s=smData(),mb=kunciBulan(),out=[];for(const hk in s.hari){if(hk.startsWith(mb))out.push(...s.hari[hk].map(e=>({...e,hari:hk})));}return out.sort((a,b)=>b.t-a.t);}
+function smBulanBelanja(){const b=blData(),mb=kunciBulan();let t=0;for(const hk in b.hari){if(hk.startsWith(mb))t+=b.hari[hk].reduce((x,e)=>x+(Number(e.j)||0),0);}return t;}
+function smSetSasaran(){const v=Math.max(10,Math.round(parseFloat($('smSasaran').value))||smSasaran());
+ smData().sasaran=v;DB.simpan();lukisSimpanan();blToast(`Sasaran simpanan: RM ${v} 💰`);}
+(function(){const h=$('smSasaran');if(!h)return;
+ h.addEventListener('input',()=>{const v=Math.max(10,Math.round(parseFloat(h.value))||smSasaran());
+  $('smSasaranLbl').textContent=v;$('smSasaranNun').textContent='RM '+v;});})();
+function smCatat(){
+ const nama=$('smNama').value.trim(),jml=parseFloat($('smJumlah').value);
+ if(!nama){$('smNama').focus();blToast('Tulis perkara simpanan dahulu ✍️');return;}
+ if(!(jml>0)){$('smJumlah').focus();blToast('Masukkan jumlah (RM) yang sah 🔢');return;}
+ const k=kunciHari(new Date()),tp=Date.now();
+ smHari(k).push({n:nama,j:jml,t:tp});
+ DB.data.rekod.push({jenis:'simpan',n:nama,j:jml,t:tp,masa:new Date(tp).toISOString()});
+ DB.simpan();
+ $('smNama').value='';$('smJumlah').value='';
+ lukisSimpanan();segarDashboard();
+ const btn=$('smBtnCatat');blSquish(btn);
+ const koin=$('smJarCoin');koin.classList.remove('bounce');void koin.offsetWidth;koin.classList.add('bounce');
+ skorPop(btn,`+RM ${Math.round(jml)} SIMPAN`,true);
+ AUDIO.chaChing();getar([40,60,40]);
+}
+function smPadam(t){
+ const s=smData(),mb=kunciBulan();
+ for(const hk in s.hari){const arr=s.hari[hk];for(let i=arr.length-1;i>=0;i--){if(arr[i].t===t){arr.splice(i,1);break;}}}
+ DB.data.rekod=DB.data.rekod.filter(r=>!(r.jenis==='simpan'&&r.t===t));
+ DB.simpan();lukisSimpanan();segarDashboard();blToast('Rekod simpanan dibuang 🗑️');
+}
+function lukisSimpanan(){
+ const jml=smBulanJumlah(),sas=smSasaran(),bil=smBulanBil();
+ $('smSasaran').value=sas;$('smSasaranLbl').textContent=sas;
+ $('smJumlahNun').textContent='RM '+jml.toFixed(2);
+ $('smSasaranNun').textContent='RM '+sas;
+ $('smBil').textContent=bil+' rekod';
+ const pct=Math.min(100,Math.round(jml/sas*100));
+ $('smBarFill').style.width=pct+'%';
+ $('smJarFill').style.height=pct+'%';
+ $('smBaki').textContent=jml>=sas?`Sasaran dicapai ✅`:sas>jml?`Perlu RM ${(sas-jml).toFixed(2)} lagi`:'RM 0';
+ const sen=smBulanSenarai();
+ $('smSenarai').innerHTML=sen.length?sen.slice().reverse().map(e=>{
+  return `<div class="logItem"><div class="li">🪙</div><div class="lb"><b>${e.n}</b>
+   <small>${e.hari?e.hari.slice(8,10)+'/'+e.hari.slice(5,7):''} · ${new Date(e.t).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</small></div>
+   <div class="lt">RM ${Number(e.j).toFixed(2)}<span style="cursor:pointer;color:#f87171;font-size:12px;display:block" onclick="smPadam(${e.t})">✕</span></div></div>`}).join('')
+  :'<div class="kosong">Belum ada simpanan bulan ini.<br>Masukkan duit ke tabung untuk kumpul 💰</div>';
+ const blj=smBulanBelanja(),simp=jml,tot=blj+simp;
+ $('smKorel').innerHTML=tot>0
+  ?`<div class="smKorel">
+    <div class="kr"><span>💸 Perbelanjaan</span><b>RM ${blj.toFixed(2)}</b></div>
+    <div class="krB"><i class="bel" style="width:${Math.round(blj/tot*100)}%"></i><i class="simp" style="width:${Math.round(simp/tot*100)}%"></i></div>
+    <div class="kr"><span>🪙 Simpanan</span><b>RM ${simp.toFixed(2)}</b></div>
+    <div class="kr"><span style="color:var(--dim2)">Nisbah simpan : belanja</span><b>${Math.round(simp/tot*100)}% : ${Math.round(blj/tot*100)}%</b></div></div>`
+  :'<div class="kosong">Belum ada data bulan ini.<br>Catat perbelanjaan &amp; simpanan untuk lihat korelasi.</div>';
+}
 function blPilihKat(id){belKat=id;document.querySelectorAll('.bk').forEach(el=>el.classList.toggle('on',el.dataset.k===id));}
 function blSetHad(){const v=Math.max(1,Math.round(parseFloat($('blHad').value))||blHad());
  blData().had=v;DB.simpan();lukisBelanja();segarDashboard();blToast(`Had belanja disimpan: RM ${v} 💾`);}
@@ -4871,8 +4979,9 @@ function blTab(t){
  $('blPanelSimpanan').style.display=t==='simpanan'?'':'none';
  $('blPanelBulanan').style.display=t==='bulanan'?'':'none';
  $('blPanelAktiviti').style.display=t==='aktiviti'?'':'none';
- if(t==='bulanan')lukisBelanjaBulan();
- if(t==='aktiviti')lukisBelanjaAktiviti();
+  if(t==='bulanan')lukisBelanjaBulan();
+  if(t==='aktiviti')lukisBelanjaAktiviti();
+  if(t==='simpanan')lukisSimpanan();
 }
 function kunciBulan(d){const x=d||new Date();return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');}
 function kunciBulanDepan(k){const p=(k||kunciBulan()).split('-');let y=+p[0],m=+p[1];m++;if(m>12){m=1;y++;}return y+'-'+String(m).padStart(2,'0');}
@@ -4971,10 +5080,13 @@ function lukisBelanjaBulan(){
   :`Sasaran yang belum selesai akan <b>dibawa ke bulan hadapan</b> sebagai komitmen berterusan.${bawaan?` ${bawaan} sasaran sedang dibawa dari bulan lalu.`:''}`;
 }
 function lukisBelanjaAktiviti(){
- const list=DB.data.rekod.filter(r=>r.jenis==='belanja'||r.jenis==='belbulan').reverse().slice(0,100);
+ const list=DB.data.rekod.filter(r=>r.jenis==='belanja'||r.jenis==='belbulan'||r.jenis==='simpan').reverse().slice(0,100);
  const el=$('blAktivitiSenarai');
- if(!list.length){el.innerHTML='<div class="kosong">Belum ada aktiviti perbelanjaan.<br>Catat atau rancang untuk mulakan.</div>';return;}
+ if(!list.length){el.innerHTML='<div class="kosong">Belum ada aktiviti.<br>Catat atau rancang untuk mulakan.</div>';return;}
  el.innerHTML=list.map(r=>{
+  if(r.jenis==='simpan')return `<div class="logItem"><div class="li">🪙</div><div class="lb"><b>${r.n}</b>
+   <small>Simpanan · RM ${Number(r.j).toFixed(2)}</small>
+   </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
   if(r.jenis==='belbulan')return `<div class="logItem"><div class="li">📒</div><div class="lb"><b>Rekod bulan ${r.namaBulan||r.bulan}</b>
    <small>RM ${Number(r.totPlan||0).toFixed(2)} dirancang · ${r.selesai}/${r.nItem} selesai</small>
    </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
@@ -4988,7 +5100,7 @@ function skorPop(anchor,txt,ok){
  const r=anchor.getBoundingClientRect();
  const cx=r.left+r.width/2,cy=r.top+r.height/2;
  const p=document.createElement('div');p.className='popFlt '+(ok?'ok':'bad');
- p.innerHTML=txt+(ok?'<div class="ph">JIMAT SIMPANAN</div>':'<div class="ph">LEBIH HAD</div>');
+ p.innerHTML=txt+(ok?'<div class="ph">DALAM HAD ✓</div>':'<div class="ph">LEBIH HAD</div>');
  p.style.left=cx+'px';p.style.top=cy+'px';document.body.appendChild(p);
  const pat=[...Array(ok?22:10)];
  pat.forEach(()=>{const c=document.createElement('div');c.className='popKon';
@@ -5031,13 +5143,13 @@ function lukisBelanja(){
   :`Jumlah hari ini: <b>RM ${tot.toFixed(2)}</b> (had RM ${had}). <b style="color:#34d399">Simpanan RM ${Math.max(0,jimat).toFixed(2)}</b>.<br>Tandai lengkap apabila berjaya kekal dalam had — <b>+100 PTS</b> dan markah harian penuh.`;
  $('blBtnSiap').textContent=siap?'✅ Sasaran Lengkap':'🎯 Tandai Sasaran Lengkap';
  $('blBtnSiap').style.opacity=siap?'.6':'1';
+ lukisSimpanan();
 }
 function lukisBelanjaDash(){
  const el=$('bdSimpan');if(!el)return;
- const k=kunciHari(new Date()),b=blData(),tot=blJumlah(k),had=blHad();
- $('bdHad').textContent=had;
- $('bdSimpan').textContent='RM '+Math.max(0,Math.round((had-tot)*100)/100).toFixed(2);
- $('bdBar').style.width=Math.min(100,Math.round(tot/had*100))+'%';
+ $('bdHad').textContent=smSasaran();
+ $('bdSimpan').textContent='RM '+smBulanJumlah().toFixed(2);
+ $('bdBar').style.width=Math.min(100,Math.round(smBulanJumlah()/smSasaran()*100))+'%';
 }
 
 /* ==================== MULA ==================== */
