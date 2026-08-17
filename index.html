@@ -177,6 +177,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mCard.balon{grid-column:1/-1;background:linear-gradient(120deg,rgba(251,191,36,.28),rgba(244,114,182,.15));
  display:flex;align-items:center;gap:16px;padding:18px}
 .mCard.balon .ic{margin:0;font-size:34px}
+.mCard.belanja{grid-column:1/-1;background:linear-gradient(120deg,rgba(52,211,153,.28),rgba(45,212,191,.15));
+ display:flex;align-items:center;gap:16px;padding:18px}
+.mCard.belanja .ic{margin:0;font-size:34px}
+.mCard.belanja .tb{flex:1;min-width:0}
+.mCard.belanja .ar{font-size:22px;opacity:.6}
 .moodBox{position:relative;margin:0 var(--pad) 0;padding:18px;border:1px solid var(--line);
  background:linear-gradient(135deg,rgba(167,139,250,.16),rgba(14,165,233,.08));border-radius:22px;overflow:hidden;
  display:flex;flex-direction:column;gap:10px;min-height:190px}
@@ -231,6 +236,65 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .logItem .lb small{display:block;font-size:11.5px;color:var(--dim2);margin-top:2px}
 .logItem .lt{font-size:10.5px;color:var(--dim2);text-align:right;flex:0 0 auto}
 .kosong{text-align:center;color:var(--dim2);font-size:13px;padding:30px 26px;line-height:1.7}
+/* ---------- PERBELANJAAN ---------- */
+.blHero{position:relative;margin:0 var(--pad);padding:22px 20px;border-radius:26px;overflow:hidden;
+ background:linear-gradient(135deg,rgba(52,211,153,.22),rgba(16,185,129,.08));border:1px solid rgba(52,211,153,.3)}
+.blHero .bhLbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim2)}
+.blHero .bhRow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px}
+.blHero .bhPos{font-size:34px;font-weight:800;color:#34d399}
+.blHero .bhPos small{font-size:14px;color:var(--dim)}
+.blHero .bhBar{height:10px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:16px}
+.blHero .bhBar i{display:block;height:100%;border-radius:99px;width:0%;
+ background:linear-gradient(90deg,#34d399,#22d3ee);transition:width .6s cubic-bezier(.22,1,.36,1)}
+.bhMini{height:10px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.bhMini i{display:block;height:100%;border-radius:99px;width:0%;
+ background:linear-gradient(90deg,#34d399,#22d3ee);transition:width .6s cubic-bezier(.22,1,.36,1)}
+.blHero .bhMeta{margin-top:12px;font-size:12px;color:var(--dim);display:flex;justify-content:space-between}
+.blHero .bhMeta b{color:#34d399}
+.blHero.buruk{background:linear-gradient(135deg,rgba(248,113,113,.2),rgba(190,18,60,.08));border-color:rgba(248,113,113,.35)}
+.blHero.buruk .bhPos{color:#f87171}
+.blHero.buruk .bhMeta b{color:#f87171}
+.blHero.buruk .bhBar i{background:linear-gradient(90deg,#f87171,#fb7185)}
+.blHadRow{margin:14px var(--pad) 0}
+.blKats{display:flex;flex-wrap:wrap;gap:8px;margin:14px var(--pad) 0}
+.bk{flex:1 0 calc(33.33% - 6px);text-align:center;padding:11px 4px;border-radius:14px;border:1px solid var(--line);
+ background:rgba(255,255,255,.05);font-size:12.5px;font-weight:700;color:var(--dim);cursor:pointer;transition:.2s}
+.bk small{display:block;font-size:20px}
+.bk.on{background:rgba(52,211,153,.2);border-color:#34d399;color:#34d399}
+.blSen{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.blUndo{margin:8px var(--pad) 0;text-align:center;font-size:12px;color:var(--dim2)}
+.blUndo a{color:#f87171;cursor:pointer;text-decoration:underline}
+.blPasti{position:fixed;inset:0;z-index:70;background:rgba(5,7,16,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:26px}
+.blPasti.on{display:flex}
+/* ---------- SCORE POP ---------- */
+.popFlt{position:fixed;z-index:130;top:0;left:0;font-size:32px;font-weight:900;pointer-events:none;
+ font-family:inherit;letter-spacing:.5px;white-space:nowrap;
+ text-shadow:0 3px 18px rgba(0,0,0,.6),0 0 30px rgba(255,255,255,.18);
+ transform:translate(-50%,-110%);animation:popFlt .8s cubic-bezier(.175,.885,.32,1.275) forwards}
+.popFlt .ph{font-size:13px;font-weight:700;text-align:center;letter-spacing:.2em;margin-top:2px;text-shadow:none}
+.popFlt.ok{color:#34d399}
+.popFlt.ok .ph{color:#a7f3d0}
+.popFlt.bad{color:#f87171}
+.popFlt.bad .ph{color:#fca5a5}
+@keyframes popFlt{
+ 0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+ 12%{opacity:1;transform:translate(-50%,-58%) scale(1.28)}
+ 30%{opacity:1;transform:translate(-50%,-66%) scale(1)}
+ 100%{opacity:0;transform:translate(-50%,-105%) scale(.75)}
+}
+.popKon{position:fixed;z-index:129;pointer-events:none;font-family:inherit;
+ transform:translate(-50%,-50%);opacity:1;
+ animation:popKon .95s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes popKon{
+ 0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}
+ 15%{opacity:1;transform:translate(-50%,-50%) scale(1.2) rotate(var(--p,0deg))}
+ 45%{opacity:1}
+ 100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),calc(-50% + var(--dy,-70px))) scale(.8) rotate(calc(var(--p,0deg) + 220deg))}
+}
+.squish{animation:squish .34s cubic-bezier(.34,1.56,.64,1)}
+@keyframes squish{0%{transform:scale(1)}45%{transform:scale(.95)}100%{transform:scale(1)}}
+.goyang{animation:goyang .5s linear}
+@keyframes goyang{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 var(--pad)}
 .tCard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
 .tCard:active{transform:scale(.975)}
@@ -795,6 +859,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="tb"><b>Balon Tabiat</b><small>Lepas tabiat buruk, tiup tabiat baik</small></div>
         <span class="ar">›</span>
       </div>
+      <div class="mCard belanja" onclick="tukarView('belanja')">
+        <span class="ic">💸</span>
+        <div class="tb"><b>Perbelanjaan</b><small>Catat wang, jimat &amp; kumpul markah</small></div>
+        <span class="ar">›</span>
+      </div>
+    </div>
+    <div class="secTitle" style="margin-bottom:0px;margin-top:6px">Simpanan hari ini</div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><small style="font-size:11px;color:var(--dim2)">Had RM <span id="bdHad">50</span></small>
+        <div style="font-size:20px;font-weight:800" id="bdSimpan">RM 0</div></div>
+        <button class="moodPill" onclick="tukarView('belanja')">Urus</button>
+      </div>
+      <div class="bhMini" style="margin-top:10px"><i id="bdBar" style="width:0%"></i></div>
     </div>
     <div class="secTitle" style="margin-bottom:10px">Emosi saya sekarang</div>
     <div class="moodBox" id="moodBox">
@@ -922,6 +1000,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
      <div id="makanGrid"></div>
      <div id="makanNota" style="margin:14px var(--pad) 0"></div>
      <div class="nota">Catat setiap majlis makan &amp; minuman. Makan lewat 8 malam, makanan segera, dan gula akan menurunkan markah harian.</div>
+     <div style="height:20px"></div>
+   </div>
+
+   <!-- PERBELANJAAN -->
+   <div class="view" data-view="belanja">
+     <div class="hero"><div class="hi">Kawal wang, tenang jiwa</div><h3>Perbelanjaan</h3></div>
+     <div class="secTitle">Sasaran simpanan hari ini</div>
+     <div class="blHero" id="blHero">
+       <div class="bhLbl">Had belanja harian</div>
+       <div class="bhRow"><div><div class="bhPos" id="blHadNun">RM 50</div></div>
+         <div style="text-align:right"><div class="bhLbl">Simpanan</div><div class="bhPos" id="blJimat">RM 0</div></div></div>
+       <div class="bhBar"><i id="blBarFill" style="width:0%"></i></div>
+       <div class="bhMeta"><span id="blBilangan">0 catatan</span><b id="blBaki">RM 0</b></div>
+     </div>
+     <div class="panel" style="padding:6px 16px 12px">
+       <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px">
+         <small style="font-size:12px;color:var(--dim2)">Had belanja harian (RM)</small>
+         <b id="blHadNlbl">50</b>
+       </div>
+       <input type="range" class="slider" id="blHad" min="1" max="500" step="1" value="50">
+       <button class="btn ghost sm" style="width:auto;font-size:12px;padding:9px 14px" onclick="blSetHad()">💾 Simpan had</button>
+     </div>
+     <div class="secTitle">Catat perbelanjaan</div>
+     <div class="panel" style="padding:6px 16px 14px">
+       <div class="field"><label>Perkara</label><input id="blNama" maxlength="40" placeholder="cth: Nasi lemak"></div>
+       <div class="field"><label>Jumlah (RM)</label><input id="blJumlah" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00"></div>
+       <button class="btn teal" id="blBtnCatat" onclick="blCatat()">＋ Catat Perbelanjaan</button>
+     </div>
+     <div class="secTitle">Kategori</div>
+     <div class="blKats" id="blKats"></div>
+     <div class="secTitle">Senarai hari ini</div>
+     <div id="blSenarai"></div>
+     <div class="secTitle">Siapkan sasaran</div>
+     <div class="panel" style="padding:16px">
+       <div style="font-size:12.5px;color:var(--dim);line-height:1.7;margin-bottom:12px" id="blSiapInfo"></div>
+       <button class="btn" id="blBtnSiap" onclick="blTandai()">🎯 Tandai Sasaran Lengkap</button>
+     </div>
+     <div class="nota">Kaunseling kewangan? Tiada. Tapi menyimpan wang dan berbelanja sedar membantu minda tenang. Setiap simpanan dicatat sebagai markah harian.</div>
      <div style="height:20px"></div>
    </div>
 
@@ -1060,6 +1176,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="dItem" data-go="tiup"><span>🌬️</span><span>Perjalanan Tiup</span></div>
     <div class="dItem" data-go="solat"><span>🕯️</span><span>Jadual Solat</span></div>
     <div class="dItem" data-go="makan"><span>🍽️</span><span>Pemakanan</span></div>
+    <div class="dItem" data-go="belanja"><span>💸</span><span>Perbelanjaan</span></div>
     <div class="dItem" data-go="pet"><span>🐣</span><span>Pet Saya</span></div>
     <div class="dItem" data-go="balon"><span>🎈</span><span>Balon Tabiat</span></div>
     <div class="dItem" data-go="rekod"><span>▤</span><span>Rekod</span></div>
@@ -1420,7 +1537,7 @@ const mmss=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 /* ==================== DB ==================== */
 const DB={
  kunci:'innerflow_db_v2',
-  data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},pemakanan:{},rekod:[]},
+  data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},pemakanan:{},belanja:null,rekod:[]},
  async muat(){
   let s=null;
   try{if(window.storage){const r=await window.storage.get(this.kunci);if(r&&r.value)s=r.value;}}catch(e){}
@@ -1638,6 +1755,20 @@ const AUDIO={ctx:null,master:null,echo:null,sfx:null,padGain:null,padOsc:[],padL
   g.gain.exponentialRampToValueAtTime(.0001,t+pj);o.connect(g).connect(this.sfx);o.start(t);o.stop(t+pj+.05);},
  jaya(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>setTimeout(()=>this.nada(f,1.5,.07),i*110));},
  belum(){this.nada(261.63,1.3,.06);setTimeout(()=>this.nada(196,1.6,.05),160);},
+ chaChing(){const c=this.pastikan();if(!c||this.senyap||!this.on.loceng)return;const t=c.currentTime;
+  [988,1318.5].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();
+   o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0,t);
+   g.gain.linearRampToValueAtTime(.055,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+.4);
+   o.connect(g).connect(this.sfx);o.start(t+i*.09);o.stop(t+i*.09+.45);});
+  const s=c.createBufferSource();s.buffer=this.bising();
+  const fl=c.createBiquadFilter();fl.type='bandpass';fl.frequency.value=4800;fl.Q.value=.6;
+  const ng=c.createGain();ng.gain.setValueAtTime(.09,t);ng.gain.exponentialRampToValueAtTime(.0001,t+.13);
+  s.connect(fl).connect(ng).connect(this.sfx);s.start(t);s.stop(t+.15);},
+ bonk(){const c=this.pastikan();if(!c||this.senyap||!this.on.loceng)return;const t=c.currentTime;
+  [392,311.13,196].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();
+   o.type='sawtooth';o.frequency.value=f;g.gain.setValueAtTime(0,t);
+   g.gain.linearRampToValueAtTime(.06,t+.012+i*.05);g.gain.exponentialRampToValueAtTime(.0001,t+.4+i*.05);
+   o.connect(g).connect(this.sfx);o.start(t+i*.05);o.stop(t+i*.05+.45);});},
  mulaAngin(){if(this.anginHidup||!this.on.pad)return;const c=this.pastikan();if(!c)return;
   const t=c.currentTime;
   this.angin=c.createBufferSource();this.angin.buffer=this.bising();this.angin.loop=true;
@@ -1851,7 +1982,7 @@ $('inPass').addEventListener('keydown',e=>{if(e.key==='Enter')cukaiLogin();});
 $('inUser').addEventListener('keydown',e=>{if(e.key==='Enter')$('inPass').focus();});
 $('inPassBaru').addEventListener('keydown',e=>{if(e.key==='Enter')cubaDaftar();});
 $('btnLogout').onclick=logout;
-const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',pet:'Pet Saya',balon:'Balon Tabiat',rekod:'Rekod',tetapan:'Tetapan'};
+const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',belanja:'Perbelanjaan',pet:'Pet Saya',balon:'Balon Tabiat',rekod:'Rekod',tetapan:'Tetapan'};
 function bukaDrawer(){$('drawer').classList.add('on');$('scrim').classList.add('on');$('burger').classList.add('x');}
 function tutupDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on');$('burger').classList.remove('x');}
 $('burger').onclick=()=>$('drawer').classList.contains('on')?tutupDrawer():bukaDrawer();
@@ -1863,6 +1994,7 @@ function tukarView(v){
   if(v==='dash')segarDashboard(); if(v==='rekod')paparRekodPenuh();
   if(v==='solat'){muatWaktuSolat(true).then(()=>{lukisSolat();lukisSolatCalendar();});}
   if(v==='makan')lukisPemakanan();
+  if(v==='belanja')lukisBelanja();
   if(v==='pet')petBukaView();
 }
 document.querySelectorAll('.dItem').forEach(el=>{el.onclick=()=>{tukarView(el.dataset.go);tutupDrawer();};});
@@ -2965,9 +3097,10 @@ function skorHari(list,tanggal=null){
   const aEmo=emo.length?lega*2:Math.min(1,minit/sasar)*2,aSolat=jepit(solatBil/5,0,1)*2;
   const aMakan=Math.min(2,makanInfo.markah);
   const aBalon=skorBalon(solatKey);
-  return {skor:Math.min(10,Math.round((aMasa+aSesi+aSiap+aEmo+aSolat+aMakan+aBalon)*10)/10),
+  const aBelanja=skorBelanja(solatKey);
+  return {skor:Math.min(10,Math.round((aMasa+aSesi+aSiap+aEmo+aSolat+aMakan+aBalon+aBelanja)*10)/10),
    minit:Math.round(minit*10)/10,sesi,siap,lega,solat:solatBil,makan:makanInfo.bil,bilEmosi:emo.length,bilTiup:tiup.length,
-   balon:Math.round(aBalon*10)/10,
+   balon:Math.round(aBalon*10)/10,belanja:Math.round(aBelanja*10)/10,
    konsis:tiup.length?Math.round(tiup.reduce((s,r)=>s+(r.konsistensi||0),0)/tiup.length):0};
 }
 function skorBalon(tanggal=null){
@@ -2981,6 +3114,21 @@ function skorBalon(tanggal=null){
   const checkRatio=baik.length?checkIn/baik.length:0;
   const aLepas=dilepasRatio*1.5,aBina=checkRatio*1.5;
   return Math.min(3,aLepas+aBina);
+}
+function skorBelanja(tanggal=null){
+  const b=DB.data.belanja;if(!b)return 0;
+  const k=tanggal||kunciHari(new Date());
+  const hari=b.hari?b.hari[k]:null;
+  if(!hari||hari.length===0)return 0;
+  const had=Math.max(1,b.had||50);
+  const tot=hari.reduce((s,e)=>s+(Number(e.j)||0),0);
+  const siap=!!b.siap[k];
+  if(siap)return 2;
+  const nisbah=tot/had;
+  if(tot<=had*0.7)return 1.5;
+  if(nisbah<=1)return 1;
+  if(nisbah<=1.15)return .5;
+  return 0;
 }
 function skorTempoh(hari){
   const peta=kumpulHarian(hari),kunci=Object.keys(peta);
@@ -3016,7 +3164,14 @@ function kiraXP(){
   else if(r.jenis==='tiup')xp+=Math.round(r.tempohSebenar||0)/60*3+(r.berjaya?15:0)+((r.jarak||0)>=100?4:0);
   else if(r.jenis==='emosi')xp+=8;
   else if(r.jenis==='pet')xp+=6;
- });return xp;
+  else if(r.jenis==='belanja')xp+=2;
+ });
+ const bl=DB.data.belanja;
+ if(bl){const keys=Object.keys(bl.hari||{});
+  keys.forEach(k=>{const tot=(bl.hari[k]||[]).reduce((s,e)=>s+(Number(e.j)||0),0);
+   if(tot>0)xp+=2;
+   if(bl.siap[k])xp+=18;});}
+ return xp;
 }
 function kiraStreak(){
  const peta=kumpulHarian(400);const ks=Object.keys(peta).sort();
@@ -3052,6 +3207,10 @@ const ACHIEVE=[
  {id:'pet1',ikon:'🐣',tajuk:'Kawan baru',hur:'Layan pet (1 aksi)',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='pet').length},
  {id:'pet50',ikon:'💛',tajuk:'Pengasuh setia',hur:'50 aksi dengan pet',sasaran:50,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='pet').length},
  {id:'petG',ikon:'🏅',tajuk:'Rakan perkasa',hur:'Pet capai tahap otot 5',sasaran:5,bitung:()=>DB.data.pet?DB.data.pet.muscle||0:0},
+  {id:'blg1',ikon:'🪙',tajuk:'Catatan wang',hur:'Catat 1 perbelanjaan',sasaran:1,bitung:()=>{const b=DB.data.belanja;let c=0;Object.values(b&&b.hari||{}).forEach(a=>c+=a.length);return c;}},
+  {id:'blg10',ikon:'💸',tajuk:'Pemerhati dana',hur:'Catat 10 perbelanjaan',sasaran:10,bitung:()=>{const b=DB.data.belanja;let c=0;Object.values(b&&b.hari||{}).forEach(a=>c+=a.length);return c;}},
+  {id:'bls1',ikon:'🎯',tajuk:'Sasaran simpanan',hur:'1 hari lengkap sasaran simpanan',sasaran:1,bitung:()=>{const b=DB.data.belanja;return b?Object.keys(b.siap||{}).length:0;}},
+  {id:'bls7',ikon:'🏦',tajuk:'Bijak berjimat',hur:'7 hari lengkap sasaran simpanan',sasaran:7,bitung:()=>{const b=DB.data.belanja;return b?Object.keys(b.siap||{}).length:0;}},
  {id:'blL1',ikon:'🎈',tajuk:'Lepas beban',hur:'Lepas 1 tabiat buruk',sasaran:1,bitung:()=>{const b=DB.data.balon?(DB.data.balon.buruk||[]).filter(h=>h.status==='released').length:0;return b;}},
  {id:'blL5',ikon:'🌱',tajuk:'Bebas bekal',hur:'Lepas 5 tabiat buruk',sasaran:5,bitung:()=>{const b=DB.data.balon?(DB.data.balon.buruk||[]).filter(h=>h.status==='released').length:0;return b;}},
  {id:'blB1',ikon:'🌻',tajuk:'Tabiat baik',hur:'Check-in 7 tabiat baik',sasaran:7,bitung:()=>{const b=DB.data.balon?(DB.data.balon.baik||[]).reduce((s,h)=>s+(h.hari||[]).length,0):0;return b;}},
@@ -3237,12 +3396,13 @@ function segarDashboard(){
  const sasar=DB.data.sasarHarian||10;
  $('skorNota').textContent=hari===1
 ?(r.minit===0&&!r.balon?'Belum ada aktiviti hari ini. Satu sesi pendek pun dikira.'
-      :`${r.minit} minit daripada sasaran ${sasar} minit${r.bilTiup?` · ${r.bilTiup} perjalanan tiup`:''}${r.bilEmosi?` · ${r.bilEmosi} pelepasan`:''}${r.balon?` · 🎈 balon ${r.balon}/3`:''}${r.solat?` · ${r.solat}/5 solat`:''}${r.makan?` · ${r.makan}/3 majlis makan`:''}.`)
+      :`${r.minit} minit daripada sasaran ${sasar} minit${r.bilTiup?` · ${r.bilTiup} perjalanan tiup`:''}${r.bilEmosi?` · ${r.bilEmosi} pelepasan`:''}${r.balon?` · 🎈 balon ${r.balon}/3`:''}${r.belanja?` · 💸 belanja ${r.belanja}/2`:''}${r.solat?` · ${r.solat}/5 solat`:''}${r.makan?` · ${r.makan}/3 majlis makan`:''}.`)
    :`${r.hariAktif}/${r.jumlahHari} hari aktif · ${r.minit} minit · ${r.sesi} sesi${r.sesi?` · ${Math.round(r.siap*100)}% berjaya`:''}${r.solat?` · ${r.solat} solat`:''}`;
   $('chartTajuk').textContent=hari===1?'Minit aktif · 7 hari lepas':hari===7?'Minit aktif · 7 hari':'Minit aktif · 4 minggu';
   lukisGraf(hari===1?7:hari);
   $('msSesi').textContent=r.sesi;$('msMinit').textContent=Math.round(r.minit);
   $('msSolat').textContent=r.solat;$('msTiup').textContent=r.bilTiup;
+  lukisBelanjaDash();
  const cad=janaCadangan(),wrap=$('cadanganWrap');wrap.innerHTML='';
  cad.forEach(c=>{const el=document.createElement('div');el.className='rec';
   el.innerHTML=`<div class="ri">${c.i}</div><div class="rb"><b>${c.t}</b><p>${c.p}</p>${c.btn?`<button>${c.btn}</button>`:''}</div>`;
@@ -3303,6 +3463,10 @@ function paparLog(bekas,had){
     <b>${r.petAksi||'Pet'}</b>
     <small>${r.petDetail||''}</small>
     </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;
+  if(r.jenis==='belanja'){const kat=BEL_KAT.find(x=>x.id===r.k);
+   return `<div class="logItem"><div class="li">${kat?kat.ik:'💸'}</div><div class="lb"><b>${r.n}</b>
+    <small>${kat?kat.n:''} · RM ${Number(r.j).toFixed(2)}${r.belon?' · 🎯 sasaran':''}</small>
+    </div><div class="lt">${masaRingkas(r.masa)}</div></div>`;}
   const t=(r.kuatSebelum??0)-(r.kuatSelepas??0);
   return `<div class="logItem"><div class="li">${r.emoji||'🔥'}</div><div class="lb"><b>${r.emosiNama||r.emosi}</b>
    <small>${r.kuatSebelum} → ${r.kuatSelepas} ${t>0?`(−${t})`:''} · ${r.hit} hentakan</small>
@@ -4190,6 +4354,128 @@ function blEdPadam(){
   DB.simpan();blEdTutup();blSenarai();blProg();blToast('Tabiat dipadam🗑️');
 }
 function segarBalon(){blSedia();blSenarai();blProg();}
+
+/* ==================== PERBELANJAAN ==================== */
+const BEL_KAT=[
+ {id:'makan',ik:'🍚',n:'Makan'},
+ {id:'transport',ik:'🚗',n:'Pengangkutan'},
+ {id:'bil',ik:'🪫',n:'Bil & Utiliti'},
+ {id:'beli',ik:'🛒',n:'Beli-belah'},
+ {id:'hiburan',ik:'🎬',n:'Hiburan'},
+ {id:'lain',ik:'📦',n:'Lain-lain'}
+];
+let belKat='makan';
+function blData(){if(!DB.data.belanja)DB.data.belanja={had:50,hari:{},siap:{}};return DB.data.belanja;}
+function blHad(){return blData().had||50;}
+function blHari(k){k=k||kunciHari(new Date());const b=blData();if(!b.hari[k])b.hari[k]=[];return b.hari[k];}
+function blJumlah(k){return blHari(k).reduce((s,e)=>s+(Number(e.j)||0),0);}
+function blSimpan(k){const h=blHad(),j=blJumlah(k||kunciHari(new Date()));return j<=h?Math.round((h-j)*100)/100:0;}
+function blPilihKat(id){belKat=id;document.querySelectorAll('.bk').forEach(el=>el.classList.toggle('on',el.dataset.k===id));}
+function blSetHad(){const v=Math.max(1,Math.round(parseFloat($('blHad').value))||blHad());
+ blData().had=v;DB.simpan();lukisBelanja();segarDashboard();blToast(`Had belanja disimpan: RM ${v} 💾`);}
+(function(){const h=$('blHad');if(!h)return;
+ h.addEventListener('input',()=>{const b=blData();b.had=Math.max(1,Math.round(parseFloat(h.value))||blHad());
+  $('blHadNlbl').textContent=b.had;$('blHadNun').textContent='RM '+b.had;});})();
+function blCatat(){
+ const nama=$('blNama').value.trim(),jml=parseFloat($('blJumlah').value);
+ if(!nama){$('blNama').focus();blToast('Tulis nama perbelanjaan dahulu ✍️');return;}
+ if(!(jml>0)){$('blJumlah').focus();blToast('Masukkan jumlah (RM) yang sah 🔢');return;}
+ const k=kunciHari(new Date()),b=blData();
+ if(!b.hari[k])b.hari[k]=[];
+ const tp=Date.now();
+ b.hari[k].push({n:nama,j:jml,k:belKat,t:tp});
+ DB.data.rekod.push({jenis:'belanja',n:nama,j:jml,k:belKat,belon:true,t:tp,masa:new Date(tp).toISOString()});
+ DB.simpan();
+ const tot=blJumlah(k),had=blHad(),jimat=had-tot;
+ $('blNama').value='';$('blJumlah').value='';
+ lukisBelanja();segarDashboard();achSemak();
+ const btn=$('blBtnCatat');blSquish(btn);
+ if(jimat>=0){
+  const txt=jimat>=1?`+${Math.round(jimat)} SAVED!`:'+50 SAVED!';
+  skorPop(btn,txt,true);
+  AUDIO.chaChing();getar([40,60,40]);
+ }else{
+  skorPop(btn,`-${Math.min(50,Math.round(-jimat*2))} PTS`,false);
+  AUDIO.bonk();getar([60,40,60]);
+  blGoyang($('blHero'));
+ }
+}
+function blTandai(){
+ const k=kunciHari(new Date()),b=blData(),j=blJumlah(k),had=blHad();
+ if(b.siap[k]){blToast('Sasaran hari ini sudah lengkap ✅');return;}
+ if(j<=0){blToast('Catat perbelanjaan dahulu sebelum menandai 🎯');return;}
+ if(j>had){
+  const btn=$('blBtnSiap');blSquish(btn);skorPop(btn,'-50 PTS',false);
+  AUDIO.bonk();getar([80,40,80]);blGoyang($('blHero'));blToast('Melebihi had — kurangkan belanja dulu 😅');return;
+ }
+ b.siap[k]=Date.now();DB.simpan();
+ const btn=$('blBtnSiap');blSquish(btn);skorPop(btn,'+100 PTS',true);
+ AUDIO.chaChing();getar([40,60,40]);
+ lukisBelanja();segarDashboard();achSemak();
+}
+function blPadam(idx){
+ const k=kunciHari(new Date()),b=blData(),arr=b.hari[k];
+ if(!arr)return;
+ const e=arr[idx];
+ arr.splice(idx,1);
+ DB.data.rekod=DB.data.rekod.filter(r=>!(r.jenis==='belanja'&&r.t===e.t));
+ DB.simpan();lukisBelanja();segarDashboard();blToast('Catatan dibuang 🗑️');
+}
+function skorPop(anchor,txt,ok){
+ if(!anchor)return;
+ const r=anchor.getBoundingClientRect();
+ const cx=r.left+r.width/2,cy=r.top+r.height/2;
+ const p=document.createElement('div');p.className='popFlt '+(ok?'ok':'bad');
+ p.innerHTML=txt+(ok?'<div class="ph">JIMAT SIMPANAN</div>':'<div class="ph">LEBIH HAD</div>');
+ p.style.left=cx+'px';p.style.top=cy+'px';document.body.appendChild(p);
+ const pat=[...Array(ok?22:10)];
+ pat.forEach(()=>{const c=document.createElement('div');c.className='popKon';
+  c.textContent=['🪙','💵','$','✨','⭐','💚','🌟'][Math.floor(Math.random()*7)];
+  const a=Math.random()*Math.PI*2,d=26+Math.random()*80;
+  c.style.left=cx+'px';c.style.top=cy+'px';
+  c.style.setProperty('--dx',Math.round(Math.cos(a)*d)+'px');
+  c.style.setProperty('--dy',Math.round(Math.sin(a)*d-40)+'px');
+  c.style.setProperty('--p',Math.round(4+Math.random()*180)+'deg');
+  c.style.fontSize=(13+Math.random()*14)+'px';
+  document.body.appendChild(c);
+  setTimeout(()=>c.remove(),1100);});
+ setTimeout(()=>p.remove(),900);
+}
+function blSquish(el){el.classList.remove('squish');void el.offsetWidth;el.classList.add('squish');}
+function blGoyang(el){if(!el)return;el.classList.remove('goyang');void el.offsetWidth;el.classList.add('goyang');}
+function lukisBelanja(){
+ const k=kunciHari(new Date());
+ const b=blData(),tot=blJumlah(k),had=blHad(),jimat=Math.round((had-tot)*100)/100;
+ const siap=!!b.siap[k];
+ $('blHad').value=had;$('blHadNlbl').textContent=had;
+ $('blHadNun').textContent='RM '+had;
+ $('blJimat').textContent='RM '+Math.max(0,jimat).toFixed(2);
+ $('blBilangan').textContent=blHari(k).length+' catatan';
+ const pct=Math.min(100,Math.round(tot/had*100));
+ $('blBarFill').style.width=pct+'%';
+ $('blBaki').textContent=tot<=had?`Simpan RM ${jimat.toFixed(2)} ✓`:`Lebih RM ${Math.abs(jimat).toFixed(2)}`;
+ $('blHero').classList.toggle('buruk',tot>had);
+ $('blKats').innerHTML=BEL_KAT.map(kat=>`<div class="bk${kat.id===belKat?' on':''}" data-k="${kat.id}" onclick="blPilihKat('${kat.id}')"><small>${kat.ik}</small>${kat.n}</div>`).join('');
+ const arr=blHari(k);
+ $('blSenarai').innerHTML=arr.length?arr.slice().reverse().map((e,i)=>{
+  const kat=BEL_KAT.find(x=>x.id===e.k);
+  return `<div class="logItem"><div class="li">${kat?kat.ik:'💸'}</div><div class="lb"><b>${e.n}</b>
+   <small>${kat?kat.n:''} · ${new Date(e.t).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</small></div>
+   <div class="lt">RM ${Number(e.j).toFixed(2)}<span style="cursor:pointer;color:#f87171;font-size:12px;display:block" onclick="blPadam(${arr.length-1-i})">✕</span></div></div>`}).join('')
+ :'<div class="kosong">Belum ada perbelanjaan hari ini.<br>Catat untuk mula kumpul markah 💚</div>';
+ $('blSiapInfo').innerHTML=siap
+  ?`🎉 Sasaran simpanan <b style="color:#34d399">hari ini sudah lengkap</b>! Minda tenang, dompet selamat.`
+  :`Jumlah hari ini: <b>RM ${tot.toFixed(2)}</b> (had RM ${had}). <b style="color:#34d399">Simpanan RM ${Math.max(0,jimat).toFixed(2)}</b>.<br>Tandai lengkap apabila berjaya kekal dalam had — <b>+100 PTS</b> dan markah harian penuh.`;
+ $('blBtnSiap').textContent=siap?'✅ Sasaran Lengkap':'🎯 Tandai Sasaran Lengkap';
+ $('blBtnSiap').style.opacity=siap?'.6':'1';
+}
+function lukisBelanjaDash(){
+ const el=$('bdSimpan');if(!el)return;
+ const k=kunciHari(new Date()),b=blData(),tot=blJumlah(k),had=blHad(),siap=!!b.siap[k];
+ $('bdHad').textContent=had;
+ $('bdSimpan').textContent='RM '+Math.max(0,Math.round((had-tot)*100)/100).toFixed(2);
+ $('bdBar').style.width=Math.min(100,Math.round(tot/had*100))+'%';
+}
 
 /* ==================== MULA ==================== */
 (async()=>{
