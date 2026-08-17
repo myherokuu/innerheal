@@ -1079,7 +1079,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
        <div style="font-size:12.5px;color:var(--dim);line-height:1.7;margin-bottom:12px" id="blBulanInfo"></div>
        <button class="btn" id="blBtnBulanTutup" onclick="blTutupBulan()">📒 Tutup Rekod Bulan Ini</button>
      </div>
-     <div class="nota">Perancangan bulanan membantu minda yakin. Apabila bulan bertukar, senarai akan dibersihkan dan rekod bulan lalu disimpan sekali sahaja.</div>
+     <div class="nota">Perancangan bulanan membantu minda yakin. Apabila bulan bertukar, rekod bulan lalu disimpan dan sasaran yang belum selesai akan dibawa ke bulan hadapan sebagai komitmen berterusan.</div>
      <div style="height:20px"></div>
      </div>
 
@@ -4497,6 +4497,7 @@ function blTab(t){
  if(t==='aktiviti')lukisBelanjaAktiviti();
 }
 function kunciBulan(d){const x=d||new Date();return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0');}
+function kunciBulanDepan(k){const p=(k||kunciBulan()).split('-');let y=+p[0],m=+p[1];m++;if(m>12){m=1;y++;}return y+'-'+String(m).padStart(2,'0');}
 function blNamaBulan(k){const p=k.split('-');const n=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];return n[+p[1]-1]+' '+p[0];}
 function blBulanData(k){const b=blData();if(!b.bulan)b.bulan={};if(!b.bulan[k])b.bulan[k]=[];return b.bulan[k];}
 function blBulanJumlah(k){return blBulanData(k).reduce((s,e)=>s+(Number(e.j)||0),0);}
@@ -4529,11 +4530,18 @@ function blTutupBulan(){
  const k=kunciBulan(),b=blData();
  if(b.bulanTutup[k]){blToast('Bulan ini sudah direkod ✅');return;}
  const arr=blBulanData(k),totPlan=blBulanJumlah(k),selesai=blBulanSelesai(k);
- if(arr.length&&selesai<arr.length){blToast('Selesaikan semua sasaran atau padam item dahulu 🎯');return;}
  if(!arr.length&&!totPlan){blToast('Tiada sasaran untuk direkod 📭');return;}
  const masa=new Date().toISOString();
  DB.data.rekod.push({jenis:'belbulan',bulan:k,namaBulan:blNamaBulan(k),totPlan:Math.round(totPlan*100)/100,selesai,nItem:arr.length,masa,t:Date.now()});
- b.bulanTutup[k]=true;DB.simpan();
+ b.bulanTutup[k]=true;
+ const belum=arr.filter(e=>!e.done);
+ if(belum.length){
+  const dep=kunciBulanDepan(k);
+  if(!b.bulan[dep])b.bulan[dep]=[];
+  b.bulan[dep]=belum.map(e=>({n:e.n,j:e.j,done:false,t:Date.now(),dari:k}));
+  blToast(`${belum.length} sasaran diteruskan ke bulan hadapan 📥`);
+ }
+ DB.simpan();
  const btn=$('blBtnBulanTutup');blSquish(btn);skorPop(btn,'+150 PTS',true);
  AUDIO.chaChing();getar([40,60,40]);
  lukisBelanjaBulan();segarDashboard();achSemak();
@@ -4549,6 +4557,12 @@ function blBulanSema(){
     sel=lama.filter(e=>e.done).length,masa=new Date().toISOString();
    DB.data.rekod.push({jenis:'belbulan',bulan:prev,namaBulan:blNamaBulan(prev),totPlan:Math.round(totPlan*100)/100,selesai:sel,nItem:lama.length,masa,t:Date.now()});
    b.bulanTutup[prev]=true;
+   const belum=lama.filter(e=>!e.done);
+   if(belum.length){
+    if(!b.bulan[k])b.bulan[k]=[];
+    b.bulan[k]=belum.map(e=>({n:e.n,j:e.j,done:false,t:Date.now(),dari:prev}));
+    blToast(`${belum.length} sasaran belum selesai diteruskan ke bulan ini 📥`);
+   }
   }
  }
  b.bulanAktif=k;DB.simpan();
@@ -4567,15 +4581,16 @@ function lukisBelanjaBulan(){
   return `<div class="logItem" style="cursor:pointer" onclick="blRancangTog(${ix})">
    <div class="li" style="color:${e.done?'#34d399':'var(--dim2)'}">${e.done?'✅':'◻️'}</div>
    <div class="lb"><b style="${e.done?'text-decoration:line-through;opacity:.55':''}">${e.n}</b>
-    <small>RM ${Number(e.j).toFixed(2)}${e.done?' · selesai':''}</small></div>
+    <small>RM ${Number(e.j).toFixed(2)}${e.done?' · selesai':''}${e.dari?' · 📥 dibawa dari '+blNamaBulan(e.dari):''}</small></div>
    <div class="lt">RM ${Number(e.j).toFixed(2)}<span style="cursor:pointer;color:#f87171;font-size:12px;display:block" onclick="event.stopPropagation();blRancangPadam(${ix})">✕</span></div></div>`}).join('')
   :'<div class="kosong">Belum ada sasaran bulanan.<br>Rancang item untuk kekal dalam had bulan ini 💹</div>';
  const tutup=!!b.bulanTutup[k];
  $('blBtnBulanTutup').textContent=tutup?'✅ Bulan Ini Telah Direkod':'📒 Tutup Rekod Bulan Ini';
  $('blBtnBulanTutup').style.opacity=tutup?'.6':'1';
+ const bawaan=arr.filter(e=>e.dari&&!e.done).length;
  $('blBulanInfo').innerHTML=tutup
-  ?`Rekod bulan <b>${blNamaBulan(k)}</b> telah disimpan. Apabila bulan bertukar, senarai akan dibersihkan untuk permulaan baharu.`
-  :`Selesaikan semua sasaran untuk mahkota bulanan <b>+150 PTS</b> dan rekod sekali sahaja. Apabila bulan bertukar, senarai dibersihkan &amp; rekod bulan lalu kekal dalam log.`;
+  ?`Rekod bulan <b>${blNamaBulan(k)}</b> telah disimpan.${bawaan?` ${bawaan} sasaran belum selesai akan dibawa ke bulan hadapan.`:''}`
+  :`Sasaran yang belum selesai akan <b>dibawa ke bulan hadapan</b> sebagai komitmen berterusan.${bawaan?` ${bawaan} sasaran sedang dibawa dari bulan lalu.`:''}`;
 }
 function lukisBelanjaAktiviti(){
  const list=DB.data.rekod.filter(r=>r.jenis==='belanja'||r.jenis==='belbulan').reverse().slice(0,100);
