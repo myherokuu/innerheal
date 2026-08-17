@@ -335,6 +335,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tdAct.del{color:#f87171;background:rgba(239,68,68,.14)}
 .tdAct.ark{color:#fbbf24;background:rgba(250,204,21,.12)}
 .tdKosong{text-align:center;font-size:13px;color:var(--dim2);padding:26px var(--pad);line-height:1.7}
+.tdFilter{margin:0 var(--pad) 10px;display:none}
+.tdFilter.on{display:block}
+.tdFilter .tdfRow{display:flex;gap:9px}
+.tdFilter input{flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;
+ color:#fff;font-family:inherit;font-size:13px;padding:10px 13px;outline:none}
+.tdFilter input:focus{border-color:var(--acc2)}
+.tdFilter input[type="date"]{flex:0 0 auto;width:auto;color-scheme:dark}
+.tdDashCard{margin:0 var(--pad) 9px;background:var(--card);border:1px solid var(--line);border-radius:17px;padding:13px 15px;display:flex;gap:12px;align-items:center}
+.tdDashCard .tdI{font-size:20px;flex:0 0 auto}
+.tdDashCard .tdB{flex:1;min-width:0}
+.tdDashCard .tdB b{display:block;font-size:13.5px;font-weight:700;line-height:1.3}
+.tdDashCard .tdB small{display:block;color:var(--dim2);font-size:11px;margin-top:3px}
+.tdDashCard .tdS{font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:99px;flex:0 0 auto}
+.tdDashMore{text-align:center;font-size:12px;color:var(--acc2);padding:6px 0 2px;cursor:pointer}
 .blSen{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .blUndo{margin:8px var(--pad) 0;text-align:center;font-size:12px;color:var(--dim2)}
 .blUndo a{color:#f87171;cursor:pointer;text-decoration:underline}
@@ -979,6 +993,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div class="dietRow" id="dietRow"></div>
       <div class="dietFoot"><span id="dietNota">Belum ada catatan hari ini.</span><span class="ar">›</span></div>
     </div>
+    <div class="secTitle" style="margin-bottom:10px">Senarai Tugasan</div>
+    <div id="tdDash"></div>
+    <div class="tdDashMore" id="tdDashMore" onclick="tukarView('todo')" style="display:none">Lihat semua tugasan →</div>
     <div class="secTitle" style="margin-bottom:10px">Analisis</div>
     <div class="segs" id="segs">
       <div class="seg on" data-p="hari">Hari</div><div class="seg" data-p="minggu">Minggu</div><div class="seg" data-p="bulan">Bulan</div>
@@ -1182,14 +1199,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
      </div>
    </div>
 
-   <!-- TO DO LIST -->
+   <!-- SENARAI TUGASAN -->
    <div class="view" data-view="todo">
-     <div class="hero"><div class="hi">Rancang, laksana, capai</div><h3>To Do List</h3></div>
+     <div class="hero"><div class="hi">Rancang, laksana, capai</div><h3>Senarai Tugasan</h3></div>
      <div class="tdTabs" id="tdTabs">
        <div class="tdTab on" data-t="rancang" onclick="tdTab('rancang')">Perancangan<span class="tdN" id="tdNrancang">0</span></div>
        <div class="tdTab" data-t="proses" onclick="tdTab('proses')">Proses<span class="tdN" id="tdNproses">0</span></div>
        <div class="tdTab" data-t="tamat" onclick="tdTab('tamat')">Tamat<span class="tdN" id="tdNtamat">0</span></div>
        <div class="tdTab" data-t="arkib" onclick="tdTab('arkib')">Arkib<span class="tdN" id="tdNarkib">0</span></div>
+     </div>
+     <div class="tdFilter" id="tdFilter">
+       <div class="tdfRow">
+         <input id="tdCari" placeholder="🔍 Cari tugasan…" oninput="tdLukis()">
+         <input id="tdTarik" type="date" onchange="tdLukis()">
+       </div>
      </div>
      <div class="panel tdForm">
        <div class="field"><label>Tajuk tugasan</label><input id="tdTajuk" maxlength="80" placeholder="cth: Sediakan laporan projek"></div>
@@ -1342,7 +1365,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="dItem" data-go="solat"><span>🕯️</span><span>Jadual Solat</span></div>
     <div class="dItem" data-go="makan"><span>🍽️</span><span>Pemakanan</span></div>
     <div class="dItem" data-go="belanja"><span>💸</span><span>Perbelanjaan</span></div>
-<div class="dItem" data-go="todo"><span>✅</span><span>To Do List</span></div>
+<div class="dItem" data-go="todo"><span>✅</span><span>Senarai Tugasan</span></div>
     <div class="dItem" data-go="pet"><span>🐣</span><span>Pet Saya</span></div>
     <div class="dItem" data-go="balon"><span>🎈</span><span>Balon Tabiat</span></div>
     <div class="dItem" data-go="rekod"><span>▤</span><span>Rekod</span></div>
@@ -2240,7 +2263,7 @@ function onboardPerlu(){
   if(b&&((b.baik&&b.baik.length)||(b.buruk&&b.buruk.length))){DB.data.onboardDone=true;DB.simpan();return false;}
   return true;
 }
-const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',belanja:'Perbelanjaan',todo:'To Do List',pet:'Pet Saya',balon:'Balon Tabiat',rekod:'Rekod',tetapan:'Tetapan'};
+const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',belanja:'Perbelanjaan',todo:'Senarai Tugasan',pet:'Pet Saya',balon:'Balon Tabiat',rekod:'Rekod',tetapan:'Tetapan'};
 function bukaDrawer(){$('drawer').classList.add('on');$('scrim').classList.add('on');$('burger').classList.add('x');}
 function tutupDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on');$('burger').classList.remove('x');}
 $('burger').onclick=()=>$('drawer').classList.contains('on')?tutupDrawer():bukaDrawer();
@@ -3715,6 +3738,7 @@ paparLog($('logWrap'),5);
   $('salam').textContent=j<12?'Selamat pagi,':j<18?'Selamat petang,':'Selamat malam,';
   segarMood();
   lukisDietDash();
+  tdDashLukis();
   lukisAch();
   achSemak();
 }
@@ -4444,23 +4468,40 @@ function petFormatMasa(s){
   return m+' min'+(b?' '+b+' saat':'');
 }
 
-/* ==================== TO DO LIST ==================== */
+/* ==================== SENARAI TUGASAN ==================== */
 let TD_tab='rancang', TD_id=null;
 const TD_BERHASIL={rancang:'Perancangan',proses:'Proses',tamat:'Tamat',arkib:'Arkib'};
 function tdHari(iso){return iso?iso.slice(0,10):'';}
 function tdSemua(){return (DB.data.todo||[]);}
-function tdTab(t){TD_tab=t;const tabs=document.querySelectorAll('.tdTab');tabs.forEach(x=>x.classList.toggle('on',x.dataset.t===t));
- $('tdTajukSenarai').textContent='Senarai '+TD_BERHASIL[t];tdLukis();}
+function tdTab(t){
+  TD_tab=t;
+  const tabs=document.querySelectorAll('.tdTab');
+  tabs.forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+  $('tdTajukSenarai').textContent='Senarai '+TD_BERHASIL[t];
+  const filt=$('tdFilter');
+  filt.classList.toggle('on',t==='arkib');
+  if(t==='arkib'){$('tdCari').value='';$('tdTarik').value='';}
+  tdLukis();
+}
+function tdPadamFilter(){
+  $('tdCari').value='';$('tdTarik').value='';tdLukis();
+}
 function tdLukis(){
   const semua=tdSemua();
   $('tdNrancang').textContent=semua.filter(x=>!x.arkib&&x.st===1).length;
   $('tdNproses').textContent=semua.filter(x=>!x.arkib&&x.st===2).length;
   $('tdNtamat').textContent=semua.filter(x=>!x.arkib&&x.st===3).length;
   $('tdNarkib').textContent=semua.filter(x=>x.arkib).length;
-  const list=semua.filter(x=>TD_tab==='arkib'?x.arkib:(!x.arkib&&(TD_tab==='rancang'?x.st===1:TD_tab==='proses'?x.st===2:x.st===3)));
+  const cari=$('tdCari')?$('tdCari').value.trim().toLowerCase():'';
+  const tarik=$('tdTarik')?$('tdTarik').value:'';
+  let list=semua.filter(x=>TD_tab==='arkib'?x.arkib:(!x.arkib&&(TD_tab==='rancang'?x.st===1:TD_tab==='proses'?x.st===2:x.st===3)));
+  if(TD_tab==='arkib'){
+    if(cari)list=list.filter(x=>(x.tajuk||'').toLowerCase().includes(cari));
+    if(tarik)list=list.filter(x=>x.mula===tarik||x.sasaran===tarik||x.aktual===tarik);
+  }
   const hariK=new Date().toISOString().slice(0,10);
   const wrap=$('tdSenarai');
-  if(!list.length){wrap.innerHTML='<div class="tdKosong">'+(TD_tab==='arkib'?'Tiada tugasan di arkib.':'Tiada tugasan. Tekan + Tambah Tugasan untuk bermula.')+'</div>';return;}
+  if(!list.length){wrap.innerHTML='<div class="tdKosong">'+(TD_tab==='arkib'?'Tiada tugasan ditemui.':'Tiada tugasan. Tekan + Tambah Tugasan untuk bermula.')+'</div>';return;}
   wrap.innerHTML=list.map(x=>{
     const lewat=!x.arkib&&x.st!==3&&x.sasaran&&x.sasaran<hariK;
     const cls=lewat?'lewat':x.arkib?'arkib':'';
@@ -4471,7 +4512,7 @@ function tdLukis(){
       x.sasaran?`<span class="tdPill"><span class="tk">Sasaran</span><b>${x.sasaran}</b></span>`:'',
       x.aktual?`<span class="tdPill aktual"><span class="tk">Aktual</span><b>${x.aktual}</b></span>`:''
     ].join('');
-    const aksi=[];let btn;
+    const aksi=[];
     if(x.arkib){aksi.push(`<button class="tdAct" onclick="tdAktifkan('${x.id}')">↩ Pulihkan</button>`,`<button class="tdAct del" onclick="tdHapus('${x.id}')">Padam</button>`);}
     else{
       if(x.st===1)aksi.push(`<button class="tdAct pro" onclick="tdTukar('${x.id}',2)">Mula Proses</button>`);
@@ -4483,6 +4524,24 @@ function tdLukis(){
     return `<div class="todoCard ${cls}"><div class="tN"><b>${x.tajuk||''}</b><span class="tS ${stCls}">${lewat?'LEWAT':stLbl}</span></div>
      <div class="tD">${tarikh}</div><div class="tA">${aksi.join('')}</div></div>`;
   }).join('');
+}
+function tdDashLukis(){
+  const wrap=$('tdDash');if(!wrap)return;
+  const aktif=tdSemua().filter(x=>!x.arkib);
+  const hariK=new Date().toISOString().slice(0,10);
+  const lebih=$('tdDashMore');
+  if(!aktif.length){wrap.innerHTML='<div class="tdKosong">Tiada tugasan aktif.<br>Buka Senarai Tugasan untuk merancang ✅</div>';lebih.style.display='none';return;}
+  const tunjuk=aktif.slice(0,4);
+  wrap.innerHTML=tunjuk.map(x=>{
+    const lewat=!x.arkib&&x.st!==3&&x.sasaran&&x.sasaran<hariK;
+    const stCls=lewat?'lewat':x.st===1?'rancang':x.st===2?'proses':'tamat';
+    const stLbl=lewat?'LEWAT':x.st===1?'Rancang':x.st===2?'Proses':'Tamat';
+    const ikon=x.st===1?'📋':x.st===2?'🔄':'✅';
+    const info=x.st===3?(x.aktual?'Selesai '+x.aktual:'Selesai'):(x.sasaran?'Sasaran '+x.sasaran:'');
+    return `<div class="tdDashCard" onclick="tukarView('todo')"><div class="tdI">${ikon}</div>
+     <div class="tdB"><b>${x.tajuk||''}</b><small>${info}</small></div><span class="tS ${stCls}">${stLbl}</span></div>`;
+  }).join('');
+  lebih.style.display=aktif.length>4?'block':'none';
 }
 function tdBuka(){
   $('tdTajuk').value='';$('tdMula').value=tdHari(new Date().toISOString());$('tdSasaran').value='';$('tdAktual').value='';
