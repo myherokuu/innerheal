@@ -4471,7 +4471,7 @@ function lukisBelanja(){
 }
 function lukisBelanjaDash(){
  const el=$('bdSimpan');if(!el)return;
- const k=kunciHari(new Date()),b=blData(),tot=blJumlah(k),had=blHad(),siap=!!b.siap[k];
+ const k=kunciHari(new Date()),b=blData(),tot=blJumlah(k),had=blHad();
  $('bdHad').textContent=had;
  $('bdSimpan').textContent='RM '+Math.max(0,Math.round((had-tot)*100)/100).toFixed(2);
  $('bdBar').style.width=Math.min(100,Math.round(tot/had*100))+'%';
