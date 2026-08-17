@@ -1577,6 +1577,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 </div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $=id=>document.getElementById(id);
 const jepit=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1584,16 +1585,41 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const smoothstep=(x,a,b)=>jepit((x-a)/(b-a),0,1);
 const mmss=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 
+/* ==================== SUPABASE STORAGE ==================== */
+const SB_CONFIG={url:'https://bdjrxdmutncslfgilyea.supabase.co',key:'sb_publishable_lSmbqkTnQZKXAdJeCJ_2Fg_cfgZs-kT'};
+(function(){
+ try{
+  if(!window.supabase||!SB_CONFIG.url)return;
+  const sb=window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.key);
+  window.storage={
+   async get(k){
+    const {data}=await sb.from('kv').select('value').eq('key',k).maybeSingle();
+    return data?{value:data.value}:null;
+   },
+   async set(k,v){
+    const {error}=await sb.from('kv').upsert({key:k,value:v},{onConflict:'key'});
+    if(error)throw error;
+   },
+   siap:true
+  };
+  console.log('Supabase storage sedia ☁️');
+ }catch(e){console.warn('Supabase tidak sedia, guna localStorage.',e&&e.message);window.storage=null;}
+})();
+
 /* ==================== DB ==================== */
 const DB={
  kunci:'innerflow_db_v2',
   data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},pemakanan:{},belanja:null,rekod:[]},
  async muat(){
   let s=null;
-  try{if(window.storage){const r=await window.storage.get(this.kunci);if(r&&r.value)s=r.value;}}catch(e){}
-  if(!s){try{s=localStorage.getItem(this.kunci);}catch(e){}}
+  let luar=false;
+  try{if(window.storage){const r=await window.storage.get(this.kunci);if(r&&r.value){s=r.value;luar=true;}}}catch(e){}
+  let lokal=null;
+  try{lokal=localStorage.getItem(this.kunci);}catch(e){}
+  if(!s&&lokal)s=lokal;
   if(s){try{const d=JSON.parse(s);if(d&&Array.isArray(d.rekod))this.data=Object.assign(this.data,d);}catch(e){}}
   if(!this.data.dicipta){this.data.dicipta=new Date().toISOString();this.simpan();}
+  if(!luar&&lokal&&window.storage){try{await window.storage.set(this.kunci,lokal);console.log('Data tempatan dimuat naik ke Supabase ☁️');}catch(e){}}
  },
  async simpan(){const s=JSON.stringify(this.data);
   try{if(window.storage){await window.storage.set(this.kunci,s);return;}}catch(e){}
