@@ -57,6 +57,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .errBox.on{display:block}
 .hintBox{margin-top:16px;text-align:center;font-size:12px;color:var(--dim2);line-height:1.7}
 .hintBox b{color:var(--acc2)}
+#onboard{position:absolute;inset:0;z-index:65;display:none;flex-direction:column;justify-content:center;
+ padding:0 26px;background:radial-gradient(130% 80% at 50% 0%,#12321f 0%,#0a0a14 65%)}
+.onGrid{display:flex;flex-wrap:wrap;gap:8px}
+.onChip{border:1px solid var(--line);background:rgba(255,255,255,.06);color:#e7e7f2;border-radius:14px;
+ padding:10px 13px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;line-height:1.3}
+.onChip.on{background:rgba(52,211,153,.2);border-color:rgba(52,211,153,.65);color:#6ee7b7;box-shadow:0 0 0 2px rgba(52,211,153,.18)}
+.onChip.baik{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4);color:#86efac}
+.onChip.baik.on{background:rgba(52,211,153,.3);border-color:#34d399}
+.onChip.buruk{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.4);color:#fda4af}
+.onChip.buruk.on{background:rgba(251,113,133,.3);border-color:#fb7185}
+.onAdd{display:flex;gap:8px;margin-top:10px}
+.onAdd input{flex:1;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:12px;
+ padding:10px 12px;font-size:13px;color:#fff;outline:none}
+.onAdd button{flex:0 0 auto;width:40px;border-radius:12px;border:1px solid var(--line);background:rgba(167,139,250,.2);
+ color:#c4b5fd;font-size:18px;font-weight:700;cursor:pointer}
 .topbar{display:flex;align-items:center;gap:14px;padding:calc(var(--top) + 14px) var(--pad) 14px;
  border-bottom:1px solid var(--line);background:rgba(10,10,20,.6);backdrop-filter:blur(20px);z-index:20}
 .burger{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.07);
@@ -811,19 +826,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="brand"><div class="brandIcon">🌀</div><h1>Inner Flow</h1><p>Nafas · Emosi · Perjalanan Tiup</p></div>
   <div class="loginCard" id="loginCard">
     <div class="errBox" id="errBox"></div>
-    <div class="field"><label>Nama pengguna</label><input id="inUser" type="text" placeholder="admin" autocapitalize="none"></div>
+    <div class="field"><label>Emel</label><input id="inUser" type="email" placeholder="nama@emel.com" autocapitalize="none"></div>
     <div class="field"><label>Kata laluan</label><input id="inPass" type="password" placeholder="••••••••"></div>
     <button class="btn" id="btnLogin" style="margin-top:8px">Log Masuk</button>
-    <div class="hintBox">Akaun demo: <b>admin</b> / <b>abcd1234</b><br><a href="javascript:void(0)" onclick="buruDaftar()" style="color:#a78bfa">Daftar akaun baru</a></div>
+    <div class="hintBox">Akaun disimpan dalam pangkalan data.<br><a href="javascript:void(0)" onclick="buruDaftar()" style="color:#a78bfa">Daftar akaun baru</a></div>
   </div>
   <div class="loginCard" id="daftarCard" style="display:none">
     <div class="errBox" id="daftarErr"></div>
-    <div class="field"><label>Nama pengguna</label><input id="inUserBaru" type="text" placeholder="cth: aisyah" autocapitalize="none"></div>
+    <div class="field"><label>Emel</label><input id="inUserBaru" type="email" placeholder="nama@emel.com" autocapitalize="none"></div>
     <div class="field"><label>Nama paparan (pilihan)</label><input id="inNamaBaru" type="text" placeholder="cth: Aisyah" autocapitalize="words"></div>
     <div class="field"><label>Kata laluan</label><input id="inPassBaru" type="password" placeholder="••••••••"></div>
     <div class="field"><label>Nama pet (pilihan)</label><input id="inPetBaru" type="text" placeholder="cth: Mochi" autocapitalize="words"></div>
     <button class="btn" id="btnDaftar" style="margin-top:8px">Daftar Akaun</button>
     <div class="hintBox"><a href="javascript:void(0)" onclick="buruLogin()" style="color:#a78bfa">Sudah ada akaun? Log Masuk</a></div>
+  </div>
+</div>
+
+<div id="onboard">
+  <div class="brand" style="margin-bottom:20px"><div class="brandIcon">🌱</div><h1 style="font-size:24px">Sedia Tabiat Dulu</h1>
+    <p>Pilih minimum 1 tabiat baik dan 1 tabiat buruk untuk mula merekod aktiviti.</p></div>
+  <div class="loginCard" style="max-height:66vh;overflow-y:auto">
+    <div class="errBox" id="onErr"></div>
+    <div class="secTitle" style="margin:0 0 10px">🌱 Tabiat baik (min 1)</div>
+    <div class="onGrid" id="onBaikList"></div>
+    <div class="onAdd"><input id="onBaikTambah" placeholder="Tabiat baik lain..." onkeydown="if(event.key==='Enter')onTambah('baik')"><button onclick="onTambah('baik')">＋</button></div>
+    <div class="secTitle" style="margin:20px 0 10px">🎈 Tabiat buruk — nak lepaskan (min 1)</div>
+    <div class="onGrid" id="onBurukList"></div>
+    <div class="onAdd"><input id="onBurukTambah" placeholder="Tabiat buruk lain..." onkeydown="if(event.key==='Enter')onTambah('buruk')"><button onclick="onTambah('buruk')">＋</button></div>
+    <button class="btn" id="onBtn" style="margin-top:16px" disabled onclick="onboardSiap()">Mula Gunakan App 🚀</button>
+    <div class="hintBox">Anda pilih sendiri tabiat yang mahu dijejak. Boleh ubah bila-bila masa.</div>
   </div>
 </div>
 
@@ -1587,17 +1618,20 @@ const mmss=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 
 /* ==================== SUPABASE STORAGE ==================== */
 const SB_CONFIG={url:'https://bdjrxdmutncslfgilyea.supabase.co',key:'sb_publishable_lSmbqkTnQZKXAdJeCJ_2Fg_cfgZs-kT'};
+let SB_AUTH=null, SB_UID=null;
 (function(){
  try{
   if(!window.supabase||!SB_CONFIG.url)return;
-  const sb=window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.key);
+  SB_AUTH=window.supabase.createClient(SB_CONFIG.url,SB_CONFIG.key);
   window.storage={
    async get(k){
-    const {data}=await sb.from('kv').select('value').eq('key',k).maybeSingle();
+    if(!SB_UID)return null;
+    const {data}=await SB_AUTH.from('kv').select('value').eq('key',k).eq('user_id',SB_UID).maybeSingle();
     return data?{value:data.value}:null;
    },
    async set(k,v){
-    const {error}=await sb.from('kv').upsert({key:k,value:v},{onConflict:'key'});
+    if(!SB_UID)throw new Error('Tiada sesi pengguna');
+    const {error}=await SB_AUTH.from('kv').upsert({key:k,user_id:SB_UID,value:v},{onConflict:'key,user_id'});
     if(error)throw error;
    },
    siap:true
@@ -1609,13 +1643,18 @@ const SB_CONFIG={url:'https://bdjrxdmutncslfgilyea.supabase.co',key:'sb_publisha
 /* ==================== DB ==================== */
 const DB={
  kunci:'innerflow_db_v2',
+ kunciLokal(){return SB_UID?('innerflow_db_v2:'+SB_UID):'innerflow_db_v2';},
   data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},pemakanan:{},belanja:null,rekod:[]},
  async muat(){
   let s=null;
   let luar=false;
   try{if(window.storage){const r=await window.storage.get(this.kunci);if(r&&r.value){s=r.value;luar=true;}}}catch(e){}
   let lokal=null;
-  try{lokal=localStorage.getItem(this.kunci);}catch(e){}
+  try{lokal=localStorage.getItem(this.kunciLokal());}catch(e){}
+  if(!s&&!lokal&&SB_UID){
+    try{lokal=localStorage.getItem('innerflow_db_v2');}catch(e){}
+    if(lokal){console.log('Data warisan (pra-login) diserap untuk akaun ini ☁️');}
+  }
   if(!s&&lokal)s=lokal;
   if(s){try{const d=JSON.parse(s);if(d&&Array.isArray(d.rekod))this.data=Object.assign(this.data,d);}catch(e){}}
   if(!this.data.dicipta){this.data.dicipta=new Date().toISOString();this.simpan();}
@@ -1623,7 +1662,7 @@ const DB={
  },
  async simpan(){const s=JSON.stringify(this.data);
   try{if(window.storage){await window.storage.set(this.kunci,s);return;}}catch(e){}
-  try{localStorage.setItem(this.kunci,s);}catch(e){}},
+  try{localStorage.setItem(this.kunciLokal(),s);}catch(e){}},
  tambah(r){r.id='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   r.masa=new Date().toISOString();this.data.rekod.push(r);this.simpan();segarDashboard();},
  async kosongkan(){this.data.rekod=[];await this.simpan();segarDashboard();paparRekodPenuh();}
@@ -1963,80 +2002,68 @@ window.addEventListener('deviceorientation',e=>{
 });
 
 /* ==================== LOGIN & NAV ==================== */
-const AK_KUNCI='innerflow_accounts_v1';
-let AKAUN = null;
 let USER_SEMASA = null;
-const AK_BASE = {admin:{p:hashSha('abcd1234'),nama:'admin'}};
-function muatAkaun(){
-  let simpan = {};
-  try{simpan = JSON.parse(localStorage.getItem(AK_KUNCI)) || {};}catch(e){}
-  const g = Object.assign({}, AK_BASE);
-  for(const k in simpan) if(simpan[k] && typeof simpan[k]==='object') g[k.toLowerCase()] = simpan[k];
-  AKAUN = g;
-}
-function simpanAkaun(){
-  const tanpaAdmin = {}; for(const k in AKAUN) if(k!=='admin') tanpaAdmin[k] = AKAUN[k];
-  try{localStorage.setItem(AK_KUNCI, JSON.stringify(tanpaAdmin));}catch(e){}
-}
-function hashSha(s){
-  try{let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return 'h'+h;}catch(e){return 'h0';}
-}
 function paparNama(u){
   $('namaUser').textContent=u;$('drawerNama').textContent=u;
   $('avatarTxt').textContent=(u||'A').charAt(0).toUpperCase();
   $('avatarTxt').style.display='flex';
 }
+function mesejErr(el,msg){el.textContent=msg;el.classList.add('on');}
+function buangErr(el){el.classList.remove('on');}
 function cukaiLogin(){
-  if(!AKAUN)muatAkaun();
-  const u=$('inUser').value.trim().toLowerCase(),p=$('inPass').value,err=$('errBox');
-  if(!u||!p){err.textContent='Sila isi nama pengguna dan kata laluan.';err.classList.add('on');return;}
-  if(!AKAUN[u]||AKAUN[u].p!==hashSha(p)){err.textContent='Nama pengguna atau kata laluan tidak sah.';err.classList.add('on');$('inPass').value='';return;}
-  err.classList.remove('on');
-  USER_SEMASA=AKAUN[u];USER_SEMASA.namaAntara = u;
-  paparNama(AKAUN[u].nama||u);
-  $('login').style.display='none';segarDashboard();
+  const u=$('inUser').value.trim(),p=$('inPass').value,err=$('errBox');
+  buangErr(err);
+  if(!u||!p){mesejErr(err,'Sila isi emel dan kata laluan.');return;}
+  if(!SB_AUTH){mesejErr(err,'Ralat: Supabase tidak dimuat. Sila muat semula.');return;}
+  const b=$('btnLogin');b.disabled=true;b.textContent='Memuat...';
+  SB_AUTH.auth.signInWithPassword({email:u,password:p}).then(({data,error})=>{
+    b.disabled=false;b.textContent='Log Masuk';
+    if(error){mesejErr(err,error.message);return;}
+    if(data&&data.session)$('errBox').classList.remove('on');
+    else mesejErr(err,'Sila sahkan emel dahulu melalui pautan yang dihantar.');
+  });
 }
 function buruDaftar(){$('loginCard').style.display='none';$('daftarCard').style.display='block';$('daftarErr').classList.remove('on');}
 function buruLogin(){$('daftarCard').style.display='none';$('loginCard').style.display='block';}
 function cubaDaftar(){
-  if(!AKAUN)muatAkaun();
-  const u=$('inUserBaru').value.trim().toLowerCase(),n=$('inNamaBaru').value.trim(),p=$('inPassBaru').value,
+  const u=$('inUserBaru').value.trim(),n=$('inNamaBaru').value.trim(),p=$('inPassBaru').value,
         pt=$('inPetBaru').value.trim(),err=$('daftarErr');
-  if(!u||u.length<3){err.textContent='Nama pengguna mesti sekurang-kurangnya 3 aksara.';err.classList.add('on');return;}
-  if(!/^[a-z0-9_.]+$/.test(u)){err.textContent='Nama pengguna hanya huruf kecil, nombor, titik atau garis bawah.';err.classList.add('on');return;}
-  if(!p||p.length<6){err.textContent='Kata laluan mesti sekurang-kurangnya 6 aksara.';err.classList.add('on');return;}
-  if(AKAUN[u]){err.textContent='Nama pengguna itu sudah digunakan.';err.classList.add('on');return;}
-  err.classList.remove('on');
-  AKAUN[u]={p:hashSha(p),nama:(n||u)};
-  simpanAkaun();
-  if(DB.data.pet)DB.data.pet.nama=(pt||DB.data.pet.nama||'Mochi');
-  if(!DB.data.pet){DB.data.pet={dibuat:Date.now(),nama:pt||'Mochi',hp:80,en:80,muscle:1,muscleXp:0,stamina:50,happ:80,calm:40,tire:10,zikir:0};}
-  DB.simpan();
-  $('loginCard').style.display='block';$('daftarCard').style.display='none';
-  $('inUser').value=u;$('inPass').value='';
-  const ok=$('errBox');ok.textContent='Akaun berjaya didaftarkan. Silalah log masuk. ✅';ok.classList.add('on');
+  buangErr(err);
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u)){mesejErr(err,'Emel tidak sah.');return;}
+  if(!p||p.length<6){mesejErr(err,'Kata laluan mesti sekurang-kurangnya 6 aksara.');return;}
+  if(!SB_AUTH){mesejErr(err,'Ralat: Supabase tidak dimuat. Sila muat semula.');return;}
+  const b=$('btnDaftar');b.disabled=true;b.textContent='Memuat...';
+  SB_AUTH.auth.signUp({email:u,password:p,options:{data:{nama:(n||u),pet:pt}}}).then(({data,error})=>{
+    b.disabled=false;b.textContent='Daftar Akaun';
+    if(error){mesejErr(err,error.message);return;}
+    if(data&&data.session)return;
+    $('loginCard').style.display='block';$('daftarCard').style.display='none';
+    $('inUser').value=u;$('inPass').value='';
+    const ok=$('errBox');ok.textContent='Pautan pengesahan dihantar ke emel. Sila klik pautan untuk aktifkan akaun, kemudian log masuk. ✅';ok.classList.add('on');
+  });
 }
 function logout(){
-  USER_SEMASA=null;
   avatMenuTutup();tutupDrawer();
   $('inPass').value='';
   $('errBox').classList.remove('on');
-  $('login').style.display='flex';tukarView('dash');
+  if(SB_AUTH)SB_AUTH.auth.signOut().then(()=>{USER_SEMASA=null;$('login').style.display='flex';tukarView('dash');});
+  else $('login').style.display='flex';
 }
 function avatMenuTog(){$('avatMenu').classList.toggle('on');}
 function avatMenuTutup(){$('avatMenu').classList.remove('on');}
 document.addEventListener('click',e=>{if(e.target.closest('#avatMenu')||e.target.id==='avatarTxt')return;avatMenuTutup();});
 function petNamaKini(){return (DB.data.pet&&DB.data.pet.nama)||'Mochi';}
 function bukaProfil(){
-  $('profilNama').value=(USER_SEMASA&&USER_SEMASA.nama)||'admin';
+  $('profilNama').value=(USER_SEMASA&&USER_SEMASA.nama)||'';
   $('profilPet').value=petNamaKini();
   $('profilSheet').classList.add('on');
 }
 function profilSimpan(){
   const n=$('profilNama').value.trim(),pt=$('profilPet').value.trim();
-  if(!USER_SEMASA&&!AKAUN)muatAkaun();
-  const u=USER_SEMASA&&USER_SEMASA.namaAntara;
-  if(u&&AKAUN[u]){AKAUN[u].nama=n||AKAUN[u].nama;simpanAkaun();paparNama(AKAUN[u].nama||u);}
+  const nm=(n||(USER_SEMASA&&USER_SEMASA.nama));
+  if(n&&USER_SEMASA&&SB_AUTH){
+    SB_AUTH.auth.updateUser({data:{nama:nm}}).then(()=>{if(USER_SEMASA){USER_SEMASA.nama=nm;paparNama(nm);}});
+  }
   DB.data.pet=DB.data.pet||{};
   if(pt)DB.data.pet.nama=pt;
   DB.simpan();
@@ -2044,13 +2071,14 @@ function profilSimpan(){
 }
 function bukaUbahPass(){$('passLama').value='';$('passBaru').value='';$('passErr').classList.remove('on');$('passSheet').classList.add('on');}
 function ubahPassSimpan(){
-  const u=USER_SEMASA&&USER_SEMASA.namaAntara,old=$('passLama').value,baru=$('passBaru').value,err=$('passErr');
-  if(!u||!AKAUN[u]){err.textContent='Sila log masuk dahulu.';err.classList.add('on');return;}
-  if(AKAUN[u].p!==hashSha(old)){err.textContent='Kata laluan lama tidak betul.';err.classList.add('on');return;}
-  if(!baru||baru.length<6){err.textContent='Kata laluan baru mesti sekurang-kurangnya 6 aksara.';err.classList.add('on');return;}
-  AKAUN[u].p=hashSha(baru);simpanAkaun();
-  err.classList.remove('on');
-  petTutup('passSheet');blToast('Kata laluan ditukar ✅');
+  const old=$('passLama').value,baru=$('passBaru').value,err=$('passErr');
+  buangErr(err);
+  if(!SB_AUTH||!USER_SEMASA){mesejErr(err,'Sila log masuk dahulu.');return;}
+  if(!baru||baru.length<6){mesejErr(err,'Kata laluan baru mesti sekurang-kurangnya 6 aksara.');return;}
+  SB_AUTH.auth.updateUser({password:baru}).then(({error})=>{
+    if(error){mesejErr(err,error.message);return;}
+    petTutup('passSheet');blToast('Kata laluan ditukar ✅');
+  });
 }
 $('btnLogin').onclick=cukaiLogin;
 $('btnDaftar').onclick=cubaDaftar;
@@ -2058,6 +2086,58 @@ $('inPass').addEventListener('keydown',e=>{if(e.key==='Enter')cukaiLogin();});
 $('inUser').addEventListener('keydown',e=>{if(e.key==='Enter')$('inPass').focus();});
 $('inPassBaru').addEventListener('keydown',e=>{if(e.key==='Enter')cubaDaftar();});
 $('btnLogout').onclick=logout;
+
+/* ==================== ONBOARDING TABIAT ==================== */
+const ON_BAIK=['Minum air secukupnya','Senaman','Baca buku','Meditasi','Bangun awal','Tidur mengikut masa','Makan sihat','Jaga minda positif'];
+const ON_BURUK=['Merokok','Overthinking','Tidur lewat','Procrastination','Marah-marah','Skrol telefon lama','Makan ringan berlebihan'];
+let ON_TOG={baik:{},buruk:{}};
+function onboardBuka(){
+  ON_TOG={baik:{},buruk:{}};
+  $('onBaikList').innerHTML=ON_BAIK.map(n=>'<button class="onChip baik" data-n="'+n+'" onclick="onTog(\'baik\',this)">'+n+'</button>').join('');
+  $('onBurukList').innerHTML=ON_BURUK.map(n=>'<button class="onChip buruk" data-n="'+n+'" onclick="onTog(\'buruk\',this)">'+n+'</button>').join('');
+  $('onErr').classList.remove('on');
+  onboardButang();
+  $('onboard').style.display='flex';
+}
+function onTog(j,el){
+  const n=el.dataset.n;el.classList.toggle('on');
+  ON_TOG[j][n]=el.classList.contains('on');
+  onboardButang();
+}
+function onTambah(j){
+  const inp=j==='baik'?$('onBaikTambah'):$('onBurukTambah'),n=inp.value.trim();
+  if(!n)return;
+  inp.value='';
+  ON_TOG[j][n]=true;
+  const wrap=$('on'+(j==='baik'?'Baik':'Buruk')+'List');
+  const b=document.createElement('button');
+  b.className='onChip '+j+' on';b.dataset.n=n;b.textContent=n;
+  b.onclick=function(){onTog(j,b);};
+  wrap.appendChild(b);
+  onboardButang();
+}
+function onboardButang(){
+  const okB=Object.values(ON_TOG.baik).some(Boolean),okX=Object.values(ON_TOG.buruk).some(Boolean);
+  $('onBtn').disabled=!(okB&&okX);
+}
+function onboardSiap(){
+  const b=Object.keys(ON_TOG.baik).filter(k=>ON_TOG.baik[k]);
+  const x=Object.keys(ON_TOG.buruk).filter(k=>ON_TOG.buruk[k]);
+  if(b.length<1||x.length<1){mesejErr($('onErr'),'Pastikan minimum 1 tabiat baik dan 1 tabiat buruk dipilih.');return;}
+  b.forEach(n=>blTambah('baik',n));
+  x.forEach(n=>blTambah('buruk',n));
+  DB.data.onboardDone=true;
+  DB.simpan();
+  $('onboard').style.display='none';
+  segarBalon();
+  blToast('Tabiat disimpan 🎉 Jom mula!');
+}
+function onboardPerlu(){
+  if(DB.data.onboardDone)return false;
+  const b=DB.data.balon;
+  if(b&&((b.baik&&b.baik.length)||(b.buruk&&b.buruk.length))){DB.data.onboardDone=true;DB.simpan();return false;}
+  return true;
+}
 const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',belanja:'Perbelanjaan',pet:'Pet Saya',balon:'Balon Tabiat',rekod:'Rekod',tetapan:'Tetapan'};
 function bukaDrawer(){$('drawer').classList.add('on');$('scrim').classList.add('on');$('burger').classList.add('x');}
 function tutupDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on');$('burger').classList.remove('x');}
@@ -4233,10 +4313,6 @@ function blSedia(){
   if(!DB.data.balon)DB.data.balon={buruk:[],baik:[]};
   if(!Array.isArray(DB.data.balon.buruk))DB.data.balon.buruk=[];
   if(!Array.isArray(DB.data.balon.baik))DB.data.balon.baik=[];
-  if(DB.data.balon.buruk.length===0&&DB.data.balon.baik.length===0){
-    ['Merokok','Overthinking','Tidur lewat','Procrastinate'].forEach(n=>blTambah('buruk',n));
-    ['Minum air secukupnya','Exercise','Baca buku','Meditasi','Bangun awal'].forEach(n=>blTambah('baik',n));
-  }
 }
 function blId(){return 'bh'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function blTambah(j,enam){
@@ -4689,9 +4765,15 @@ function lukisBelanjaDash(){
 }
 
 /* ==================== MULA ==================== */
-(async()=>{
+let AKUN_DIBUKA=false;
+async function masukAkaun(user){
+  if(!user||AKUN_DIBUKA)return;
+  AKUN_DIBUKA=true;
+  SB_UID=user.id;
+  USER_SEMASA={id:user.id,email:user.email,nama:(user.user_metadata&&user.user_metadata.nama)||user.email};
+  paparNama(USER_SEMASA.nama);
+  $('login').style.display='none';
   await DB.muat();
-  muatAkaun();
   $('sasarSlider').value=DB.data.sasarHarian||10;
   $('sasarNum').textContent=DB.data.sasarHarian||10;
   paparKalibStatus();
@@ -4701,6 +4783,20 @@ function lukisBelanjaDash(){
   pInisialisasi();
   petCekPeringat();
   blBulanSema();
+  if(onboardPerlu())onboardBuka();
+}
+(async()=>{
+  if(typeof SB_AUTH!=='undefined'&&SB_AUTH){
+    SB_AUTH.auth.onAuthStateChange((ev,session)=>{
+      if(ev==='SIGNED_IN'||ev==='INITIAL_SESSION'){
+        if(session&&session.user)masukAkaun(session.user);
+      }else if(ev==='SIGNED_OUT'){
+        SB_UID=null;AKUN_DIBUKA=false;
+      }
+    });
+    const {data:{session}}=await SB_AUTH.auth.getSession();
+    if(session&&session.user)masukAkaun(session.user);
+  }
 })();
 </script>
 </body>
