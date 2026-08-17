@@ -990,7 +990,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div><small style="font-size:11px;color:var(--dim2)">Sasaran RM <span id="bdHad">100</span></small>
         <div style="font-size:20px;font-weight:800" id="bdSimpan">RM 0</div></div>
-        <button class="moodPill" onclick="tukarView('belanja')">Urus</button>
+        <button class="moodPill" onclick="bukaSimpanan()">Urus</button>
       </div>
       <div class="bhMini" style="margin-top:10px"><i id="bdBar" style="width:0%"></i></div>
     </div>
@@ -1172,7 +1172,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <div class="secTitle">Senarai hari ini</div>
       <div id="blSenarai"></div>
-      <div class="nota">Catat setiap perbelanjaan di sini. Baki yang tidak dibelanjakan boleh anda masukkan ke tab Simpanan.</div>
+      <div class="nota">Catat setiap perbelanjaan di sini. Baki yang tidak dibelanjakan boleh anda masukkan ke tab Simpanan.
+       <br><button class="btn ghost sm" style="width:auto;font-size:12px;padding:9px 14px;margin-top:8px" onclick="bukaSimpanan()">💰 Ke Tab Simpanan</button></div>
       <div style="height:20px"></div>
       </div>
 
@@ -1331,8 +1332,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="bp stk"><small>🔥 Streak terbaik</small><b id="blNumStk">0</b><small id="blSubStk">hari berturut-turut</small></div>
       </div>
       <div class="balTabs">
-        <div class="bTab on" data-bt="lepas" onclick="blTab('lepas')">🎈 Lepaskan</div>
-        <div class="bTab" data-bt="bina" onclick="blTab('bina')">🌱 Bina</div>
+        <div class="bTab on" data-bt="lepas" onclick="blTabBalon('lepas')">🎈 Lepaskan</div>
+        <div class="bTab" data-bt="bina" onclick="blTabBalon('bina')">🌱 Bina</div>
       </div>
       <div class="bHead">
         <span id="balMeta">…</span>
@@ -2321,10 +2322,11 @@ function tukarView(v){
   if(v==='dash')segarDashboard(); if(v==='rekod')paparRekodPenuh();
   if(v==='solat'){muatWaktuSolat(true).then(()=>{lukisSolat();lukisSolatCalendar();});}
   if(v==='makan')lukisPemakanan();
-  if(v==='belanja')lukisBelanja();
-  if(v==='todo')tdLukis();
-  if(v==='pet')petBukaView();
-}
+   if(v==='belanja')lukisBelanja();
+   if(v==='todo')tdLukis();
+   if(v==='pet')petBukaView();
+ }
+function bukaSimpanan(){tukarView('belanja');blTab('simpanan');}
 document.querySelectorAll('.dItem').forEach(el=>{el.onclick=()=>{tukarView(el.dataset.go);tutupDrawer();};});
 
 /* ==================== RANGKA ==================== */
@@ -4742,11 +4744,11 @@ function blProg(){
   $('blSubStk').textContent='hari berturut-turut';
   $('balNota').style.display='';
 }
-function blTab(t){
-  BL_tab=t;
-  document.querySelectorAll('.bTab').forEach(x=>x.classList.toggle('on',x.dataset.bt===t));
-  blSenarai();
-}
+function blTabBalon(t){
+   BL_tab=t;
+   document.querySelectorAll('.bTab').forEach(x=>x.classList.toggle('on',x.dataset.bt===t));
+   blSenarai();
+ }
 function blToast(m){
   const t=$('bToast');
   if(!t)return;
