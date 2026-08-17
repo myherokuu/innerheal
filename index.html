@@ -2079,7 +2079,11 @@ async function pApi(p,b){
 }
 async function petDaftarSW(){
   if(!('serviceWorker' in navigator))return null;
-  try{const r=await navigator.serviceWorker.register('sw.js');SW=r;await navigator.serviceWorker.ready;return r;}catch(e){return null;}
+  try{
+   const r=await navigator.serviceWorker.register('sw.js');SW=r;
+   navigator.serviceWorker.addEventListener('controllerchange',()=>{location.reload();});
+   await navigator.serviceWorker.ready;return r;
+  }catch(e){return null;}
 }
 async function pDapatKunci(){
   PUSH_KEY=VAPID_PUB;return PUSH_KEY;
