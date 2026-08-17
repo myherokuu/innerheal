@@ -262,8 +262,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .bk small{display:block;font-size:20px}
 .bk.on{background:rgba(52,211,153,.2);border-color:#34d399;color:#34d399}
 .blTabs{display:flex;gap:8px;margin:16px var(--pad) 0}
-.blTab{flex:1;padding:12px 6px;border-radius:14px;border:1px solid var(--line);
- background:rgba(255,255,255,.05);font-weight:700;font-size:13px;color:var(--dim);cursor:pointer;transition:.2s;text-align:center}
+.blTab{flex:1;min-width:0;padding:10px 2px;border-radius:14px;border:1px solid var(--line);
+ background:rgba(255,255,255,.05);font-weight:700;font-size:12px;color:var(--dim);cursor:pointer;transition:.2s;text-align:center;line-height:1.2}
 .blTab.on{background:rgba(52,211,153,.2);border-color:#34d399;color:#34d399}
 .blSen{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .blUndo{margin:8px var(--pad) 0;text-align:center;font-size:12px;color:var(--dim2)}
@@ -1011,11 +1011,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
    <div class="view" data-view="belanja">
      <div class="hero"><div class="hi">Kawal wang, tenang jiwa</div><h3>Perbelanjaan</h3></div>
      <div class="blTabs">
-       <div class="blTab on" id="blTabHarian" onclick="blTab('harian')">📅 Harian</div>
+       <div class="blTab on" id="blTabPerbelanjaan" onclick="blTab('perbelanjaan')">💸 Perbelanjaan</div>
+       <div class="blTab" id="blTabSimpanan" onclick="blTab('simpanan')">💰 Simpanan</div>
        <div class="blTab" id="blTabBulanan" onclick="blTab('bulanan')">🗓️ Bulanan</div>
        <div class="blTab" id="blTabAktiviti" onclick="blTab('aktiviti')">🕘 Aktiviti Saya</div>
      </div>
-     <div id="blPanelHarian">
+     <div id="blPanelPerbelanjaan">
+     <div class="secTitle">Catat perbelanjaan</div>
+     <div class="panel" style="padding:6px 16px 14px">
+       <div class="field"><label>Perkara</label><input id="blNama" maxlength="40" placeholder="cth: Nasi lemak"></div>
+       <div class="field"><label>Jumlah (RM)</label><input id="blJumlah" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00"></div>
+       <button class="btn teal" id="blBtnCatat" onclick="blCatat()">＋ Catat Perbelanjaan</button>
+     </div>
+     <div class="secTitle">Kategori</div>
+     <div class="blKats" id="blKats"></div>
+     <div class="secTitle">Senarai hari ini</div>
+     <div id="blSenarai"></div>
+     <div class="nota">Catat setiap perbelanjaan di sini. Wang yang anda simpan akan dikira dalam tab Simpanan.</div>
+     <div style="height:20px"></div>
+     </div>
+
+     <div id="blPanelSimpanan" style="display:none">
      <div class="secTitle">Sasaran simpanan hari ini</div>
      <div class="blHero" id="blHero">
        <div class="bhLbl">Had belanja harian</div>
@@ -1032,22 +1048,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
        <input type="range" class="slider" id="blHad" min="1" max="500" step="1" value="50">
        <button class="btn ghost sm" style="width:auto;font-size:12px;padding:9px 14px" onclick="blSetHad()">💾 Simpan had</button>
      </div>
-     <div class="secTitle">Catat perbelanjaan</div>
-     <div class="panel" style="padding:6px 16px 14px">
-       <div class="field"><label>Perkara</label><input id="blNama" maxlength="40" placeholder="cth: Nasi lemak"></div>
-       <div class="field"><label>Jumlah (RM)</label><input id="blJumlah" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0.00"></div>
-       <button class="btn teal" id="blBtnCatat" onclick="blCatat()">＋ Catat Perbelanjaan</button>
-     </div>
-     <div class="secTitle">Kategori</div>
-     <div class="blKats" id="blKats"></div>
-     <div class="secTitle">Senarai hari ini</div>
-     <div id="blSenarai"></div>
      <div class="secTitle">Siapkan sasaran</div>
      <div class="panel" style="padding:16px">
        <div style="font-size:12.5px;color:var(--dim);line-height:1.7;margin-bottom:12px" id="blSiapInfo"></div>
        <button class="btn" id="blBtnSiap" onclick="blTandai()">🎯 Tandai Sasaran Lengkap</button>
      </div>
-     <div class="nota">Kaunseling kewangan? Tiada. Tapi menyimpan wang dan berbelanja sedar membantu minda tenang. Setiap simpanan dicatat sebagai markah harian.</div>
+     <div class="nota">Simpanan dihitung daripada had harian tolak jumlah perbelanjaan. Tidak melebihi had = mental anda tenang.</div>
      <div style="height:20px"></div>
      </div>
 
@@ -4479,10 +4485,12 @@ function blPadam(idx){
  DB.simpan();lukisBelanja();segarDashboard();blToast('Catatan dibuang 🗑️');
 }
 function blTab(t){
- $('blTabHarian').classList.toggle('on',t==='harian');
+ $('blTabPerbelanjaan').classList.toggle('on',t==='perbelanjaan');
+ $('blTabSimpanan').classList.toggle('on',t==='simpanan');
  $('blTabBulanan').classList.toggle('on',t==='bulanan');
  $('blTabAktiviti').classList.toggle('on',t==='aktiviti');
- $('blPanelHarian').style.display=t==='harian'?'':'none';
+ $('blPanelPerbelanjaan').style.display=t==='perbelanjaan'?'':'none';
+ $('blPanelSimpanan').style.display=t==='simpanan'?'':'none';
  $('blPanelBulanan').style.display=t==='bulanan'?'':'none';
  $('blPanelAktiviti').style.display=t==='aktiviti'?'':'none';
  if(t==='bulanan')lukisBelanjaBulan();
