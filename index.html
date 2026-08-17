@@ -77,6 +77,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .amI span:first-child{width:20px;text-align:center;font-size:16px}
 .amI.del{color:#fca5a5}
 .amSep{height:1px;background:var(--line);margin:6px 8px}
+.rankCard{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);
+ border-radius:20px;padding:16px;cursor:pointer;transition:.2s}
+.rankCard:active{transform:scale(.98)}
+.rankCard.ding{border-color:rgba(167,139,250,.7);box-shadow:0 0 0 1px var(--acc),0 10px 40px rgba(124,108,240,.25)}
+.rkIkon{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,#a78bfa,#4f46e5);
+ display:flex;align-items:center;justify-content:center;font-size:27px;flex:0 0 auto}
+.rkInfo{flex:1;min-width:0}
+.rkInfo b{display:block;font-size:16.5px}
+.rkInfo small{display:block;color:var(--dim2);font-size:11.5px;margin-top:2px}
+.rkLvl{font-size:11px;font-weight:800;color:var(--acc2);background:rgba(124,108,240,.14);
+ border:1px solid rgba(124,108,240,.3);padding:5px 10px;border-radius:999px;flex:0 0 auto}
+.rkBar{height:7px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:12px}
+.rkBar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#a78bfa,#34d399);
+ transition:width .7s cubic-bezier(.22,1,.36,1)}
+.rkStats{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.rkStats span{flex:1;min-width:90px;text-align:center;background:var(--card);border:1px solid var(--line);
+ border-radius:13px;padding:9px 6px;font-size:11.5px;color:var(--dim2)}
+.rkStats span b{display:block;font-size:15px;color:#fff;margin-bottom:2px}
+.badgeGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.badgeCell{aspect-ratio:1;border-radius:17px;background:var(--card);border:1px solid var(--line);
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:.2s;position:relative}
+.badgeCell:active{transform:scale(.94)}
+.badgeCell .bi{font-size:26px;line-height:1}
+.badgeCell small{font-size:9px;color:var(--dim2);text-align:center;padding:0 3px;line-height:1.25}
+.badgeCell.lock{opacity:.32;filter:grayscale(1)}
+.badgeCell.lock::after{content:'🔒';position:absolute;font-size:11px;top:6px;right:6px}
+.badgeCell.new{animation:badgePop .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes badgePop{from{transform:scale(.3) rotate(-14deg);opacity:0}60%{transform:scale(1.12) rotate(3deg)}to{transform:scale(1) rotate(0)}}
+#achPop{position:fixed;inset:0;z-index:99;background:radial-gradient(circle at 50% 24%,rgba(124,108,240,.32),rgba(6,8,18,.94) 72%);
+ backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:30px}
+#achPop.on{display:flex}
+#achBox{max-width:320px;width:100%}
+.achIkon{width:120px;height:120px;border-radius:38px;background:linear-gradient(145deg,#a78bfa,#4f46e5);
+ display:flex;align-items:center;justify-content:center;font-size:64px;margin:0 auto 20px;
+ box-shadow:0 0 0 8px rgba(167,139,250,.15),0 0 60px rgba(167,139,250,.55);
+ animation:achPopBox .6s cubic-bezier(.34,1.56,.64,1)}
+#achPop.rank .achIkon{background:linear-gradient(145deg,#fbbf24,#f59e0b)}
+.achTag{font-size:12px;font-weight:800;letter-spacing:3px;color:var(--acc2);margin-bottom:10px;
+ animation:fadeUp .5s .1s both}
+.achTitle{font-size:25px;font-weight:800;line-height:1.25;animation:fadeUp .5s .2s both}
+.achSub{font-size:13px;color:var(--dim);margin-top:10px;line-height:1.6;animation:fadeUp .5s .3s both}
+.achAsk{font-size:12px;color:var(--dim2);margin-top:18px;animation:fadeUp .5s .4s both}
+#achPop .btn{margin-top:22px;animation:fadeUp .5s .45s both;width:100%}
+.achSkip{margin-top:12px;font-size:12px;color:var(--acc2);cursor:pointer;padding:8px;animation:fadeUp .5s .5s both}
+.conf{position:absolute;top:-12px;font-size:18px;animation:confFall linear forwards;pointer-events:none}
+@keyframes confFall{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes achPopBox{from{transform:scale(.4) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(4deg)}to{transform:scale(1) rotate(0)}}
+#achList{display:flex;flex-direction:column;gap:10px;padding:0 var(--pad)}
+.achI{display:flex;gap:13px;align-items:center;background:var(--card);border:1px solid var(--line);
+ border-radius:17px;padding:13px 14px}
+.achI .bi{font-size:30px;flex:0 0 auto;width:46px;height:46px;border-radius:15px;background:rgba(124,108,240,.14);
+ display:flex;align-items:center;justify-content:center}
+.achI.lock{opacity:.4;filter:grayscale(1)}
+.achI .ib{flex:1;min-width:0}
+.achI .ib b{display:block;font-size:13.5px}
+.achI .ib small{display:block;color:var(--dim2);font-size:11px;margin-top:1px;line-height:1.4}
+.achI .ib .bp2{height:4px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:7px;overflow:hidden}
+.achI .ib .bp2 i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#34d399);border-radius:99px}
+.achI .x{font-size:11.5px;color:var(--acc2);font-weight:700;flex:0 0 auto}
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
 .scrim.on{opacity:1;pointer-events:auto}
 .drawer{position:absolute;top:0;left:0;bottom:0;width:80%;max-width:300px;z-index:41;background:var(--panel);
@@ -768,6 +828,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
        <div class="mStat"><b id="msSolat">0</b><small>Solat</small></div>
        <div class="mStat"><b id="msTiup">0</b><small>Tiup</small></div>
      </div>
+    <div class="secTitle" style="margin-bottom:10px">Ranking &amp; Pencapaian</div>
+    <div class="rankCard" id="rankCard" onclick="bukaAchSheet()">
+      <div class="rkIkon" id="rkIkon">🌱</div>
+      <div class="rkInfo"><b id="rkNama">Pemula</b><small id="rkSub">Setiap nafas bermula di sini</small></div>
+      <div class="rkLvl" id="rkLvl">Lv.1</div>
+    </div>
+    <div class="rkBar"><i id="rkBarFill" style="width:0%"></i></div>
+    <div class="rkStats">
+      <span><b id="rkXP">0</b>XP keseluruhan</span>
+      <span><b id="rkSesuai">0</b>konsisten</span>
+      <span><b id="rkStreak">0</b>streak hari</span>
+    </div>
+    <div class="badgeGrid" id="badgeGrid"></div>
     <div class="secTitle">Cadangan untuk awak</div>
     <div id="cadanganWrap"></div>
     <div class="secTitle">Rekod terkini <a onclick="tukarView('rekod')">Lihat semua</a></div>
@@ -1122,6 +1195,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div></div>
 
 <div class="bToast" id="bToast"></div>
+
+<div id="achPop"><div id="achBox">
+  <div class="achIkon" id="achIkon">🎉</div>
+  <div class="achTag" id="achTag">PENCAPAIAN BARU</div>
+  <div class="achTitle" id="achTitle">…</div>
+  <div class="achSub" id="achSub"></div>
+  <div class="achAsk" id="achAsk"></div>
+  <button class="btn" onclick="achNext()">Hebat! ✨</button>
+  <div class="achSkip" onclick="achTutup()">Lihat semua →</div>
+</div></div>
+
+<div class="petOverlay" id="achSheet"><div class="petSheet">
+  <div class="sHandle"></div>
+  <div class="sHead"><h3>🏆 Ranking &amp; Pencapaian</h3><p id="achSheetSub"></p></div>
+  <div class="miniStats" style="padding:0 var(--pad)">
+    <div class="mStat"><b id="asRank">—</b><small>Ranking</small></div>
+    <div class="mStat"><b id="asXP">0</b><small>XP</small></div>
+    <div class="mStat"><b id="asKonsis">0</b><small>Konsisten</small></div>
+    <div class="mStat"><b id="asStreak">0</b><small>Streak</small></div>
+  </div>
+  <div id="achList" style="margin-top:6px"></div>
+  <button class="btn ghost" onclick="petTutup('achSheet')">Tutup</button>
+</div></div>
 
 <div class="petOverlay" id="profilSheet"><div class="petSheet">
   <div class="sHandle"></div>
@@ -2899,6 +2995,140 @@ function skorTempoh(hari){
 const labelSkor=s=>s>=8.5?'Cemerlang':s>=7?'Sangat baik':s>=5?'Baik':s>=3?'Sederhana':s>0?'Baru bermula':'Belum ada data';
 const warnaSkor=s=>s>=8.5?'#34d399':s>=7?'#a78bfa':s>=5?'#60a5fa':s>=3?'#fbbf24':'#f87171';
 
+/* ==================== RANKING & PENCAPAIAN ==================== */
+const RANK=[
+ {xp:0,nama:'Pemula',ikon:'🌱',sub:'Setiap nafas bermula di sini'},
+ {xp:120,nama:'Penempuh',ikon:'🌿',sub:'Jejak pertama ditinggalkan'},
+ {xp:400,nama:'Pengamal',ikon:'🍃',sub:'Disiplin mula berbuah'},
+ {xp:900,nama:'Pengembara',ikon:'✨',sub:'Cakrawala makin luas'},
+ {xp:1600,nama:'Berkemahiran',ikon:'💫',sub:'Rentak menjadi teman'},
+ {xp:2500,nama:'Mahir',ikon:'🌈',sub:'Emosi ditangani cekap'},
+ {xp:3600,nama:'Nakhoda',ikon:'🗻',sub:'Mengemudi arus dalaman'},
+ {xp:5000,nama:'Sarjana',ikon:'🏆',sub:'Ilmu menjadi amalan'},
+ {xp:6800,nama:'Bijak Pandai',ikon:'👑',sub:'Keseimbangan sejati'},
+ {xp:9000,nama:'Guru Dalam',ikon:'🌟',sub:'Titik pulang ke diri'},
+ {xp:12000,nama:'Lakaran Cahaya',ikon:'🌌',sub:'Diri yang tenang menyala'}
+];
+function kiraXP(){
+ let xp=0;
+ DB.data.rekod.forEach(r=>{
+  if(r.jenis==='nafas')xp+=(r.minit||0)*2+(r.selesai?8:0);
+  else if(r.jenis==='tiup')xp+=Math.round(r.tempohSebenar||0)/60*3+(r.berjaya?15:0)+((r.jarak||0)>=100?4:0);
+  else if(r.jenis==='emosi')xp+=8;
+  else if(r.jenis==='pet')xp+=6;
+ });return xp;
+}
+function kiraStreak(){
+ const peta=kumpulHarian(400);const ks=Object.keys(peta).sort();
+ let s=0;
+ for(let i=ks.length-1;i>=0;i--){if(skorHari(peta[ks[i]],ks[i]).skor>0)s++;else if(i<ks.length-1)break;}
+ return s;
+}
+function kiraKonsis(){
+ const peta=kumpulHarian(30);const ks=Object.keys(peta);
+ const aktif=ks.filter(k=>skorHari(peta[k],k).skor>0).length;
+ return Math.round(aktif/Math.max(1,ks.length)*100);
+}
+const ACHIEVE=[
+ {id:'nf1',ikon:'🫁',tajuk:'Nafas pertama',hur:'Selesaikan 1 sesi nafas',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='nafas').length},
+ {id:'nf5',ikon:'🌬️',tajuk:'Aliran mantap',hur:'5 sesi nafas',sasaran:5,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='nafas').length},
+ {id:'nf20',ikon:'🌀',tajuk:'Tali angin',hur:'20 sesi nafas',sasaran:20,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='nafas').length},
+ {id:'mn30',ikon:'⏳',tajuk:'Setengah jam',hur:'30 minit nafas terkumpul',sasaran:30,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='nafas').reduce((s,r)=>s+(r.minit||0),0)},
+ {id:'mn100',ikon:'🌙',tajuk:'Seratus minit',hur:'100 minit nafas terkumpul',sasaran:100,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='nafas').reduce((s,r)=>s+(r.minit||0),0)},
+ {id:'ti1',ikon:'🌪️',tajuk:'Tiup pertama',hur:'1 perjalanan tiup',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='tiup').length},
+ {id:'ti10',ikon:'🪁',tajuk:'Penerbang',hur:'10 perjalanan tiup',sasaran:10,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='tiup').length},
+ {id:'ti100',ikon:'🎯',tajuk:'Sampai destinasi',hur:'Sampai jarak 100% sekali',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='tiup'&&r.berjaya).length},
+ {id:'tiK90',ikon:'📏',tajuk:'Hembusan sekata',hur:'Konsistensi tiup ≥90% sekali',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='tiup'&&(r.konsistensi||0)>=90).length},
+ {id:'em1',ikon:'🔥',tajuk:'Pelepasan pertama',hur:'1 emosi dilepaskan',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='emosi').length},
+ {id:'em10',ikon:'🌋',tajuk:'Vesuvius',hur:'10 emosi dilepaskan',sasaran:10,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='emosi').length},
+ {id:'em50',ikon:'💨',tajuk:'Arus tenang',hur:'50 emosi dilepaskan',sasaran:50,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='emosi').length},
+ {id:'st3',ikon:'📅',tajuk:'Konsisten x3',hur:'3 hari aktif berturut-turut',sasaran:3,bitung:kiraStreak},
+ {id:'st7',ikon:'📆',tajuk:'Seminggu teguh',hur:'7 hari aktif berturut-turut',sasaran:7,bitung:kiraStreak},
+ {id:'st30',ikon:'🌕',tajuk:'Sebulan cahaya',hur:'30 hari aktif berturut-turut',sasaran:30,bitung:kiraStreak},
+ {id:'sol1',ikon:'🕌',tajuk:'Solat penuh',hur:'5 solat dalam sehari',sasaran:1,bitung:()=>{let b=0;Object.values(DB.data.solat||{}).forEach(d=>{let c=0;for(const k in d)if(d[k])c++;if(c>=5)b++;});return b;}},
+ {id:'sol15',ikon:'🕯️',tajuk:'Ibadah tekun',hur:'15 solat keseluruhan',sasaran:15,bitung:()=>{let c=0;Object.values(DB.data.solat||{}).forEach(d=>{for(const k in d)if(d[k])c++;});return c;}},
+ {id:'mak3',ikon:'🍽️',tajuk:'Jaga pemakanan',hur:'3 hidangan dalam sehari',sasaran:1,bitung:()=>{let b=0;Object.values(DB.data.pemakanan||{}).forEach(d=>{if(Object.keys(d).length>=3)b++;});return b;}},
+ {id:'mak15',ikon:'🥗',tajuk:'Sipi sihat',hur:'15 hidangan direkod',sasaran:15,bitung:()=>Object.values(DB.data.pemakanan||{}).reduce((s,d)=>s+Object.keys(d).length,0)},
+ {id:'pet1',ikon:'🐣',tajuk:'Kawan baru',hur:'Layan pet (1 aksi)',sasaran:1,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='pet').length},
+ {id:'pet50',ikon:'💛',tajuk:'Pengasuh setia',hur:'50 aksi dengan pet',sasaran:50,bitung:()=>DB.data.rekod.filter(r=>r.jenis==='pet').length},
+ {id:'petG',ikon:'🏅',tajuk:'Rakan perkasa',hur:'Pet capai tahap otot 5',sasaran:5,bitung:()=>DB.data.pet?DB.data.pet.muscle||0:0},
+ {id:'blL1',ikon:'🎈',tajuk:'Lepas beban',hur:'Lepas 1 tabiat buruk',sasaran:1,bitung:()=>{const b=DB.data.balon?(DB.data.balon.buruk||[]).filter(h=>h.status==='released').length:0;return b;}},
+ {id:'blL5',ikon:'🌱',tajuk:'Bebas bekal',hur:'Lepas 5 tabiat buruk',sasaran:5,bitung:()=>{const b=DB.data.balon?(DB.data.balon.buruk||[]).filter(h=>h.status==='released').length:0;return b;}},
+ {id:'blB1',ikon:'🌻',tajuk:'Tabiat baik',hur:'Check-in 7 tabiat baik',sasaran:7,bitung:()=>{const b=DB.data.balon?(DB.data.balon.baik||[]).reduce((s,h)=>s+(h.hari||[]).length,0):0;return b;}},
+ {id:'sk8',ikon:'💎',tajuk:'Skor cemerlang',hur:'Skor harian ≥8',sasaran:1,bitung:()=>{let b=0;const p=kumpulHarian(90);Object.keys(p).forEach(k=>{if(skorHari(p[k],k).skor>=8)b++;});return b;}},
+ {id:'sk10',ikon:'👑',tajuk:'Kesempurnaan',hur:'Skor harian penuh 10',sasaran:1,bitung:()=>{let b=0;const p=kumpulHarian(90);Object.keys(p).forEach(k=>{if(skorHari(p[k],k).skor>=9.99)b++;});return b;}},
+ {id:'mj1',ikon:'🌅',tajuk:'Bermula',hur:'Catat aktiviti pertama',sasaran:1,bitung:()=>DB.data.rekod.length},
+ {id:'mj7',ikon:'🌄',tajuk:'Langkah bermakna',hur:'7 hari aktif',sasaran:7,bitung:()=>{const p=kumpulHarian(400);return Object.keys(p).filter(k=>skorHari(p[k],k).skor>0).length;}},
+ {id:'mj30',ikon:'🌠',tajuk:'Konsisten sebulan',hur:'30 hari aktif',sasaran:30,bitung:()=>{const p=kumpulHarian(400);return Object.keys(p).filter(k=>skorHari(p[k],k).skor>0).length;}}
+];
+function achDapati(id){return ACHIEVE.find(a=>a.id===id);}
+function achBuka(){DB.data.ach=DB.data.ach||{};}
+function achTerbuka(id){achBuka();return !!DB.data.ach[id];}
+let achAntri=[],achSembunyi=false;
+function achSemak(){
+ if($('login')&&$('login').style.display!=='none'){return;}
+ achBuka();const baru=[];
+ const peta=kumpulHarian(400);
+ const marks=Object.keys(peta).filter(k=>skorHari(peta[k],k).skor>0).length;
+ const xp=kiraXP();let lv=0;RANK.forEach((r,i)=>{if(xp>=r.xp)lv=i;});
+ if((DB.data.achLv===undefined||lv>DB.data.achLv)&&xp>0){DB.data.achLv=lv;
+  baru.push({jenis:'rank',ik:RANK[lv].ikon,t:RANK[lv].nama,s:`Lv.${lv+1} · ${RANK[lv].sub}`,xp,
+   bit:'Teruskan untuk kumpul lebih XP dan capai ranking berikutnya!'});
+ }
+ ACHIEVE.forEach(a=>{if(!achTerbuka(a.id)&&a.bitung()>=a.sasaran){DB.data.ach[a.id]=Date.now();baru.push({jenis:'ach',ik:a.ikon,t:a.tajuk,s:a.hur,bit:'Teruskan usaha — ada lagi pencapaian menanti!'});}});
+ if(baru.length){DB.simpan();achAntri=achAntri.concat(baru);achMainTunjuk();}
+}
+var achIdx=0;
+function achMainTunjuk(){
+ if(achSembunyi||!achAntri.length){return;}
+ achSembunyi=true;const a=achAntri.shift();
+ $('achIkon').textContent=a.ik;
+ $('achTag').textContent=a.jenis==='rank'?'RANKING NAIK':'PENCAPAIAN BARU';
+ $('achTitle').textContent=a.t;$('achSub').textContent=a.s;$('achAsk').textContent=a.bit;
+ $('achPop').classList.remove('rank');$('achPop').classList.add('rank',a.jenis==='rank');
+ $('achPop').classList.add('on');
+ const boom=[...Array(18)];boom.forEach(()=>{const c=document.createElement('div');c.className='conf';
+  c.textContent=['✨','🎉','🌟','💫','🎊'][Math.floor(Math.random()*5)];
+  c.style.left=(Math.random()*92+4)+'%';c.style.animationDuration=(1.1+Math.random()*1.2)+'s';
+  c.style.animationDelay=(Math.random()*.5)+'s';c.style.fontSize=(13+Math.random()*14)+'px';
+  $('achPop').appendChild(c);setTimeout(()=>c.remove(),3200);});
+ getar([30,50,30,80,50]);
+}
+function achNext(){achSembunyi=false;$('achPop').classList.remove('on');achMainTunjuk();}
+function achTutup(){achSembunyi=false;$('achPop').classList.remove('on');achAntri=[];achMainTunjuk();segarDashboard();}
+function lukisAch(){
+ const xp=kiraXP();let lv=0;RANK.forEach((r,i)=>{if(xp>=r.xp)lv=i;});
+ const cur=RANK[lv],next=RANK[lv+1];
+ $('rkIkon').textContent=cur.ikon;$('rkNama').textContent=cur.nama;$('rkSub').textContent=cur.sub;
+ $('rkLvl').textContent='Lv.'+(lv+1);
+ const inNext=next?Math.max(1,next.xp-cur.xp):1;const pct=next?jepit((xp-cur.xp)/inNext,0,1)*100:100;
+ $('rkBarFill').style.width=pct+'%';
+ $('rkXP').textContent=xp;$('rkKonsis').textContent=kiraKonsis()+'%';$('rkStreak').textContent=kiraStreak();
+ const grid=$('badgeGrid');if(!grid)return;
+ const dapati=[];ACHIEVE.forEach(a=>{if(achTerbuka(a.id))dapati.push(a);});
+ const tunjuk=dapati.slice(-8).reverse();
+ const lockN=Math.max(0,8-tunjuk.length);
+ let html=tunjuk.map(a=>`<div class="badgeCell" onclick="bukaAchSheet()"><div class="bi">${a.ikon}</div><small>${a.tajuk}</small></div>`).join('');
+ for(let i=0;i<lockN;i++)html+=`<div class="badgeCell lock" onclick="bukaAchSheet()"><div class="bi">🎖️</div><small>Rahsia</small></div>`;
+ grid.innerHTML=html;
+}
+function bukaAchSheet(){
+ achBuka();
+ const xp=kiraXP();let lv=0;RANK.forEach((r,i)=>{if(xp>=r.xp)lv=i;});
+ const cur=RANK[lv],next=RANK[lv+1];
+ $('asRank').textContent=(lv+1)+' · '+cur.nama;$('asXP').textContent=xp;
+ $('asKonsis').textContent=kiraKonsis()+'%';$('asStreak').textContent=kiraStreak();
+ $('achSheetSub').textContent=next?`${xp} XP — ${next.xp-xp} XP lagi ke ${next.nama}`:'Ranking tertinggi dicapai 🎉';
+ $('achList').innerHTML=ACHIEVE.map(a=>{
+  const ok=achTerbuka(a.id),kini=a.bitung(),p=jepit(kini/a.sasaran,0,1)*100;
+  return `<div class="achI${ok?'':' lock'}" onclick="achGoyang(this)">
+   <div class="bi">${a.ikon}</div><div class="ib"><b>${a.tajuk}</b>
+   <small>${a.hur}</small><div class="bp2"><i style="width:${p}%"></i></div>
+   </div><div class="x">${ok?'✓':Math.min(kini,a.sasaran)+'/'+a.sasaran}</div></div>`;}).join('');
+ $('achSheet').classList.add('on');
+}
+function achGoyang(el){el.style.transition='.18s';el.style.transform='scale(.97)';setTimeout(()=>el.style.transform='',180);}
+
 function janaCadangan(){
  const c=[],hari=skorTempoh(1),minggu=skorTempoh(7),semua=DB.data.rekod;
  const sasar=DB.data.sasarHarian||10;
@@ -3021,6 +3251,8 @@ paparLog($('logWrap'),5);
   const j=new Date().getHours();
   $('salam').textContent=j<12?'Selamat pagi,':j<18?'Selamat petang,':'Selamat malam,';
   segarMood();
+  lukisAch();
+  achSemak();
 }
 function segarMood(){
   const box=$('moodBox');if(!box)return;
