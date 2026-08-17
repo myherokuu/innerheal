@@ -157,7 +157,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
  border-radius:17px;padding:13px 14px}
 .achI .bi{font-size:30px;flex:0 0 auto;width:44px;text-align:center;line-height:1}
 .achI.lock{opacity:.4;filter:grayscale(1)}
-.achI .ib{flex:1;min-width:0}
+.achI .ib{flex:1;min-width:0;width:auto;height:auto;border-radius:0;border:none;background:none}
 .achI .ib b{display:block;font-size:13.5px}
 .achI .ib small{display:block;color:var(--dim2);font-size:11px;margin-top:1px;line-height:1.4}
 .achI .ib .bp2{height:4px;border-radius:99px;background:rgba(255,255,255,.1);margin-top:7px;overflow:hidden}
@@ -303,6 +303,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .blTab{flex:1;min-width:0;padding:10px 2px;border-radius:14px;border:1px solid var(--line);
  background:rgba(255,255,255,.05);font-weight:700;font-size:12px;color:var(--dim);cursor:pointer;transition:.2s;text-align:center;line-height:1.2}
 .blTab.on{background:rgba(52,211,153,.2);border-color:#34d399;color:#34d399}
+.tdTabs{display:flex;gap:8px;margin:16px var(--pad) 0}
+.tdTab{flex:1;min-width:0;padding:10px 2px;border-radius:14px;border:1px solid var(--line);
+ background:rgba(255,255,255,.05);font-weight:700;font-size:12px;color:var(--dim);cursor:pointer;transition:.2s;text-align:center;line-height:1.2}
+.tdTab .tdN{display:block;font-size:9px;color:var(--dim2);margin-top:2px;letter-spacing:.05em}
+.tdTab.on{background:rgba(124,108,240,.2);border-color:var(--acc2);color:var(--acc2)}
+.tdTab.on .tdN{color:var(--acc2)}
+.tdForm{margin:0 var(--pad) 6px}
+.todoCard{margin:0 var(--pad) 10px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:15px 16px}
+.todoCard.lewat{border-color:rgba(239,68,68,.55)}
+.todoCard.arkib{opacity:.55;filter:grayscale(.5)}
+.todoCard .tN{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.todoCard .tN b{font-size:15px;font-weight:800;line-height:1.35}
+.todoCard .tS{font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:99px;flex:0 0 auto}
+.tS.rancang{background:rgba(250,204,21,.15);color:#fbbf24}
+.tS.proses{background:rgba(96,165,250,.15);color:#60a5fa}
+.tS.tamat{background:rgba(52,211,153,.15);color:#34d399}
+.tS.lewat{background:rgba(239,68,68,.18);color:#f87171}
+.todoCard .tD{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tdPill{font-size:11px;color:var(--dim);background:rgba(255,255,255,.06);border:1px solid var(--line);
+ border-radius:10px;padding:5px 9px;display:flex;align-items:center;gap:5px}
+.tdPill b{font-weight:800;color:#fff}
+.tdPill.aktual{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4)}
+.tdPill .tk{font-size:10px;color:var(--dim2)}
+.todoCard .tA{display:flex;gap:8px;margin-top:12px}
+.tdAct{flex:1;padding:9px 4px;border:none;border-radius:11px;background:rgba(255,255,255,.07);color:var(--dim);
+ font-size:11.5px;font-weight:700;cursor:pointer;transition:.2s}
+.tdAct:active{transform:scale(.97)}
+.tdAct.pro{color:#60a5fa;background:rgba(96,165,250,.14)}
+.tdAct.fin{color:#34d399;background:rgba(52,211,153,.14)}
+.tdAct.del{color:#f87171;background:rgba(239,68,68,.14)}
+.tdAct.ark{color:#fbbf24;background:rgba(250,204,21,.12)}
+.tdKosong{text-align:center;font-size:13px;color:var(--dim2);padding:26px var(--pad);line-height:1.7}
 .blSen{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .blUndo{margin:8px var(--pad) 0;text-align:center;font-size:12px;color:var(--dim2)}
 .blUndo a{color:#f87171;cursor:pointer;text-decoration:underline}
@@ -1150,6 +1182,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
      </div>
    </div>
 
+   <!-- TO DO LIST -->
+   <div class="view" data-view="todo">
+     <div class="hero"><div class="hi">Rancang, laksana, capai</div><h3>To Do List</h3></div>
+     <div class="tdTabs" id="tdTabs">
+       <div class="tdTab on" data-t="rancang" onclick="tdTab('rancang')">Perancangan<span class="tdN" id="tdNrancang">0</span></div>
+       <div class="tdTab" data-t="proses" onclick="tdTab('proses')">Proses<span class="tdN" id="tdNproses">0</span></div>
+       <div class="tdTab" data-t="tamat" onclick="tdTab('tamat')">Tamat<span class="tdN" id="tdNtamat">0</span></div>
+       <div class="tdTab" data-t="arkib" onclick="tdTab('arkib')">Arkib<span class="tdN" id="tdNarkib">0</span></div>
+     </div>
+     <div class="panel tdForm">
+       <div class="field"><label>Tajuk tugasan</label><input id="tdTajuk" maxlength="80" placeholder="cth: Sediakan laporan projek"></div>
+       <div class="field"><label>Tarikh mula</label><input id="tdMula" type="date"></div>
+       <div class="field"><label>Tarikh sasaran</label><input id="tdSasaran" type="date"></div>
+       <div class="field" id="tdAktualField" style="display:none"><label>Tarikh selesai (aktual)</label><input id="tdAktual" type="date"></div>
+       <div style="display:flex;gap:9px">
+         <button class="btn teal" id="tdBtn" onclick="tdSimpan()">＋ Tambah Tugasan</button>
+         <button class="btn ghost" style="flex:0 0 auto" onclick="tdBatalEdit()">Batal</button>
+       </div>
+     </div>
+     <div class="secTitle" id="tdTajukSenarai">Senarai Perancangan</div>
+     <div id="tdSenarai"></div>
+     <div style="height:24px"></div>
+   </div>
+
    <!-- PET -->
    <div class="view" data-view="pet" id="petView">
      <div id="petScene">
@@ -1286,6 +1342,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="dItem" data-go="solat"><span>🕯️</span><span>Jadual Solat</span></div>
     <div class="dItem" data-go="makan"><span>🍽️</span><span>Pemakanan</span></div>
     <div class="dItem" data-go="belanja"><span>💸</span><span>Perbelanjaan</span></div>
+<div class="dItem" data-go="todo"><span>✅</span><span>To Do List</span></div>
     <div class="dItem" data-go="pet"><span>🐣</span><span>Pet Saya</span></div>
     <div class="dItem" data-go="balon"><span>🎈</span><span>Balon Tabiat</span></div>
     <div class="dItem" data-go="rekod"><span>▤</span><span>Rekod</span></div>
@@ -1672,7 +1729,7 @@ let SB_AUTH=null, SB_UID=null;
 const DB={
  kunci:'innerflow_db_v2',
  kunciLokal(){return SB_UID?('innerflow_db_v2:'+SB_UID):'innerflow_db_v2';},
-  data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},pemakanan:{},belanja:null,rekod:[]},
+  data:{versi:2,dicipta:null,sasarHarian:10,kalibrasi:null,solat:{},pemakanan:{},belanja:null,rekod:[],todo:[]},
  async muat(){
   let s=null;
   let luar=false;
@@ -2183,7 +2240,7 @@ function onboardPerlu(){
   if(b&&((b.baik&&b.baik.length)||(b.buruk&&b.buruk.length))){DB.data.onboardDone=true;DB.simpan();return false;}
   return true;
 }
-const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',belanja:'Perbelanjaan',pet:'Pet Saya',balon:'Balon Tabiat',rekod:'Rekod',tetapan:'Tetapan'};
+const TAJUK={dash:'Dashboard',teknik:'Teknik Nafas',emosi:'Lepaskan Emosi',tiup:'Perjalanan Tiup',solat:'Jadual Solat',makan:'Pemakanan',belanja:'Perbelanjaan',todo:'To Do List',pet:'Pet Saya',balon:'Balon Tabiat',rekod:'Rekod',tetapan:'Tetapan'};
 function bukaDrawer(){$('drawer').classList.add('on');$('scrim').classList.add('on');$('burger').classList.add('x');}
 function tutupDrawer(){$('drawer').classList.remove('on');$('scrim').classList.remove('on');$('burger').classList.remove('x');}
 $('burger').onclick=()=>$('drawer').classList.contains('on')?tutupDrawer():bukaDrawer();
@@ -2196,6 +2253,7 @@ function tukarView(v){
   if(v==='solat'){muatWaktuSolat(true).then(()=>{lukisSolat();lukisSolatCalendar();});}
   if(v==='makan')lukisPemakanan();
   if(v==='belanja')lukisBelanja();
+  if(v==='todo')tdLukis();
   if(v==='pet')petBukaView();
 }
 document.querySelectorAll('.dItem').forEach(el=>{el.onclick=()=>{tukarView(el.dataset.go);tutupDrawer();};});
@@ -4385,6 +4443,85 @@ function petFormatMasa(s){
   const m=Math.floor(s/60),b=s%60;
   return m+' min'+(b?' '+b+' saat':'');
 }
+
+/* ==================== TO DO LIST ==================== */
+let TD_tab='rancang', TD_id=null;
+const TD_BERHASIL={rancang:'Perancangan',proses:'Proses',tamat:'Tamat',arkib:'Arkib'};
+function tdHari(iso){return iso?iso.slice(0,10):'';}
+function tdSemua(){return (DB.data.todo||[]);}
+function tdTab(t){TD_tab=t;const tabs=document.querySelectorAll('.tdTab');tabs.forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+ $('tdTajukSenarai').textContent='Senarai '+TD_BERHASIL[t];tdLukis();}
+function tdLukis(){
+  const semua=tdSemua();
+  $('tdNrancang').textContent=semua.filter(x=>!x.arkib&&x.st===1).length;
+  $('tdNproses').textContent=semua.filter(x=>!x.arkib&&x.st===2).length;
+  $('tdNtamat').textContent=semua.filter(x=>!x.arkib&&x.st===3).length;
+  $('tdNarkib').textContent=semua.filter(x=>x.arkib).length;
+  const list=semua.filter(x=>TD_tab==='arkib'?x.arkib:(!x.arkib&&(TD_tab==='rancang'?x.st===1:TD_tab==='proses'?x.st===2:x.st===3)));
+  const hariK=new Date().toISOString().slice(0,10);
+  const wrap=$('tdSenarai');
+  if(!list.length){wrap.innerHTML='<div class="tdKosong">'+(TD_tab==='arkib'?'Tiada tugasan di arkib.':'Tiada tugasan. Tekan + Tambah Tugasan untuk bermula.')+'</div>';return;}
+  wrap.innerHTML=list.map(x=>{
+    const lewat=!x.arkib&&x.st!==3&&x.sasaran&&x.sasaran<hariK;
+    const cls=lewat?'lewat':x.arkib?'arkib':'';
+    const stLbl=x.st===1?'Rancang':x.st===2?'Proses':'Tamat';
+    const stCls=lewat?'lewat':x.st===1?'rancang':x.st===2?'proses':'tamat';
+    const tarikh=[
+      x.mula?`<span class="tdPill"><span class="tk">Mula</span><b>${x.mula}</b></span>`:'',
+      x.sasaran?`<span class="tdPill"><span class="tk">Sasaran</span><b>${x.sasaran}</b></span>`:'',
+      x.aktual?`<span class="tdPill aktual"><span class="tk">Aktual</span><b>${x.aktual}</b></span>`:''
+    ].join('');
+    const aksi=[];let btn;
+    if(x.arkib){aksi.push(`<button class="tdAct" onclick="tdAktifkan('${x.id}')">↩ Pulihkan</button>`,`<button class="tdAct del" onclick="tdHapus('${x.id}')">Padam</button>`);}
+    else{
+      if(x.st===1)aksi.push(`<button class="tdAct pro" onclick="tdTukar('${x.id}',2)">Mula Proses</button>`);
+      if(x.st===2)aksi.push(`<button class="tdAct fin" onclick="tdTukar('${x.id}',3)">Tandai Tamat</button>`);
+      if(x.st!==1)aksi.push(`<button class="tdAct ark" onclick="tdArkib('${x.id}')">Arkib</button>`);
+      if(x.st===1||x.st===2)aksi.push(`<button class="tdAct" onclick="tdEdit('${x.id}')">Edit</button>`);
+      aksi.push(`<button class="tdAct del" onclick="tdHapus('${x.id}')">Hapus</button>`);
+    }
+    return `<div class="todoCard ${cls}"><div class="tN"><b>${x.tajuk||''}</b><span class="tS ${stCls}">${lewat?'LEWAT':stLbl}</span></div>
+     <div class="tD">${tarikh}</div><div class="tA">${aksi.join('')}</div></div>`;
+  }).join('');
+}
+function tdBuka(){
+  $('tdTajuk').value='';$('tdMula').value=tdHari(new Date().toISOString());$('tdSasaran').value='';$('tdAktual').value='';
+  TD_id=null;$('tdBtn').textContent='＋ Tambah Tugasan';$('tdAktualField').style.display='none';
+}
+function tdSimpan(){
+  const tajuk=$('tdTajuk').value.trim();
+  if(!tajuk){blToast('Tajuk tugasan wajib diisi.');return;}
+  const mula=$('tdMula').value,sasaran=$('tdSasaran').value,aktual=$('tdAktual').value;
+  if(TD_id){
+    const x=tdSemua().find(t=>t.id===TD_id);
+    if(x){x.tajuk=tajuk;x.mula=mula;x.sasaran=sasaran;if(x.st===3)x.aktual=aktual||tdHari(new Date().toISOString());}
+  }else{
+    if(!sasaran){blToast('Tarikh sasaran perlu diisi.');return;}
+    tdSemua().unshift({id:'td'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),tajuk,mula,sasaran,aktual:'',st:1,arkib:false});
+  }
+  DB.simpan();tdBuka();tdLukis();
+}
+function tdTukar(id,st){
+  const x=tdSemua().find(t=>t.id===id);if(!x)return;
+  x.st=st;
+  if(st===3){x.aktual=x.aktual||tdHari(new Date().toISOString());}
+  DB.simpan();tdLukis();
+}
+function tdEdit(id){
+  const x=tdSemua().find(t=>t.id===id);if(!x)return;
+  TD_id=id;$('tdTajuk').value=x.tajuk;$('tdMula').value=x.mula||'';$('tdSasaran').value=x.sasaran||'';
+  $('tdAktual').value=x.aktual||'';$('tdAktualField').style.display=x.st===3?'block':'none';
+  $('tdBtn').textContent='💾 Simpan';document.querySelector('.view[data-view="todo"]').scrollIntoView({top:0});
+  window.scrollTo(0,0);document.querySelector('#tdTajuk').focus();
+}
+function tdBatalEdit(){tdBuka();tdLukis();}
+function tdAktifkan(id){const x=tdSemua().find(t=>t.id===id);if(x){x.arkib=false;DB.simpan();tdLukis();}}
+function tdArkib(id){const x=tdSemua().find(t=>t.id===id);if(x){x.arkib=true;DB.simpan();tdLukis();}}
+function tdHapus(id){
+  if(!confirm('Padam tugasan ini?'))return;
+  DB.data.todo=tdSemua().filter(t=>t.id!==id);DB.simpan();tdLukis();
+}
+tdBuka();
 
 /* ==================== BALON TABIAT ==================== */
 const BLWARNA=[['#fda4af','#fb7185','#fecdd3'],['#c4b5fd','#8b5cf6','#ddd6fe'],['#86efac','#22c55e','#bbf7d0'],['#93c5fd','#3b82f6','#bfdbfe'],['#fde68a','#f59e0b','#fef3c7'],['#f9a8d4','#ec4899','#fbcfe8'],['#a5f3fc','#06b6d4','#cffafe'],['#fdba74','#f97316','#fed7aa']];
