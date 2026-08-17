@@ -2041,6 +2041,23 @@ function paparNama(u){
   $('avatarTxt').style.display='flex';
 }
 function mesejErr(el,msg){el.textContent=msg;el.classList.add('on');}
+function bmErr(m){
+  const peta=[
+    [/Invalid login credentials/i,'Emel atau kata laluan salah.'],
+    [/Email not confirmed/i,'Emel belum disahkan. Sila klik pautan pengesahan dalam emel dahulu.'],
+    [/User already registered|already been registered/i,'Emel ini sudah didaftarkan. Sila log masuk.'],
+    [/Password should be at least 6 characters/i,'Kata laluan mesti sekurang-kurangnya 6 aksara.'],
+    [/Invalid email/i,'Emel tidak sah.'],
+    [/rate limit/i,'Cubaan terlalu kerap. Sila cuba lagi beberapa minit kemudian.'],
+    [/User not found/i,'Akaun tidak ditemui. Sila daftar dahulu.'],
+    [/already in use by another account/i,'Emel sudah digunakan oleh akaun lain.'],
+    [/different from the old password|same as the old/i,'Kata laluan baru mestilah berbeza daripada kata laluan lama.'],
+    [/expired|invalid.*token|token.*invalid/i,'Pautan telah tamat tempoh atau tidak sah. Cuba lagi.'],
+    [/Failed to fetch|NetworkError/i,'Masalah rangkaian. Periksa sambungan internet dan cuba lagi.']
+  ];
+  for(const [rgx,bm] of peta){if(rgx.test(m))return bm;}
+  return m;
+}
 function buangErr(el){el.classList.remove('on');}
 function cukaiLogin(){
   const u=$('inUser').value.trim(),p=$('inPass').value,err=$('errBox');
@@ -2050,7 +2067,7 @@ function cukaiLogin(){
   const b=$('btnLogin');b.disabled=true;b.textContent='Memuat...';
   SB_AUTH.auth.signInWithPassword({email:u,password:p}).then(({data,error})=>{
     b.disabled=false;b.textContent='Log Masuk';
-    if(error){mesejErr(err,error.message);return;}
+    if(error){mesejErr(err,bmErr(error.message));return;}
     if(data&&data.session)$('errBox').classList.remove('on');
     else mesejErr(err,'Sila sahkan emel dahulu melalui pautan yang dihantar.');
   });
@@ -2067,7 +2084,7 @@ function cubaDaftar(){
   const b=$('btnDaftar');b.disabled=true;b.textContent='Memuat...';
   SB_AUTH.auth.signUp({email:u,password:p,options:{data:{nama:(n||u),pet:pt}}}).then(({data,error})=>{
     b.disabled=false;b.textContent='Daftar Akaun';
-    if(error){mesejErr(err,error.message);return;}
+    if(error){mesejErr(err,bmErr(error.message));return;}
     if(data&&data.session)return;
     $('loginCard').style.display='block';$('daftarCard').style.display='none';
     $('inUser').value=u;$('inPass').value='';
@@ -2108,7 +2125,7 @@ function ubahPassSimpan(){
   if(!SB_AUTH||!USER_SEMASA){mesejErr(err,'Sila log masuk dahulu.');return;}
   if(!baru||baru.length<6){mesejErr(err,'Kata laluan baru mesti sekurang-kurangnya 6 aksara.');return;}
   SB_AUTH.auth.updateUser({password:baru}).then(({error})=>{
-    if(error){mesejErr(err,error.message);return;}
+    if(error){mesejErr(err,bmErr(error.message));return;}
     petTutup('passSheet');blToast('Kata laluan ditukar ✅');
   });
 }
@@ -2704,8 +2721,8 @@ function lukisDietDash(){
     return `<div class="dietMeal${d?' on':''}"><div class="e">${m.emoji}</div><small>${m.nama}</small>${d?`<div class="mk">${mk}</div>`:''}</div>`;
   }).join('');
   const nota=info.bil===0?'Belum ada catatan hari ini.'
-    :info.tolak.length?`${info.bil}/3 majlis dikira · markah ${info.markah}/2 · ${info.tolak[0].t}`
-    :`${info.bil}/3 majlis dicatat · markah penuh ${info.markah}/2.`;
+    :info.tolak.length?`${info.bil}/3 aktiviti dikira · markah ${info.markah}/2 · ${info.tolak[0].t}`
+    :`${info.bil}/3 aktiviti dicatat · markah penuh ${info.markah}/2.`;
   $('dietNota').textContent=nota;
 }
 function lukisPemakanan(){
@@ -2733,7 +2750,7 @@ function lukisPemakanan(){
       <div class="solatInfo"><div class="sEmoji">${m.emoji}</div>${sub}</div>
       <div class="mRing">${sel?'✓':m.waktu}</div></div>`;
   }).join('');
-  let nota=info.bil===0?'Belum ada catatan hari ini.':`${info.bil}/3 majlis dicatat. Markah pemakanan: ${info.markah}/2.`;
+  let nota=info.bil===0?'Belum ada catatan hari ini.':`${info.bil}/3 aktiviti dicatat. Markah pemakanan: ${info.markah}/2.`;
   if(info.tolak.length)nota+='<br><span class="mTag bad">'+info.tolak.map(t=>t.t+' ('+t.m+')').join('</span> <span class="mTag bad">')+'</span>';
   $('makanNota').innerHTML=`<div style="font-size:13px;color:var(--dim);line-height:1.7">${nota}</div>`;
 }
@@ -3541,7 +3558,7 @@ function janaCadangan(){
    c.push({i:'🌙',t:'Semua solat dilaksanakan',p:'5 solat sudah selesai. Keikhlasan adalah kunci.'});
   const pem=penaltiMakan(kunciHari(new Date()));
   if(pem.bil<3&&pem.bil>0)
-   c.push({i:'🍽️',t:`Pemakanan ${pem.bil}/3`,p:'Ada majlis makan belum dicatat. Lengkapkan untuk markah penuh — elak makan lewat 8 malam, makanan segera & gula.',
+   c.push({i:'🍽️',t:`Pemakanan ${pem.bil}/3`,p:'Ada aktiviti makan belum dicatat. Lengkapkan untuk markah penuh — elak makan lewat 8 malam, makanan segera & gula.',
     btn:'Buka Pemakanan',aksi:()=>tukarView('makan')});
   else if(pem.tolak.length)
    c.push({i:'🥗',t:'Pemakanan perlu perhatian',p:pem.tolak.slice(0,2).map(t=>t.t).join(' & ')+' dikesan hari ini. Cuba pilihan lebih sihat untuk markah penuh.',
@@ -3628,7 +3645,7 @@ function segarDashboard(){
  const sasar=DB.data.sasarHarian||10;
  $('skorNota').textContent=hari===1
 ?(r.minit===0&&!r.balon?'Belum ada aktiviti hari ini. Satu sesi pendek pun dikira.'
-      :`${r.minit} minit daripada sasaran ${sasar} minit${r.bilTiup?` · ${r.bilTiup} perjalanan tiup`:''}${r.bilEmosi?` · ${r.bilEmosi} pelepasan`:''}${r.balon?` · 🎈 balon ${r.balon}/3`:''}${r.belanja?` · 💸 belanja ${r.belanja}/2`:''}${r.solat?` · ${r.solat}/5 solat`:''}${r.makan?` · ${r.makan}/3 majlis makan`:''}.`)
+      :`${r.minit} minit daripada sasaran ${sasar} minit${r.bilTiup?` · ${r.bilTiup} perjalanan tiup`:''}${r.bilEmosi?` · ${r.bilEmosi} pelepasan`:''}${r.balon?` · 🎈 balon ${r.balon}/3`:''}${r.belanja?` · 💸 belanja ${r.belanja}/2`:''}${r.solat?` · ${r.solat}/5 solat`:''}${r.makan?` · ${r.makan}/3 aktiviti makan`:''}.`)
    :`${r.hariAktif}/${r.jumlahHari} hari aktif · ${r.minit} minit · ${r.sesi} sesi${r.sesi?` · ${Math.round(r.siap*100)}% berjaya`:''}${r.solat?` · ${r.solat} solat`:''}`;
   $('chartTajuk').textContent=hari===1?'Minit aktif · 7 hari lepas':hari===7?'Minit aktif · 7 hari':'Minit aktif · 4 minggu';
   lukisGraf(hari===1?7:hari);
